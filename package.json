@@ -4,6 +4,7 @@
   "private": true,
   "description": "Interactive UX/UI Prototype & Investor Pitch Suite for Tele-ICT School Management System",
   "scripts": {
+    "build": "echo 'Static assets ready for deployment'",
     "dev": "node server.js",
     "start": "node server.js"
   }
