@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="uploads/school_favicons/default_school_favicon.svg"
+    />
+
+    <!-- Fonts & Icon Packs -->
+    <link rel="stylesheet" href="fonts/feather/feather.css" />
+    <link rel="stylesheet" href="libs/bootstrap-icons/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="libs/simplebar/dist/simplebar.min.css" />
+
+    <!-- Base Bootstrap / Theme + Minimalist Design System -->
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/custom-demo.css" />
+
+    <title>Tele-ICT School Management System</title>
+  </head>
+
+  <body>
+    <div class="min-shell" id="db-wrapper">
+      <!-- ==================================================================== -->
+      <!-- MINIMALIST LEFT SIDEBAR                                              -->
+      <!-- ==================================================================== -->
+      <aside class="min-sidebar no-print">
+        <a class="min-brand" href="#/smnadm/dashboard">
+          <img
+            src="uploads/school_logos/default_school_logo.svg"
+            alt="School Logo"
+          />
+          <div>
+            <div class="min-brand-title" id="sidebarSchoolName">Tele-ICT School</div>
+            <div class="min-brand-sub" id="sidebarSchoolNameKh">សាលាអន្តរជាតិ តេឡេ-អាយស៊ីធី</div>
+          </div>
+        </a>
+
+        <nav class="min-nav-scroll" id="sidebarnav" aria-label="Main Navigation">
+          <div class="min-nav-group">
+            <div class="min-nav-label">Overview</div>
+            <a class="min-nav-link nav-link active" href="#/smnadm/dashboard">
+              <i class="fe fe-grid"></i>
+              <span>Dashboard</span>
+            </a>
+            <a class="min-nav-link nav-link" href="#/smnadm/investor-analytics">
+              <i class="fe fe-trending-up"></i>
+              <span>Investor &amp; TCO</span>
+            </a>
+            <a class="min-nav-link nav-link" href="#/smnadm/ai-insights">
+              <i class="fe fe-activity"></i>
+              <span>AI Retention</span>
+            </a>
+          </div>
+
+          <div class="min-nav-group">
+            <div class="min-nav-label">Core School</div>
+            <a class="min-nav-link nav-link" href="#/smnadm/academic/classes/all" data-group="academic">
+              <i class="fe fe-book-open"></i>
+              <span>Academics</span>
+            </a>
+            <a class="min-nav-link nav-link" href="#/smnadm/students/table" data-group="students">
+              <i class="fe fe-users"></i>
+              <span>Students</span>
+            </a>
+            <a class="min-nav-link nav-link" href="#/smnadm/guardians/table" data-group="guardians">
+              <i class="fe fe-heart"></i>
+              <span>Guardians</span>
+            </a>
+            <a class="min-nav-link nav-link" href="#/smnadm/staffs/table" data-group="staffs">
+              <i class="fe fe-briefcase"></i>
+              <span>Faculty &amp; HR</span>
+            </a>
+            <a class="min-nav-link nav-link" href="#/smnadm/payments/table" data-group="finance">
+              <i class="fe fe-credit-card"></i>
+              <span>Finance</span>
+            </a>
+          </div>
+
+          <div class="min-nav-group mb-0">
+            <div class="min-nav-label">Campus &amp; System</div>
+            <a class="min-nav-link nav-link" href="#/smnadm/operations/mobile-app" data-group="operations">
+              <i class="fe fe-smartphone"></i>
+              <span>Smart Campus</span>
+            </a>
+            <a class="min-nav-link nav-link" href="#/smnadm/announcement/table" data-group="announcements">
+              <i class="fe fe-bell"></i>
+              <span>Announcements</span>
+            </a>
+            <a class="min-nav-link nav-link" href="#/smnadm/settings/school-profile" data-group="settings">
+              <i class="fe fe-sliders"></i>
+              <span>Settings &amp; Access</span>
+            </a>
+          </div>
+        </nav>
+
+        <!-- Calm White-Label Switcher in Sidebar Footer -->
+        <div class="min-sidebar-footer">
+          <label for="pitchPresetSelector">White-Label School Preset</label>
+          <select id="pitchPresetSelector" class="form-select form-select-sm mb-2">
+            <option value="milky-way">Milky Way School (40k / 60 Campuses)</option>
+            <option value="tele-ict">Tele-ICT Academy</option>
+            <option value="mekong-global">Mekong Global School</option>
+            <option value="royal-stem">Royal STEM Academy</option>
+          </select>
+          <div class="d-flex justify-content-between align-items-center pt-1">
+            <button
+              type="button"
+              class="btn btn-link btn-sm text-secondary p-0 text-decoration-none"
+              id="btnSimLoginOtp"
+            >
+              <i class="fe fe-lock me-1"></i>Login / OTP
+            </button>
+            <button
+              type="button"
+              class="btn btn-link btn-sm text-secondary p-0 text-decoration-none"
+              id="btnResetDemoData"
+            >
+              <i class="fe fe-rotate-ccw me-1"></i>Reset Data
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ==================================================================== -->
+      <!-- MAIN VIEWPORT COLUMN                                                 -->
+      <!-- ==================================================================== -->
+      <div class="min-main">
+        <!-- Minimalist Top Header -->
+        <header class="min-topbar no-print">
+          <div class="d-flex align-items-center gap-3">
+            <button
+              type="button"
+              id="navToggleBtn"
+              class="btn btn-sm btn-light border d-lg-none"
+              aria-label="Toggle Menu"
+            >
+              <i class="fe fe-menu"></i>
+            </button>
+
+            <div class="min-search-box d-none d-md-block">
+              <i class="fe fe-search"></i>
+              <input
+                type="search"
+                id="globalQuickSearch"
+                placeholder="Search student, ID, or class..."
+              />
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center gap-3">
+            <!-- 60-Campus Multi-Tenant Scope Selector (3.4.2 / 4.2) -->
+            <div class="d-none d-xl-flex align-items-center gap-1">
+              <select id="topbarCampusSelect" class="form-select form-select-sm rounded-pill bg-light border" style="width: 245px; font-size: 0.78rem;">
+                <option value="ALL">All 60 Campuses (40,000 Students)</option>
+                <option value="C01">Campus #01 · Sen Sok HQ (BT-12M)</option>
+                <option value="C02">Campus #02 · Toul Kork Branch</option>
+                <option value="C03">Campus #03 · Chbar Ampov Branch</option>
+                <option value="C04">Campus #04 · Boeung Keng Kang</option>
+                <option value="C05">Campus #05 · Russey Keo Branch</option>
+                <option value="C06">Campuses #06–#60 · Regional Network</option>
+              </select>
+            </div>
+
+            <!-- Academic Year Switcher -->
+            <div class="d-flex align-items-center gap-1 bg-light border rounded-pill px-2 py-1">
+              <button
+                type="button"
+                class="btn btn-sm btn-link text-secondary p-0 px-1 text-decoration-none"
+                id="btnPrevYear"
+                title="Previous Academic Year"
+              >
+                <i class="fe fe-chevron-left"></i>
+              </button>
+              <span class="small fw-semibold px-2 text-dark" id="headerAcademicYearLabel">
+                2025-2026
+              </span>
+              <button
+                type="button"
+                class="btn btn-sm btn-link text-secondary p-0 px-1 text-decoration-none"
+                id="btnNextYear"
+                title="Next Academic Year"
+              >
+                <i class="fe fe-chevron-right"></i>
+              </button>
+            </div>
+
+            <!-- Notifications -->
+            <button
+              type="button"
+              class="btn btn-sm btn-light border rounded-circle position-relative"
+              style="width: 34px; height: 34px; padding: 0 !important;"
+              onclick="window.navigateTo('/smnadm/notifications')"
+              title="Notifications"
+            >
+              <i class="fe fe-bell"></i>
+            </button>
+
+            <!-- User Profile -->
+            <div
+              class="d-flex align-items-center gap-2 ps-2 border-start"
+              style="cursor: pointer;"
+              onclick="window.openLoginFlowModal('login')"
+              title="Click to preview Login & 2FA OTP flow"
+            >
+              <div
+                class="rounded-circle d-flex align-items-center justify-content-center text-white fw-semibold"
+                style="width: 32px; height: 32px; font-size: 0.75rem; background: var(--brand-primary);"
+              >
+                KA
+              </div>
+              <span class="d-none d-sm-inline small fw-medium text-dark">admin_kimsan</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- Spacious Main View Container -->
+        <main class="min-content" id="appMainView"></main>
+      </div>
+    </div>
+
+    <!-- ====================================================================== -->
+    <!-- REUSABLE DYNAMIC MODAL (#smsDynamicModal)                              -->
+    <!-- ====================================================================== -->
+    <div
+      class="modal fade"
+      id="smsDynamicModal"
+      tabindex="-1"
+      aria-labelledby="smsDynamicModalTitle"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-header border-bottom px-4 py-3">
+            <h5 class="modal-title fw-semibold" id="smsDynamicModalTitle">Modal</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body p-4" id="smsDynamicModalBody"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================== -->
+    <!-- TOAST CONTAINER (#smsToastContainer)                                   -->
+    <!-- ====================================================================== -->
+    <div
+      id="smsToastContainer"
+      class="toast-container position-fixed bottom-0 end-0 p-4 no-print"
+      style="z-index: 1090;"
+    ></div>
+
+    <!-- Scripts -->
+    <script src="libs/@popperjs/core/dist/umd/popper.min.js"></script>
+    <script src="libs/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="libs/simplebar/dist/simplebar.min.js"></script>
+
+    <script src="js/mock-data.js"></script>
+    <script src="js/views-rfp-bill24.js"></script>
+    <script src="js/views-core.js"></script>
+    <script src="js/views-people-finance.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

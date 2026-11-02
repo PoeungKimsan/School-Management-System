@@ -1,0 +1,11 @@
+{
+  "name": "tele-ict-school-management-system-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interactive UX/UI Prototype & Investor Pitch Suite for Tele-ICT School Management System",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  }
+}
+

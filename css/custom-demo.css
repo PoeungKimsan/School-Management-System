@@ -1,0 +1,662 @@
+/**
+ * Minimalist Design System for Tele-ICT School Management System
+ * Aesthetic: Clean, airy, generous whitespace, subtle 1px borders, calm typography,
+ * soft status pills, and dynamic White-Label CSS Custom Properties.
+ */
+
+:root {
+  --brand-primary: #2E3192;
+  --brand-primary-hover: #232675;
+  --brand-primary-light: #f0f2ff;
+
+  --surface-bg: #f9fafb;
+  --surface-card: #ffffff;
+  --surface-subtle: #f3f4f6;
+  --border-subtle: #eaecf0;
+  --border-strong: #d0d5dd;
+
+  --text-main: #101828;
+  --text-secondary: #475467;
+  --text-muted: #667085;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-sm: 0 2px 8px rgba(16, 24, 40, 0.05);
+  --shadow-md: 0 8px 24px rgba(16, 24, 40, 0.08);
+}
+
+/* Base Reset & Typography */
+body {
+  background-color: var(--surface-bg) !important;
+  color: var(--text-main) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, "Noto Sans Khmer", sans-serif !important;
+  font-size: 0.925rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+  font-weight: 600 !important;
+}
+
+/* ============================================================================
+   1. MINIMALIST APP SHELL LAYOUT (Sidebar + Main Viewport)
+   ============================================================================ */
+.min-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--surface-bg);
+}
+
+/* Left Sidebar */
+.min-sidebar {
+  width: 256px;
+  flex-shrink: 0;
+  background: var(--surface-card);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 1020;
+  transition: transform 0.2s ease;
+}
+
+.min-brand {
+  padding: 24px 20px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.min-brand img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.min-brand-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.25;
+}
+
+.min-brand-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.min-nav-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 14px;
+}
+
+.min-nav-group {
+  margin-bottom: 24px;
+}
+
+.min-nav-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding: 0 12px;
+  margin-bottom: 6px;
+}
+
+.min-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  margin-bottom: 2px;
+}
+
+.min-nav-link i {
+  font-size: 1rem;
+  color: var(--text-muted);
+  transition: color 0.15s ease;
+}
+
+.min-nav-link:hover {
+  background: var(--surface-subtle);
+  color: var(--text-main);
+}
+
+.min-nav-link.active {
+  background: var(--brand-primary-light);
+  color: var(--brand-primary);
+  font-weight: 600;
+}
+
+.min-nav-link.active i {
+  color: var(--brand-primary);
+}
+
+/* Sidebar Footer: Subtle White-Label Switcher */
+.min-sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid var(--border-subtle);
+  background: #fcfcfd;
+}
+
+.min-sidebar-footer label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+/* Main Workspace Column */
+.min-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top Bar */
+.min-topbar {
+  height: 64px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 1010;
+}
+
+.min-search-box {
+  position: relative;
+  width: 320px;
+}
+
+.min-search-box i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.min-search-box input {
+  width: 100%;
+  padding: 7px 14px 7px 34px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-bg);
+  font-size: 0.85rem;
+  color: var(--text-main);
+  transition: all 0.15s ease;
+}
+
+.min-search-box input:focus {
+  outline: none;
+  background: #ffffff;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px var(--brand-primary-light);
+}
+
+/* Main Content Container with Generous Whitespace */
+.min-content {
+  max-width: 1320px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 36px 36px 64px;
+}
+
+@media (max-width: 991.98px) {
+  .min-sidebar {
+    position: fixed;
+    left: 0;
+    transform: translateX(-100%);
+  }
+  .min-shell.sidebar-open .min-sidebar {
+    transform: translateX(0);
+    box-shadow: var(--shadow-md);
+  }
+  .min-topbar {
+    padding: 0 20px;
+  }
+  .min-content {
+    padding: 24px 20px 48px;
+  }
+}
+
+/* ============================================================================
+   2. MINIMALIST PAGE HEADERS, PILLS & CARDS
+   ============================================================================ */
+.min-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.min-page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0 0 4px 0;
+  letter-spacing: -0.025em;
+}
+
+.min-page-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Sub-navigation Pill Bar (Consolidates sub-modules cleanly) */
+.min-subnav {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  background: #eef1f5;
+  padding: 4px;
+  border-radius: 10px;
+  margin-bottom: 28px;
+}
+
+.min-subnav-link {
+  padding: 6px 14px;
+  border-radius: 7px;
+  font-size: 0.825rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all 0.15s ease;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.min-subnav-link:hover {
+  color: var(--text-main);
+}
+
+.min-subnav-link.active {
+  background: #ffffff;
+  color: var(--text-main);
+  font-weight: 600;
+  box-shadow: var(--shadow-xs);
+}
+
+/* Cards */
+.card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-xs) !important;
+}
+
+.card-header {
+  background: transparent !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  padding: 20px 24px !important;
+}
+
+.card-body {
+  padding: 24px !important;
+}
+
+.card-body.p-0 {
+  padding: 0 !important;
+}
+
+/* Minimalist Metric Strip Cards */
+.min-stat-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+  height: 100%;
+}
+
+.min-stat-card:hover {
+  border-color: var(--border-strong);
+}
+
+.min-stat-label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.min-stat-value {
+  font-size: 1.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+
+.min-stat-meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* ============================================================================
+   3. REFINED TABLES (Modern Web Guidance: responsive-table)
+   ============================================================================ */
+.table-wrapper {
+  overflow: auto;
+  max-inline-size: 100%;
+  max-block-size: min(620px, 78vh);
+  container-type: inline-size;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.table-wrapper:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: -2px;
+}
+
+.table {
+  margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table thead th {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 2;
+  background-color: #fcfcfd !important;
+  color: var(--text-muted) !important;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 13px 20px !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  border-top: none !important;
+}
+
+.table tbody td {
+  padding: 16px 20px !important;
+  vertical-align: middle;
+  color: var(--text-secondary);
+  border-bottom: 1px solid #f2f4f7 !important;
+  font-size: 0.875rem;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+.table-hover tbody tr:hover td {
+  background-color: #f9fafb !important;
+}
+
+/* Minimalist Badges */
+.badge {
+  font-weight: 500 !important;
+  padding: 4px 10px !important;
+  border-radius: 999px !important;
+  font-size: 0.74rem !important;
+  letter-spacing: 0.01em;
+}
+
+.bg-primary-soft {
+  background-color: var(--brand-primary-light) !important;
+  color: var(--brand-primary) !important;
+}
+
+.bg-success-soft {
+  background-color: #ecfdf3 !important;
+  color: #027a48 !important;
+}
+
+.bg-warning-soft {
+  background-color: #fffaeb !important;
+  color: #b54708 !important;
+}
+
+.bg-danger-soft {
+  background-color: #fef3f2 !important;
+  color: #b42318 !important;
+}
+
+.bg-info-soft {
+  background-color: #f0f9ff !important;
+  color: #026aa2 !important;
+}
+
+.bg-secondary-soft {
+  background-color: #f2f4f7 !important;
+  color: #344054 !important;
+}
+
+/* ============================================================================
+   4. BUTTONS, FORMS & VALIDATION (Modern Web Guidance: validate-input-after-interaction)
+   ============================================================================ */
+.btn {
+  border-radius: var(--radius-sm) !important;
+  font-weight: 500 !important;
+  font-size: 0.85rem !important;
+  padding: 8px 15px !important;
+  transition: all 0.15s ease;
+}
+
+.btn-sm {
+  padding: 5px 11px !important;
+  font-size: 0.78rem !important;
+}
+
+.btn-primary {
+  background-color: var(--brand-primary) !important;
+  border-color: var(--brand-primary) !important;
+  color: #ffffff !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--brand-primary-hover) !important;
+  border-color: var(--brand-primary-hover) !important;
+}
+
+.btn-outline-primary {
+  color: var(--brand-primary) !important;
+  border-color: var(--border-strong) !important;
+  background: #ffffff;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--brand-primary-light) !important;
+  border-color: var(--brand-primary) !important;
+  color: var(--brand-primary) !important;
+}
+
+.form-control,
+.form-select {
+  border-radius: var(--radius-sm) !important;
+  border: 1px solid var(--border-strong) !important;
+  padding: 8px 12px !important;
+  font-size: 0.875rem !important;
+  color: var(--text-main) !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--brand-primary) !important;
+  box-shadow: 0 0 0 3px var(--brand-primary-light) !important;
+}
+
+.field-hint {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+input:user-invalid,
+select:user-invalid,
+textarea:user-invalid {
+  border-color: #d92d20 !important;
+  background-color: #fffbfa;
+}
+
+input:user-valid,
+select:user-valid,
+textarea:user-valid {
+  border-color: #12b76a;
+}
+
+/* ============================================================================
+   5. SCHEDULE TABLE, POSITION CARDS & MOBILE SIMULATOR FRAME
+   ============================================================================ */
+.schedule-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.schedule-table th,
+.schedule-table td {
+  border-bottom: 1px solid var(--border-subtle);
+  border-right: 1px solid var(--border-subtle);
+  padding: 14px 12px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.schedule-table th:first-child,
+.schedule-table td:first-child {
+  border-left: 1px solid var(--border-subtle);
+}
+
+.schedule-table thead th {
+  border-top: 1px solid var(--border-subtle);
+  background-color: #fcfcfd;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.schedule-table .break-time td {
+  background-color: #f9fafb;
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 0.8rem;
+  padding: 10px;
+}
+
+.position-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  transition: border-color 0.15s ease;
+}
+
+.position-card:hover {
+  border-color: var(--brand-primary);
+}
+
+.type-card {
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* Minimalist Mobile Super-App Device Frame */
+.mobile-phone-frame {
+  width: 340px;
+  max-width: 100%;
+  margin: 0 auto;
+  border: 10px solid #101828;
+  border-radius: 40px;
+  background: #ffffff;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  position: relative;
+}
+
+.mobile-phone-notch {
+  width: 100px;
+  height: 18px;
+  background: #101828;
+  border-radius: 0 0 12px 12px;
+  margin: 0 auto;
+}
+
+/* Nav Tabs override for clean minimalist underline */
+.nav-lb-tab {
+  border-bottom: 1px solid var(--border-subtle) !important;
+  gap: 20px;
+}
+
+.nav-lb-tab .nav-link {
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  padding: 12px 4px !important;
+  color: var(--text-muted) !important;
+  font-weight: 500 !important;
+  font-size: 0.875rem !important;
+  background: transparent !important;
+}
+
+.nav-lb-tab .nav-link:hover {
+  color: var(--text-main) !important;
+}
+
+.nav-lb-tab .nav-link.active {
+  color: var(--brand-primary) !important;
+  border-bottom-color: var(--brand-primary) !important;
+  font-weight: 600 !important;
+}
+
+/* Print Styles */
+@media print {
+  .min-sidebar,
+  .min-topbar,
+  .min-subnav,
+  .no-print {
+    display: none !important;
+  }
+  .min-content {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+  .card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
