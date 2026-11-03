@@ -5,8 +5,11 @@
   "description": "Interactive UX/UI Prototype & Investor Pitch Suite for Tele-ICT School Management System",
   "scripts": {
     "build": "echo 'Static assets ready for deployment'",
+    "deploy": "wrangler deploy",
     "dev": "node server.js",
     "start": "node server.js"
+  },
+  "devDependencies": {
+    "wrangler": "^4.86.0"
   }
 }
-
