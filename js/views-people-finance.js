@@ -80,22 +80,25 @@
     let activeTab = "registered";
     let searchQ = "";
     let progFilter = "ALL";
+    let campusFilter = st.activeCampusId || "ALL";
     let selectedWaitlistIds = new Set();
 
     const draw = () => {
+      const scopedStudents = st.students.filter((s) => campusFilter === "ALL" || s.campusId === campusFilter);
       const counts = {
-        registered: st.students.filter((s) => s.tab === "registered").length,
-        applications: st.students.filter((s) => s.tab === "applications").length,
-        waitlists: st.students.filter((s) => s.tab === "waitlists").length,
+        registered: scopedStudents.filter((s) => s.tab === "registered").length,
+        applications: scopedStudents.filter((s) => s.tab === "applications").length,
+        waitlists: scopedStudents.filter((s) => s.tab === "waitlists").length,
       };
 
-      const rows = st.students.filter((s) => {
+      const rows = scopedStudents.filter((s) => {
         if (s.tab !== activeTab) return false;
         const matchQ =
           !searchQ ||
           s.full_name_en.toLowerCase().includes(searchQ) ||
           s.full_name_kh.toLowerCase().includes(searchQ) ||
           s.student_card_id.toLowerCase().includes(searchQ) ||
+          (s.father?.nameEn || "").toLowerCase().includes(searchQ) ||
           (s.phone || "").toLowerCase().includes(searchQ);
         const matchProg =
           progFilter === "ALL" ||
@@ -139,13 +142,23 @@
           </div>
 
           <div class="d-flex flex-wrap gap-2">
-            <input type="search" id="stuSearch" class="form-control" style="width: 240px;" placeholder="Search name or ID..." value="${esc(searchQ)}">
-            <select id="stuProgFilter" class="form-select" style="width: 220px;">
+            <input type="search" id="stuSearch" class="form-control" style="width: 220px;" placeholder="Search name, ID, parent..." value="${esc(searchQ)}">
+            <select id="stuProgFilter" class="form-select" style="width: 180px;">
               <option value="ALL">All Programs</option>
               ${st.programs
                 .map(
                   (p) =>
                     `<option value="${p.id}" ${Number(progFilter) === p.id ? "selected" : ""}>${esc(p.nameEn)}</option>`
+                )
+                .join("")}
+            </select>
+            <select id="stuCampusFilter" class="form-select" style="width: 210px;">
+              <option value="ALL" ${campusFilter === "ALL" ? "selected" : ""}>All Campuses</option>
+              ${(st.campusDirectory || [])
+                .filter(c => c.id !== "C06")
+                .map(
+                  (c) =>
+                    `<option value="${c.id}" ${campusFilter === c.id ? "selected" : ""}>${esc(c.shortName)}</option>`
                 )
                 .join("")}
             </select>
@@ -161,7 +174,8 @@
                     ${activeTab === "waitlists" ? '<th style="width:42px;"><input type="checkbox" class="form-check-input" id="chkAllWaitlist"></th>' : ""}
                     <th>Student</th>
                     <th>ID</th>
-                    <th>Class &amp; Program</th>
+                    <th>Class &amp; Campus</th>
+                    <th>Parent / Guardian &amp; Phone</th>
                     <th>Tuition</th>
                     <th>Portal</th>
                     <th class="text-end">Action</th>
@@ -187,10 +201,14 @@
                                   <div class="fw-semibold text-dark">${esc(s.full_name_en)}</div>
                                   <div class="text-muted small">${esc(s.full_name_kh)} · ${esc(s.gender)}</div>
                                 </td>
-                                <td class="text-muted">${esc(s.student_card_id)}</td>
+                                <td class="text-muted font-monospace small">${esc(s.student_card_id)}</td>
                                 <td>
-                                  <div class="text-dark">${esc(prog.class?.name_en || s.applying_for || "Unassigned")}</div>
-                                  <div class="text-muted small">${esc(prog.program?.name_en || "-")}</div>
+                                  <div class="text-dark fw-medium">${esc(prog.class?.name_en || s.applying_for || "Unassigned")}</div>
+                                  <div class="text-muted small"><span class="badge bg-light text-secondary border me-1">${esc(s.campusId || "C01")}</span>${esc(prog.program?.name_en || "-")}</div>
+                                </td>
+                                <td>
+                                  <div class="text-dark fw-medium">${esc(s.father?.nameEn || s.mother?.nameEn || "Guardian")}</div>
+                                  <div class="text-muted small"><i class="fe fe-phone me-1"></i>${esc(s.father?.phone || s.phone || "-")}</div>
                                 </td>
                                 <td>
                                   <span class="badge ${prog.payment_status === "Paid" ? "bg-success-soft" : "bg-danger-soft"}">
@@ -245,6 +263,11 @@
       });
       document.getElementById("stuProgFilter")?.addEventListener("change", (e) => {
         progFilter = e.target.value;
+        draw();
+      });
+      document.getElementById("stuCampusFilter")?.addEventListener("change", (e) => {
+        campusFilter = e.target.value;
+        window.setActiveCampus(campusFilter);
         draw();
       });
 
@@ -1163,14 +1186,18 @@
   function renderGuardiansTable(container) {
     const st = window.SMS_STATE;
     let searchQ = "";
+    let campusFilter = st.activeCampusId || "ALL";
+
     const draw = () => {
-      const list = st.guardians.filter(
-        (g) =>
+      const list = st.guardians.filter((g) => {
+        const matchCampus = campusFilter === "ALL" || g.campusId === campusFilter;
+        const matchQ =
           !searchQ ||
           g.nameEn.toLowerCase().includes(searchQ) ||
           g.nameKh.toLowerCase().includes(searchQ) ||
-          g.phone.toLowerCase().includes(searchQ)
-      );
+          g.phone.toLowerCase().includes(searchQ);
+        return matchCampus && matchQ;
+      });
       container.innerHTML = `
         <div class="min-page-header">
           <div>
@@ -1180,8 +1207,15 @@
           <button class="btn btn-primary" id="btnAddGuardian">+ New Guardian</button>
         </div>
         <div class="card">
-          <div class="card-header">
-            <input type="search" id="guardSearch" class="form-control" style="max-width:320px;" placeholder="Search guardian name or phone..." value="${esc(searchQ)}">
+          <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <input type="search" id="guardSearch" class="form-control" style="max-width:280px;" placeholder="Search guardian name or phone..." value="${esc(searchQ)}">
+            <select id="guardCampusFilter" class="form-select" style="max-width:220px;">
+              <option value="ALL" ${campusFilter === "ALL" ? "selected" : ""}>All Campuses</option>
+              ${(st.campusDirectory || [])
+                .filter(c => c.id !== "C06")
+                .map((c) => `<option value="${c.id}" ${campusFilter === c.id ? "selected" : ""}>${esc(c.shortName)}</option>`)
+                .join("")}
+            </select>
           </div>
           <div class="card-body p-0">
             <div tabindex="0" role="region" aria-label="Guardians table" class="table-wrapper table-responsive">
@@ -1229,6 +1263,11 @@
       `;
       document.getElementById("guardSearch")?.addEventListener("input", (e) => {
         searchQ = e.target.value.trim().toLowerCase();
+        draw();
+      });
+      document.getElementById("guardCampusFilter")?.addEventListener("change", (e) => {
+        campusFilter = e.target.value;
+        window.setActiveCampus(campusFilter);
         draw();
       });
       document.getElementById("btnAddGuardian")?.addEventListener("click", () => {
@@ -1619,8 +1658,14 @@
   function renderInvoicesTable(container) {
     const st = window.SMS_STATE;
     let statusFilter = "ALL";
+    let campusFilter = st.activeCampusId || "ALL";
+
     const draw = () => {
-      const list = st.invoices.filter((i) => statusFilter === "ALL" || i.status === statusFilter);
+      const list = st.invoices.filter((i) => {
+        const matchStatus = statusFilter === "ALL" || i.status === statusFilter;
+        const matchCampus = campusFilter === "ALL" || i.campusId === campusFilter;
+        return matchStatus && matchCampus;
+      });
       container.innerHTML = `
         ${renderFinanceSubnav("invoices")}
         <div class="min-page-header">
@@ -1631,12 +1676,19 @@
           <button class="btn btn-primary" id="btnNewInvoiceModal">+ Create Invoice</button>
         </div>
 
-        <div class="mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
           <div class="min-subnav mb-0">
             <button type="button" class="min-subnav-link ${statusFilter === "ALL" ? "active" : ""}" data-ist="ALL">All (${st.invoices.length})</button>
             <button type="button" class="min-subnav-link ${statusFilter === "Paid" ? "active" : ""}" data-ist="Paid">Paid (${st.invoices.filter((i) => i.status === "Paid").length})</button>
             <button type="button" class="min-subnav-link ${statusFilter === "Unpaid" ? "active" : ""}" data-ist="Unpaid">Unpaid (${st.invoices.filter((i) => i.status !== "Paid").length})</button>
           </div>
+          <select id="invCampusFilter" class="form-select" style="max-width:220px;">
+            <option value="ALL" ${campusFilter === "ALL" ? "selected" : ""}>All Campuses</option>
+            ${(st.campusDirectory || [])
+              .filter(c => c.id !== "C06")
+              .map((c) => `<option value="${c.id}" ${campusFilter === c.id ? "selected" : ""}>${esc(c.shortName)}</option>`)
+              .join("")}
+          </select>
         </div>
 
         <div class="card">
@@ -1690,6 +1742,11 @@
           statusFilter = btn.dataset.ist;
           draw();
         });
+      });
+      document.getElementById("invCampusFilter")?.addEventListener("change", (e) => {
+        campusFilter = e.target.value;
+        window.setActiveCampus(campusFilter);
+        draw();
       });
 
       document.getElementById("btnNewInvoiceModal")?.addEventListener("click", () => {
@@ -2585,14 +2642,14 @@
           title: "Urgent All-Campus Alert: Afternoon Dismissal & Weather Advisory",
           titleKh: "សេចក្តីជូនដំណឹងបន្ទាន់៖ ការចេញពីរៀន និងការប្រុងប្រយ័ត្នអាកាសធាតុ",
           category: "Emergency SMS + App Push (3.2.4)",
-          targetAudience: "40,000 Students · 60 Campuses",
+          targetAudience: "3,745 Students · 5 Campuses",
           status: "Published",
           publishDate: "Just now",
           author: st.currentUser.displayName,
-          content: "Dispatched simultaneously via Local SMS Gateway and iOS/Android Push Notifications to all 40,000 student guardians across 60 Milky Way School campuses.",
+          content: "Dispatched simultaneously via Local SMS Gateway and iOS/Android Push Notifications to all 3,745 student guardians across 5 Milky Way School campuses.",
         });
         window.saveSmsState();
-        window.showToast("Broadcast dispatched via SMS Gateway + Mobile App Push to 40,000 guardians (3.2.4).", "success");
+        window.showToast("Broadcast dispatched via SMS Gateway + Mobile App Push to 3,745 guardians across 5 campuses.", "success");
         draw();
       });
 

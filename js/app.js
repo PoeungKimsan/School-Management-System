@@ -227,14 +227,7 @@
 
   function resolveSidebarGroup(path) {
     if (path === "/" || path === "/smnadm/dashboard") return "/smnadm/dashboard";
-    if (
-      path === "/smnadm/investor-analytics" ||
-      path === "/smnadm/commercial/tco" ||
-      path === "/smnadm/implementation/rollout"
-    ) {
-      return "/smnadm/investor-analytics";
-    }
-    if (path === "/smnadm/ai-insights") return "/smnadm/ai-insights";
+    if (path === "/smnadm/campus-dashboard") return "/smnadm/campus-dashboard";
     if (
       path.startsWith("/smnadm/academic") ||
       path.startsWith("/smnadm/programs") ||
@@ -258,7 +251,7 @@
       return "/smnadm/payments/table";
     }
     if (path.startsWith("/smnadm/operations")) {
-      return "/smnadm/operations/mobile-app";
+      return "/smnadm/campus-dashboard";
     }
     if (path.startsWith("/smnadm/announcement") || path.startsWith("/smnadm/notifications")) {
       return "/smnadm/announcement/table";
@@ -295,12 +288,23 @@
     if (!container) return;
 
     updateSidebarActiveLink(path);
+
+    // Hide topbar campus dropdown on the two dashboard pages; show on Core School pages
+    const isDashboardPage = path === "/" || path === "/smnadm/dashboard" || path === "/smnadm/campus-dashboard";
+    const topbarCampusEl = document.getElementById("topbarCampusSelect");
+    if (topbarCampusEl) {
+      topbarCampusEl.classList.toggle("d-none", isDashboardPage);
+      topbarCampusEl.style.display = isDashboardPage ? "none" : "";
+    }
+
     const C = window.SMS_VIEWS_CORE;
     const E = window.SMS_VIEWS_EXT;
     const R = window.SMS_VIEWS_RFP;
 
     if (path === "/" || path === "/smnadm/dashboard") {
       C.renderDashboard(container);
+    } else if (path === "/smnadm/campus-dashboard") {
+      C.renderCampusDashboard(container);
     } else if (path === "/smnadm/investor-analytics") {
       C.renderInvestorAnalytics(container);
     } else if (path === "/smnadm/ai-insights") {
@@ -402,10 +406,32 @@
       switchSchoolPreset(e.target.value);
     });
 
-    document.getElementById("topbarCampusSelect")?.addEventListener("change", (e) => {
-      const label = e.target.options[e.target.selectedIndex]?.text || "All 60 Campuses";
-      showToast(`RLS Tenant Scope: ${label}`, "info");
-    });
+    const campusSelect = document.getElementById("topbarCampusSelect");
+    if (campusSelect) {
+      if (window.SMS_STATE?.activeCampusId) {
+        campusSelect.value = window.SMS_STATE.activeCampusId;
+      }
+      campusSelect.addEventListener("change", (e) => {
+        const val = e.target.value;
+        const label = e.target.options[e.target.selectedIndex]?.text || "All Campuses";
+        window.setActiveCampus(val);
+        const curHash = window.location.hash || "#/smnadm/dashboard";
+        if (val === "ALL") {
+          if (curHash.includes("/smnadm/campus-dashboard")) {
+            navigateTo("/smnadm/dashboard");
+          } else {
+            handleRoute();
+          }
+        } else {
+          if (curHash.includes("/smnadm/dashboard") && !curHash.includes("/smnadm/campus-dashboard")) {
+            navigateTo("/smnadm/campus-dashboard");
+          } else {
+            handleRoute();
+          }
+        }
+        showToast(`Campus Scope: ${label}`, "info");
+      });
+    }
 
     document.getElementById("btnResetDemoData")?.addEventListener("click", () => {
       window.resetSmsState();
@@ -475,6 +501,16 @@
     handleRoute();
   }
 
+  function openCampusDashboard(campusId) {
+    if (campusId && campusId !== "ALL") {
+      window.setActiveCampus(campusId);
+    } else {
+      window.setActiveCampus("C01");
+    }
+    navigateTo("/smnadm/campus-dashboard");
+  }
+
+  window.openCampusDashboard = openCampusDashboard;
   window.navigateTo = navigateTo;
   window.showToast = showToast;
   window.openDynamicModal = openDynamicModal;

@@ -42,11 +42,8 @@
   // Shared Minimalist Sub-Navigation Pill Bar for Academic Section
   const renderAcademicSubnav = (activeKey) => {
     const items = [
-      { key: "classes", label: "Classes", path: "/smnadm/academic/classes/all" },
+      { key: "classes", label: "Classes & Rosters", path: "/smnadm/academic/classes/all" },
       { key: "scheduler", label: "Master Scheduler", path: "/smnadm/academic/scheduler" },
-      { key: "lms", label: "Google Classroom", path: "/smnadm/lms/google-classroom" },
-      { key: "optional", label: "Learning & Library", path: "/smnadm/optional/modules" },
-      { key: "moeys", label: "MoEYS & Reports", path: "/smnadm/reports/moeys" },
       { key: "programs", label: "Programs", path: "/smnadm/programs/table" },
       { key: "grades", label: "Grades", path: "/smnadm/grades/table" },
       { key: "subjects", label: "Subjects", path: "/smnadm/academic/subjects" },
@@ -69,94 +66,208 @@
   };
 
   // ============================================================================
-  // 1. MINIMALIST EXECUTIVE DASHBOARD (/smnadm/dashboard)
+  // 1. COMPANY OVERVIEW DASHBOARD (/smnadm/dashboard)
   // ============================================================================
   function renderDashboard(container) {
     const st = window.SMS_STATE;
     const yr = getCurrentYearObj();
-    const appStudents = st.students.filter((s) => s.tab === "applications");
-    const waitStudents = st.students.filter((s) => s.tab === "waitlists");
+    const campuses = (st.campusDirectory || []).filter((c) => c.id !== "C06");
 
-    const paidInvoices = st.invoices.filter((i) => i.status === "Paid");
-    const unpaidInvoices = st.invoices.filter((i) => i.status !== "Paid");
-    const collectedRev = paidInvoices.reduce((a, b) => a + calcInvoiceTotal(b), 0);
-    const pendingRev = unpaidInvoices.reduce((a, b) => a + calcInvoiceTotal(b), 0);
+    const totalStudentsNetwork = campuses.reduce((a, c) => a + (c.totalStudents || 0), 0);
+    const totalCapacityAll = campuses.reduce((a, c) => a + (c.capacity || 0), 0);
+    const avgUtilization = totalCapacityAll ? Math.round((totalStudentsNetwork / totalCapacityAll) * 100) : 92;
+
+    const totalStaffNetwork = campuses.reduce((a, c) => a + (c.totalStaff || 0), 0);
+    const totalTeachersNetwork = campuses.reduce((a, c) => a + (c.totalTeachers || 0), 0);
+    const studentTeacherRatio = totalTeachersNetwork ? Math.round(totalStudentsNetwork / totalTeachersNetwork) : 21;
+
+    const totalCollectedRevenue = campuses.reduce((a, c) => a + (c.tuitionCollectedUsd || 0), 0);
+    const totalPendingRevenue = campuses.reduce((a, c) => a + (c.tuitionPendingUsd || 0), 0);
+    const totalBilledRevenue = totalCollectedRevenue + totalPendingRevenue;
+    const collectionRate = totalBilledRevenue ? ((totalCollectedRevenue / totalBilledRevenue) * 100).toFixed(1) : "95.8";
+
+    const activeClassesNetwork = campuses.reduce((a, c) => a + (c.activeClassesCount || 0), 0);
+
+    const totalWeightedAttendance = campuses.reduce(
+      (a, c) => a + (c.totalStudents || 0) * (c.attendanceRate || 95),
+      0
+    );
+    const avgAttendanceRate = totalStudentsNetwork
+      ? (totalWeightedAttendance / totalStudentsNetwork).toFixed(1)
+      : "96.6";
+    const presentStudents = Math.round((Number(avgAttendanceRate) / 100) * totalStudentsNetwork);
 
     const totalEnrolledAcrossPrograms = st.programs.reduce((a, p) => a + (Number(p.totalStudents) || 0), 0);
-    const activeClasses = st.classes.filter((c) => c.status === "ongoing").length;
-    const rfp = st.rfpBaseline || { totalStudents: 40000, totalStaff: 2000, totalCampuses: 60 };
+
+    // Compute "Needs Attention" items from campusDirectory
+    const lowestCollectionCampus = [...campuses].sort((a, b) => a.collectionRate - b.collectionRate)[0];
+    const highestUtilCampus = [...campuses].sort(
+      (a, b) => b.totalStudents / b.capacity - a.totalStudents / a.capacity
+    )[0];
+    const highestUtilPct = highestUtilCampus
+      ? Math.round((highestUtilCampus.totalStudents / highestUtilCampus.capacity) * 100)
+      : 0;
+    const lowestAttCampus = [...campuses].sort((a, b) => a.attendanceRate - b.attendanceRate)[0];
+
+    const attentionItems = [
+      lowestCollectionCampus && {
+        campusId: lowestCollectionCampus.id,
+        title: `${lowestCollectionCampus.shortName}: lowest collection rate (${lowestCollectionCampus.collectionRate}%)`,
+        detail: `$${Math.round((lowestCollectionCampus.tuitionPendingUsd || 0) / 1000)}K outstanding tuition balance`,
+      },
+      highestUtilCampus && {
+        campusId: highestUtilCampus.id,
+        title: `${highestUtilCampus.shortName}: ${highestUtilPct}% of capacity filled`,
+        detail: `${highestUtilCampus.totalStudents.toLocaleString()} of ${highestUtilCampus.capacity.toLocaleString()} seats occupied (${highestUtilCampus.capacity - highestUtilCampus.totalStudents} remaining)`,
+      },
+      lowestAttCampus && {
+        campusId: lowestAttCampus.id,
+        title: `${lowestAttCampus.shortName}: lowest attendance today (${lowestAttCampus.attendanceRate}%)`,
+        detail: `Below the ${avgAttendanceRate}% company average`,
+      },
+    ].filter(Boolean);
 
     container.innerHTML = `
       <div class="min-page-header">
         <div>
-          <h1 class="min-page-title">${esc(st.schoolProfile.nameEn)}</h1>
-          <p class="min-page-subtitle">${esc(st.schoolProfile.nameKh)} · Academic Year ${esc(yr.name)} · ${rfp.totalCampuses} Campuses</p>
-        </div>
-        <div class="d-flex flex-wrap gap-2">
-          <button class="btn btn-outline-primary" onclick="window.navigateTo('/smnadm/commercial/tco')">
-            5-Year TCO &amp; SLA
-          </button>
-          <button class="btn btn-primary" onclick="window.navigateTo('/smnadm/students/pre-register/student_info/add-new')">
-            + Enroll Student
-          </button>
+          <h1 class="min-page-title mb-1">Company Overview</h1>
+          <p class="min-page-subtitle">${esc(st.schoolProfile.nameEn)} · ${esc(st.schoolProfile.nameKh)} · Academic Year ${esc(yr.name)}</p>
         </div>
       </div>
 
-      <!-- Calm 4-Metric Strip -->
+      <!-- 4-Card Executive KPI Strip (No badges, no arrows) -->
       <div class="row g-4 mb-5">
         <div class="col-xl-3 col-md-6">
-          <div class="min-stat-card" style="cursor:pointer" onclick="window.navigateTo('/smnadm/students/table')">
+          <div class="min-stat-card is-link" onclick="window.navigateTo('/smnadm/students/table')">
             <div class="min-stat-label">
-              <span>Total Students</span>
-              <span class="badge bg-success-soft">${rfp.totalCampuses} Campuses</span>
+              <span>Students</span>
             </div>
-            <div class="min-stat-value">${rfp.totalStudents.toLocaleString()}</div>
-            <div class="min-stat-meta">${totalEnrolledAcrossPrograms.toLocaleString()} in sample cohort · ${appStudents.length} applicants</div>
+            <div class="min-stat-value">${totalStudentsNetwork.toLocaleString()}</div>
+            <div class="min-stat-meta">${avgUtilization}% of ${totalCapacityAll.toLocaleString()} seats filled</div>
           </div>
         </div>
 
         <div class="col-xl-3 col-md-6">
-          <div class="min-stat-card" style="cursor:pointer" onclick="window.navigateTo('/smnadm/academic/scheduler')">
+          <div class="min-stat-card is-link" onclick="window.navigateTo('/smnadm/staffs/table')">
             <div class="min-stat-label">
-              <span>Faculty &amp; Classes</span>
-              <span class="badge bg-primary-soft">${activeClasses} Ongoing</span>
+              <span>Staff</span>
             </div>
-            <div class="min-stat-value">${rfp.totalStaff.toLocaleString()}</div>
-            <div class="min-stat-meta">Master scheduler &amp; substitute coverage →</div>
+            <div class="min-stat-value">${totalStaffNetwork.toLocaleString()}</div>
+            <div class="min-stat-meta">${totalTeachersNetwork} teachers · ${studentTeacherRatio} students per teacher</div>
           </div>
         </div>
 
         <div class="col-xl-3 col-md-6">
-          <div class="min-stat-card" style="cursor:pointer" onclick="window.navigateTo('/smnadm/payments/table')">
+          <div class="min-stat-card is-link" onclick="window.navigateTo('/smnadm/payments/table')">
             <div class="min-stat-label">
-              <span>Tuition &amp; Billing</span>
-              <span class="badge bg-success-soft">ABA &amp; KHQR</span>
+              <span>Tuition Collected</span>
             </div>
-            <div class="min-stat-value">${fmtMoney(collectedRev)}</div>
-            <div class="min-stat-meta">${fmtMoney(pendingRev)} pending across ${unpaidInvoices.length} invoices</div>
+            <div class="min-stat-value">$${(totalCollectedRevenue / 1000000).toFixed(2)}M</div>
+            <div class="min-stat-meta">${collectionRate}% collected · $${(totalPendingRevenue / 1000).toFixed(0)}K outstanding</div>
           </div>
         </div>
 
         <div class="col-xl-3 col-md-6">
-          <div class="min-stat-card" style="cursor:pointer" onclick="window.navigateTo('/smnadm/lms/google-classroom')">
+          <div class="min-stat-card">
             <div class="min-stat-label">
-              <span>Google Classroom</span>
-              <span class="badge bg-info-soft">Live Sync</span>
+              <span>Attendance Today</span>
             </div>
-            <div class="min-stat-value">99.9% SLA</div>
-            <div class="min-stat-meta">OneRoster &amp; live grade pass-back →</div>
+            <div class="min-stat-value">${avgAttendanceRate}%</div>
+            <div class="min-stat-meta">${presentStudents.toLocaleString()} of ${totalStudentsNetwork.toLocaleString()} students present</div>
           </div>
         </div>
       </div>
 
-      <!-- Two-Column Balanced Workspace -->
-      <div class="row g-4 mb-5">
+      <!-- Campuses Comparison Table -->
+      <div class="card mb-5">
+        <div class="card-header">
+          <h5 class="mb-0">Campuses</h5>
+        </div>
+        <div class="card-body p-0">
+          <div tabindex="0" role="region" aria-label="Campuses performance table" class="table-wrapper table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Campus</th>
+                  <th>Principal</th>
+                  <th style="min-width: 170px;">Enrollment</th>
+                  <th>Classes</th>
+                  <th>Staff</th>
+                  <th>Collection</th>
+                  <th>Attendance</th>
+                  <th class="text-end" aria-label="Open campus"></th>
+                </tr>
+              </thead>
+              <tbody>
+                ${campuses
+                  .map((c) => {
+                    const pct = c.capacity ? Math.round((c.totalStudents / c.capacity) * 100) : 90;
+                    const lowColl = c.collectionRate < 95.5;
+                    const lowAtt = c.attendanceRate < 96.0;
+                    return `
+                      <tr class="row-link" onclick="window.openCampusDashboard('${c.id}')">
+                        <td>
+                          <div class="fw-semibold text-dark">
+                            ${esc(c.shortName)}
+                            ${c.id === "C01" ? '<span class="badge bg-primary-soft ms-1" style="font-size:0.68rem;">HQ</span>' : ""}
+                          </div>
+                          <div class="text-muted small">${esc(c.id)} · ${esc(c.district)}</div>
+                        </td>
+                        <td>
+                          <div class="text-dark fw-medium">${esc(c.principal)}</div>
+                          <div class="text-muted small">${esc(c.principalPhone)}</div>
+                        </td>
+                        <td>
+                          <div class="d-flex justify-content-between small mb-1">
+                            <span class="fw-semibold text-dark">${c.totalStudents.toLocaleString()} / ${c.capacity.toLocaleString()}</span>
+                            <span class="${pct >= 93 ? 'text-attention' : 'text-muted'}">${pct}%</span>
+                          </div>
+                          <div class="progress" style="height: 6px; background: #f2f4f7;">
+                            <div class="progress-bar" style="width: ${pct}%; background-color: ${c.color || 'var(--brand-primary)'};"></div>
+                          </div>
+                        </td>
+                        <td class="text-dark fw-medium">${c.activeClassesCount}</td>
+                        <td>
+                          <span class="text-dark fw-medium">${c.totalStaff}</span>
+                          <span class="text-muted small ms-1">(${c.totalTeachers} teachers)</span>
+                        </td>
+                        <td class="${lowColl ? 'text-attention' : 'text-dark fw-medium'}">
+                          ${c.collectionRate}%
+                        </td>
+                        <td class="${lowAtt ? 'text-attention' : 'text-dark fw-medium'}">
+                          ${c.attendanceRate}%
+                        </td>
+                        <td class="text-end">
+                          <i class="fe fe-chevron-right row-chevron"></i>
+                        </td>
+                      </tr>
+                    `;
+                  })
+                  .join("")}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td>All campuses</td>
+                  <td class="text-muted fw-normal">—</td>
+                  <td>${totalStudentsNetwork.toLocaleString()} / ${totalCapacityAll.toLocaleString()} (${avgUtilization}%)</td>
+                  <td>${activeClassesNetwork}</td>
+                  <td>${totalStaffNetwork} <span class="text-muted small fw-normal">(${totalTeachersNetwork} teachers)</span></td>
+                  <td>${collectionRate}%</td>
+                  <td>${avgAttendanceRate}%</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Row: Programs + Needs Attention -->
+      <div class="row g-4 mb-4">
         <div class="col-lg-7">
           <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
-              <div>
-                <h5 class="mb-0">Enrollment by Program</h5>
-              </div>
+              <h5 class="mb-0">Enrollment by Academic Program</h5>
               <button class="btn btn-sm btn-light border" onclick="window.navigateTo('/smnadm/programs/table')">
                 All Programs
               </button>
@@ -171,13 +282,10 @@
                   return `
                     <div class="mb-4 last-mb-0">
                       <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div>
-                          <span class="fw-semibold text-dark">${esc(p.nameEn)}</span>
-                          <span class="text-muted small ms-2">${esc(p.code)}</span>
-                        </div>
-                        <div class="small text-muted">
-                          <strong class="text-dark">${p.totalStudents}</strong> students (${pct}%)
-                        </div>
+                        <span class="fw-semibold text-dark">${esc(p.nameEn)}</span>
+                        <span class="small text-muted">
+                          <strong class="text-dark">${p.totalStudents.toLocaleString()}</strong> students (${pct}%)
+                        </span>
                       </div>
                       <div class="progress" style="height: 6px; background: #f2f4f7;">
                         <div class="progress-bar" role="progressbar" style="width: ${pct}%; background-color: var(--brand-primary);" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"></div>
@@ -192,27 +300,20 @@
 
         <div class="col-lg-5">
           <div class="card h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <h5 class="mb-0">Smart Campus Activity</h5>
-              <button class="btn btn-sm btn-light border" onclick="window.navigateTo('/smnadm/operations/campus-card')">
-                Live Kiosk
-              </button>
+            <div class="card-header">
+              <h5 class="mb-0">Needs Attention</h5>
             </div>
             <div class="card-body p-0">
               <div class="list-group list-group-flush">
-                ${st.campusScans
-                  .slice(0, 4)
+                ${attentionItems
                   .map(
-                    (scan) => `
-                  <div class="list-group-item px-4 py-3 d-flex justify-content-between align-items-center border-light">
+                    (item) => `
+                  <div class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 row-link" onclick="window.openCampusDashboard('${item.campusId}')">
                     <div>
-                      <div class="fw-medium text-dark">${esc(scan.studentName)}</div>
-                      <div class="text-muted small">${esc(scan.action)}</div>
+                      <div class="fw-semibold text-dark">${esc(item.title)}</div>
+                      <div class="small text-muted">${esc(item.detail)}</div>
                     </div>
-                    <div class="text-end">
-                      <div class="small text-secondary fw-medium">${esc(scan.time)}</div>
-                      <div class="text-muted" style="font-size:0.75rem;">${esc(scan.grade)}</div>
-                    </div>
+                    <i class="fe fe-chevron-right row-chevron ms-2"></i>
                   </div>
                 `
                   )
@@ -222,73 +323,571 @@
           </div>
         </div>
       </div>
-
-      <!-- Recent Students Table -->
-      <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="mb-0">Recent Students &amp; Admissions</h5>
-          </div>
-          <button class="btn btn-sm btn-light border" onclick="window.navigateTo('/smnadm/students/table')">
-            View Directory
-          </button>
-        </div>
-        <div class="card-body p-0">
-          <div tabindex="0" role="region" aria-label="Featured students table" class="table-wrapper table-responsive">
-            <table class="table table-hover align-middle mb-0">
-              <thead>
-                <tr>
-                  <th>Student</th>
-                  <th>ID</th>
-                  <th>Program &amp; Class</th>
-                  <th>Stage</th>
-                  <th>Tuition</th>
-                  <th class="text-end">Profile</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${st.students
-                  .slice(0, 5)
-                  .map((s) => {
-                    const prog = (s.programs && s.programs[0]) || {};
-                    const stageBadge =
-                      s.tab === "registered"
-                        ? '<span class="badge bg-success-soft">Registered</span>'
-                        : s.tab === "applications"
-                        ? '<span class="badge bg-info-soft">Applicant</span>'
-                        : '<span class="badge bg-warning-soft">Waitlisted</span>';
-                    const payBadge =
-                      prog.payment_status === "Paid"
-                        ? '<span class="badge bg-success-soft">Paid</span>'
-                        : '<span class="badge bg-danger-soft">Unpaid</span>';
-                    return `
-                      <tr>
-                        <td>
-                          <div class="fw-semibold text-dark">${esc(s.full_name_en)}</div>
-                          <div class="text-muted small">${esc(s.full_name_kh)}</div>
-                        </td>
-                        <td class="text-muted">${esc(s.student_card_id)}</td>
-                        <td>
-                          <div class="text-dark">${esc(prog.class?.name_en || prog.grade?.name_en || "Unassigned")}</div>
-                          <div class="text-muted small">${esc(prog.program?.name_en || "-")}</div>
-                        </td>
-                        <td>${stageBadge}</td>
-                        <td>${payBadge}</td>
-                        <td class="text-end">
-                          <button class="btn btn-sm btn-outline-primary" onclick="window.navigateTo('/smnadm/students/pre-register/view-detail/${s.id}')">
-                            Open
-                          </button>
-                        </td>
-                      </tr>
-                    `;
-                  })
-                  .join("")}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
     `;
+  }
+
+  // ============================================================================
+  // 2. CAMPUS DASHBOARD (/smnadm/campus-dashboard)
+  // ============================================================================
+  function renderCampusDashboard(container) {
+    const st = window.SMS_STATE;
+    const campuses = (st.campusDirectory || []).filter((c) => c.id !== "C06");
+
+    let activeCampusId =
+      st.activeCampusId && st.activeCampusId !== "ALL"
+        ? st.activeCampusId
+        : st.selectedCampusDashboardId || "C01";
+
+    let campus = campuses.find((c) => c.id === activeCampusId) || campuses[0];
+    let activeTab = "classes"; // 'classes', 'students', 'parents', 'faculty', 'billing'
+    let classSearchQ = "";
+    let stuSearchQ = "";
+    let parentSearchQ = "";
+
+    const draw = () => {
+      const campusClasses = st.classes.filter(
+        (c) => c.campusId === campus.id || (!c.campusId && campus.id === "C01")
+      );
+      const campusStudents = st.students.filter(
+        (s) => s.campusId === campus.id || (!s.campusId && campus.id === "C01")
+      );
+      const campusGuardians = st.guardians.filter(
+        (g) => g.campusId === campus.id || (!g.campusId && campus.id === "C01")
+      );
+      const campusStaff = st.staffs.filter(
+        (stf) => stf.campusId === campus.id || stf.campusId === "ALL" || (!stf.campusId && campus.id === "C01")
+      );
+      const campusInvoices = st.invoices.filter(
+        (inv) => inv.campusId === campus.id || (!inv.campusId && campus.id === "C01")
+      );
+
+      const campusUtilPct = campus.capacity
+        ? Math.round((campus.totalStudents / campus.capacity) * 100)
+        : 92;
+
+      const filteredClasses = campusClasses.filter((c) => {
+        if (!classSearchQ) return true;
+        return (
+          c.classNameEn.toLowerCase().includes(classSearchQ) ||
+          c.classNameKh.toLowerCase().includes(classSearchQ) ||
+          c.code.toLowerCase().includes(classSearchQ) ||
+          (c.teacher?.fullName || "").toLowerCase().includes(classSearchQ)
+        );
+      });
+
+      const filteredStudents = campusStudents.filter((s) => {
+        if (!stuSearchQ) return true;
+        return (
+          s.full_name_en.toLowerCase().includes(stuSearchQ) ||
+          s.full_name_kh.toLowerCase().includes(stuSearchQ) ||
+          s.student_card_id.toLowerCase().includes(stuSearchQ) ||
+          (s.father?.nameEn || "").toLowerCase().includes(stuSearchQ) ||
+          (s.phone || "").toLowerCase().includes(stuSearchQ)
+        );
+      });
+
+      const filteredGuardians = campusGuardians.filter((g) => {
+        if (!parentSearchQ) return true;
+        return (
+          g.nameEn.toLowerCase().includes(parentSearchQ) ||
+          g.nameKh.toLowerCase().includes(parentSearchQ) ||
+          g.phone.toLowerCase().includes(parentSearchQ) ||
+          (g.occupation || "").toLowerCase().includes(parentSearchQ)
+        );
+      });
+
+      container.innerHTML = `
+        <!-- Single Campus Switcher Pills -->
+        <div class="min-subnav mb-3">
+          ${campuses
+            .map(
+              (c) => `
+            <button type="button" class="min-subnav-link ${c.id === campus.id ? "active" : ""}" data-cid="${c.id}">
+              ${esc(c.shortName)}
+            </button>
+          `
+            )
+            .join("")}
+        </div>
+
+        <!-- Clean Campus Page Header -->
+        <div class="min-page-header">
+          <div>
+            <h1 class="min-page-title mb-1">${esc(campus.nameEn)}</h1>
+            <p class="min-page-subtitle">Principal ${esc(campus.principal)} · ${esc(campus.principalPhone)} · ${esc(campus.district)}</p>
+          </div>
+          <div>
+            <button class="btn btn-primary btn-sm" onclick="window.navigateTo('/smnadm/students/pre-register/student_info/add-new')">
+              + Enroll Student
+            </button>
+          </div>
+        </div>
+
+        <!-- 4-Card Campus KPI Strip (Campus totals, no badges, no arrows) -->
+        <div class="row g-4 mb-4">
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card is-link" data-switchtab="students">
+              <div class="min-stat-label">
+                <span>Students</span>
+              </div>
+              <div class="min-stat-value">${campus.totalStudents.toLocaleString()}</div>
+              <div class="min-stat-meta">${campusUtilPct}% of ${campus.capacity.toLocaleString()} seats · ${campus.attendanceRate}% present</div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card is-link" data-switchtab="classes">
+              <div class="min-stat-label">
+                <span>Classes</span>
+              </div>
+              <div class="min-stat-value">${campus.activeClassesCount}</div>
+              <div class="min-stat-meta">Across ${(campus.programsOffered || []).length} programs</div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card is-link" data-switchtab="faculty">
+              <div class="min-stat-label">
+                <span>Staff</span>
+              </div>
+              <div class="min-stat-value">${campus.totalStaff}</div>
+              <div class="min-stat-meta">${campus.totalTeachers} teachers</div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card is-link" data-switchtab="billing">
+              <div class="min-stat-label">
+                <span>Tuition</span>
+              </div>
+              <div class="min-stat-value">$${(campus.tuitionCollectedUsd / 1000000).toFixed(2)}M</div>
+              <div class="min-stat-meta">${campus.collectionRate}% collected · $${Math.round((campus.tuitionPendingUsd || 0) / 1000)}K outstanding</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 Clean Single-Purpose Tabs -->
+        <div class="min-subnav mb-3" role="tablist">
+          <button type="button" class="min-subnav-link ${activeTab === "classes" ? "active" : ""}" data-cstab="classes">Classes</button>
+          <button type="button" class="min-subnav-link ${activeTab === "students" ? "active" : ""}" data-cstab="students">Students</button>
+          <button type="button" class="min-subnav-link ${activeTab === "parents" ? "active" : ""}" data-cstab="parents">Parents</button>
+          <button type="button" class="min-subnav-link ${activeTab === "faculty" ? "active" : ""}" data-cstab="faculty">Faculty</button>
+          <button type="button" class="min-subnav-link ${activeTab === "billing" ? "active" : ""}" data-cstab="billing">Billing</button>
+        </div>
+
+        <!-- TAB 1: CLASSES -->
+        ${
+          activeTab === "classes"
+            ? `
+          <div class="card">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+              <input type="search" id="campusClsSearch" class="form-control" style="max-width: 300px;" placeholder="Search class, room, or teacher..." value="${esc(classSearchQ)}">
+              <div class="d-flex align-items-center gap-3">
+                <span class="text-muted small">${filteredClasses.length} classes</span>
+                <button class="btn btn-outline-primary btn-sm" id="btnCampusAddClass">+ New Class</button>
+              </div>
+            </div>
+            <div class="card-body p-0">
+              <div tabindex="0" role="region" aria-label="Campus classes table" class="table-wrapper table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Class</th>
+                      <th>Program &amp; Grade</th>
+                      <th>Homeroom Teacher</th>
+                      <th>Room &amp; Shift</th>
+                      <th>Students</th>
+                      <th class="text-end" aria-label="Open class"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${filteredClasses
+                      .map(
+                        (cls) => `
+                          <tr class="row-link" onclick="window.navigateTo('/smnadm/academic/classes/class-details/overview/${cls.id}')">
+                            <td>
+                              <div class="fw-semibold text-dark">${esc(cls.classNameEn)}</div>
+                              <div class="text-muted small">${esc(cls.classNameKh)} · <span class="font-monospace">${esc(cls.code)}</span></div>
+                            </td>
+                            <td>
+                              <div class="text-dark">${esc(cls.program?.nameEn || "General")}</div>
+                              <div class="text-muted small">${esc(cls.grade?.nameEn || "-")}</div>
+                            </td>
+                            <td class="text-dark fw-medium">${esc(cls.teacher?.fullName || "Unassigned")}</td>
+                            <td>
+                              <div class="text-dark">${esc(cls.room?.name || "Room TBD")}</div>
+                              <div class="text-muted small">${esc(cls.shiftText || "Full Day")}</div>
+                            </td>
+                            <td class="fw-semibold text-dark">${cls.totalStudents}</td>
+                            <td class="text-end">
+                              <i class="fe fe-chevron-right row-chevron"></i>
+                            </td>
+                          </tr>
+                        `
+                      )
+                      .join("")}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `
+            : ""
+        }
+
+        <!-- TAB 2: STUDENTS -->
+        ${
+          activeTab === "students"
+            ? `
+          <div class="card">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+              <input type="search" id="campusStuSearch" class="form-control" style="max-width: 300px;" placeholder="Search student name, ID, or phone..." value="${esc(stuSearchQ)}">
+              <span class="text-muted small">${filteredStudents.length} students</span>
+            </div>
+            <div class="card-body p-0">
+              <div tabindex="0" role="region" aria-label="Campus students table" class="table-wrapper table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Class</th>
+                      <th>Attendance</th>
+                      <th>Average</th>
+                      <th>Guardian</th>
+                      <th>Tuition</th>
+                      <th class="text-end" aria-label="Open student"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${filteredStudents
+                      .map((s) => {
+                        const prog = (s.programs && s.programs[0]) || {};
+                        const sc = s.scores || { math: 85, english: 88 };
+                        const avg = Math.round(
+                          (Number(sc.math || 80) + Number(sc.english || 80) + Number(sc.physics || 80) + Number(sc.khmer || 80)) / 4
+                        );
+                        const attStatus = s.attendanceToday || "Present";
+                        const isAttException = attStatus === "Absent" || attStatus === "Late";
+                        const payStatus = prog.payment_status || "Unpaid";
+                        return `
+                          <tr class="row-link" onclick="window.navigateTo('/smnadm/students/pre-register/view-detail/${s.id}')">
+                            <td>
+                              <div class="fw-semibold text-dark">${esc(s.full_name_en)}</div>
+                              <div class="text-muted small">${esc(s.full_name_kh)} · <span class="font-monospace">${esc(s.student_card_id)}</span></div>
+                            </td>
+                            <td>
+                              <div class="text-dark fw-medium">${esc(prog.class?.name_en || s.applying_for || "Waitlisted")}</div>
+                              <div class="text-muted small">${esc(prog.program?.name_en || "-")}</div>
+                            </td>
+                            <td class="${isAttException ? 'text-attention' : 'text-dark'}">${esc(attStatus)}</td>
+                            <td class="fw-semibold text-dark">${avg}%</td>
+                            <td>
+                              <div class="text-dark fw-medium">${esc(s.father?.nameEn || s.mother?.nameEn || "Guardian")}</div>
+                              <div class="text-muted small">${esc(s.father?.phone || s.phone || "012 345 678")}</div>
+                            </td>
+                            <td class="${payStatus === 'Paid' ? 'text-dark' : 'text-attention'}">${esc(payStatus)}</td>
+                            <td class="text-end">
+                              <i class="fe fe-chevron-right row-chevron"></i>
+                            </td>
+                          </tr>
+                        `;
+                      })
+                      .join("")}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `
+            : ""
+        }
+
+        <!-- TAB 3: PARENTS -->
+        ${
+          activeTab === "parents"
+            ? `
+          <div class="card">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+              <input type="search" id="campusParentSearch" class="form-control" style="max-width: 300px;" placeholder="Search parent name, occupation, or phone..." value="${esc(parentSearchQ)}">
+              <span class="text-muted small">${filteredGuardians.length} parents</span>
+            </div>
+            <div class="card-body p-0">
+              <div tabindex="0" role="region" aria-label="Campus parents table" class="table-wrapper table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Guardian</th>
+                      <th>Relation &amp; Occupation</th>
+                      <th>Phone &amp; Email</th>
+                      <th>Children</th>
+                      <th>Portal</th>
+                      <th class="text-end" aria-label="Open guardian"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${filteredGuardians
+                      .map(
+                        (g) => `
+                          <tr class="row-link" onclick="window.navigateTo('/smnadm/guardians/details/${g.id}')">
+                            <td>
+                              <div class="fw-semibold text-dark">${esc(g.nameEn)}</div>
+                              <div class="text-muted small">${esc(g.nameKh)}</div>
+                            </td>
+                            <td>
+                              <div class="text-dark">${esc(g.relation)}</div>
+                              <div class="text-muted small">${esc(g.occupation || "-")}</div>
+                            </td>
+                            <td>
+                              <div class="text-dark fw-medium">${esc(g.phone)}</div>
+                              <div class="text-muted small">${esc(g.email)}</div>
+                            </td>
+                            <td class="small text-dark">${(g.children || []).map((ch) => esc(ch)).join(", ")}</td>
+                            <td class="${g.accStatus === 'Active' ? 'text-dark' : 'text-muted'}">${esc(g.accStatus || "Active")}</td>
+                            <td class="text-end">
+                              <i class="fe fe-chevron-right row-chevron"></i>
+                            </td>
+                          </tr>
+                        `
+                      )
+                      .join("")}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `
+            : ""
+        }
+
+        <!-- TAB 4: FACULTY -->
+        ${
+          activeTab === "faculty"
+            ? `
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span class="text-muted small">${campusStaff.length} staff</span>
+              <button class="btn btn-sm btn-light border" onclick="window.navigateTo('/smnadm/staffs/table')">
+                All Faculty
+              </button>
+            </div>
+            <div class="card-body p-0">
+              <div tabindex="0" role="region" aria-label="Campus faculty list" class="table-wrapper table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Role</th>
+                      <th>Department</th>
+                      <th>Qualification</th>
+                      <th class="text-end" aria-label="Open staff"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${campusStaff
+                      .map(
+                        (stf) => `
+                          <tr class="row-link" onclick="window.navigateTo('/smnadm/staffs/detail/${stf.id}')">
+                            <td>
+                              <div class="fw-semibold text-dark">${esc(stf.nameEn)}</div>
+                              <div class="text-muted small">${esc(stf.nameKh)}</div>
+                            </td>
+                            <td class="text-dark fw-medium">${esc(stf.position)}</td>
+                            <td class="text-secondary small">${esc(stf.department)}</td>
+                            <td class="text-secondary small">${esc(stf.degree)}</td>
+                            <td class="text-end">
+                              <i class="fe fe-chevron-right row-chevron"></i>
+                            </td>
+                          </tr>
+                        `
+                      )
+                      .join("")}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `
+            : ""
+        }
+
+        <!-- TAB 5: BILLING -->
+        ${
+          activeTab === "billing"
+            ? `
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span class="text-muted small">${campusInvoices.length} invoices</span>
+              <button class="btn btn-sm btn-light border" onclick="window.navigateTo('/smnadm/payments/table')">
+                All Invoices
+              </button>
+            </div>
+            <div class="card-body p-0">
+              <div tabindex="0" role="region" aria-label="Campus invoices list" class="table-wrapper table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Invoice</th>
+                      <th>Student</th>
+                      <th>Due Date</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                      <th class="text-end" aria-label="Open invoice"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${campusInvoices
+                      .map((inv) => {
+                        const tot = calcInvoiceTotal(inv);
+                        return `
+                          <tr class="row-link" onclick="window.navigateTo('/smnadm/payments/invoice/detail-no-pay/${inv.id}')">
+                            <td class="fw-semibold text-dark font-monospace">${esc(inv.invoiceNo)}</td>
+                            <td>
+                              <div class="text-dark fw-medium">${esc(inv.studentName)}</div>
+                              <div class="text-muted small font-monospace">${esc(inv.studentCardId)}</div>
+                            </td>
+                            <td class="text-muted small">${esc(inv.dueDate)}</td>
+                            <td class="fw-semibold text-dark">${fmtMoney(tot)}</td>
+                            <td class="${inv.status === 'Paid' ? 'text-dark' : 'text-attention'}">${esc(inv.status)}</td>
+                            <td class="text-end">
+                              <i class="fe fe-chevron-right row-chevron"></i>
+                            </td>
+                          </tr>
+                        `;
+                      })
+                      .join("")}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `
+            : ""
+        }
+      `;
+
+      // Event Listeners for Campus Dashboard
+      container.querySelectorAll("[data-cid]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const cid = btn.dataset.cid;
+          window.setActiveCampus(cid);
+          campus = campuses.find((c) => c.id === cid) || campuses[0];
+          draw();
+        });
+      });
+
+      container.querySelectorAll("[data-cstab]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          activeTab = btn.dataset.cstab;
+          draw();
+        });
+      });
+
+      container.querySelectorAll("[data-switchtab]").forEach((card) => {
+        card.addEventListener("click", () => {
+          activeTab = card.dataset.switchtab;
+          draw();
+        });
+      });
+
+      document.getElementById("campusClsSearch")?.addEventListener("input", (e) => {
+        classSearchQ = e.target.value.trim().toLowerCase();
+        draw();
+      });
+
+      document.getElementById("campusStuSearch")?.addEventListener("input", (e) => {
+        stuSearchQ = e.target.value.trim().toLowerCase();
+        draw();
+      });
+
+      document.getElementById("campusParentSearch")?.addEventListener("input", (e) => {
+        parentSearchQ = e.target.value.trim().toLowerCase();
+        draw();
+      });
+
+      document.getElementById("btnCampusAddClass")?.addEventListener("click", () => {
+        window.openDynamicModal(
+          `Create Class at ${campus.shortName}`,
+          `
+            <form id="formNewCampusClass">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label" for="ccCode">Class Code *</label>
+                  <input type="text" id="ccCode" class="form-control" required value="CLS-11B">
+                </div>
+                <div class="col-md-8">
+                  <label class="form-label" for="ccNameEn">Class Name (English) *</label>
+                  <input type="text" id="ccNameEn" class="form-control" required placeholder="e.g., Grade 11-B">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="ccNameKh">Class Name (Khmer) *</label>
+                  <input type="text" id="ccNameKh" class="form-control" required placeholder="e.g., ថ្នាក់ទី ១១-B">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="ccProg">Program</label>
+                  <select id="ccProg" class="form-select">
+                    ${st.programs.map((p) => `<option value="${p.id}">${esc(p.nameEn)}</option>`).join("")}
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="ccTeacher">Homeroom Teacher</label>
+                  <select id="ccTeacher" class="form-select">
+                    ${st.staffs.map((t) => `<option value="${t.id}">${esc(t.nameEn)}</option>`).join("")}
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="ccRoom">Classroom</label>
+                  <select id="ccRoom" class="form-select">
+                    ${st.rooms.map((r) => `<option value="${r.id}">${esc(r.name)}</option>`).join("")}
+                  </select>
+                </div>
+              </div>
+              <div class="d-flex justify-content-end gap-2 mt-4">
+                <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create Class</button>
+              </div>
+            </form>
+          `
+        );
+
+        document.getElementById("formNewCampusClass")?.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const prog = st.programs.find((p) => p.id === Number(document.getElementById("ccProg").value)) || st.programs[0];
+          const teacher = st.staffs.find((t) => t.id === Number(document.getElementById("ccTeacher").value)) || st.staffs[1];
+          const room = st.rooms.find((r) => r.id === Number(document.getElementById("ccRoom").value)) || st.rooms[0];
+          const newCls = {
+            id: Date.now(),
+            campusId: campus.id,
+            code: document.getElementById("ccCode").value.trim().toUpperCase(),
+            classNameEn: document.getElementById("ccNameEn").value.trim(),
+            classNameKh: document.getElementById("ccNameKh").value.trim(),
+            programId: prog.id,
+            program: { id: prog.id, code: prog.code, nameEn: prog.nameEn, nameKh: prog.nameKh },
+            academicYearId: 3,
+            academicYear: "2025-2026",
+            gradeId: 7,
+            grade: { id: 7, nameEn: "Grade 11", nameKh: "ថ្នាក់ទី ១១" },
+            teacherId: teacher.id,
+            teacher: { id: teacher.id, fullName: teacher.nameEn, nameKh: teacher.nameKh },
+            roomId: room.id,
+            room: { id: room.id, name: room.name },
+            schedule: "Mon - Fri (07:30 - 15:30)",
+            shiftText: "Full Day",
+            status: "ongoing",
+            statusCode: 1,
+            totalStudents: 26,
+            startDate: "2025-09-01",
+            endDate: "2026-07-15",
+          };
+          st.classes.unshift(newCls);
+          window.saveSmsState();
+          window.closeDynamicModal();
+          window.showToast(`Created class "${newCls.classNameEn}" at ${campus.shortName}.`, "success");
+          draw();
+        });
+      });
+    };
+
+    draw();
   }
 
   // ============================================================================
@@ -974,18 +1573,20 @@
     let statusFilter = "ALL";
     let searchQ = "";
     let progFilter = "ALL";
+    let campusFilter = st.activeCampusId || "ALL";
 
     const draw = () => {
       const filtered = st.classes.filter((c) => {
         const matchSt = statusFilter === "ALL" || c.status === statusFilter;
         const matchProg = progFilter === "ALL" || Number(c.programId) === Number(progFilter);
+        const matchCampus = campusFilter === "ALL" || c.campusId === campusFilter;
         const matchQ =
           !searchQ ||
           c.classNameEn.toLowerCase().includes(searchQ) ||
           c.classNameKh.toLowerCase().includes(searchQ) ||
           c.code.toLowerCase().includes(searchQ) ||
           (c.teacher?.fullName || "").toLowerCase().includes(searchQ);
-        return matchSt && matchProg && matchQ;
+        return matchSt && matchProg && matchCampus && matchQ;
       });
 
       container.innerHTML = `
@@ -1001,13 +1602,23 @@
         <!-- Clean Filter Row -->
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
           <div class="d-flex flex-wrap gap-2">
-            <input type="search" id="clsSearch" class="form-control" style="width: 260px;" placeholder="Search class or teacher..." value="${esc(searchQ)}">
-            <select id="clsProg" class="form-select" style="width: 240px;">
+            <input type="search" id="clsSearch" class="form-control" style="width: 240px;" placeholder="Search class or teacher..." value="${esc(searchQ)}">
+            <select id="clsProg" class="form-select" style="width: 200px;">
               <option value="ALL">All Programs</option>
               ${st.programs
                 .map(
                   (p) =>
                     `<option value="${p.id}" ${Number(progFilter) === p.id ? "selected" : ""}>${esc(p.nameEn)}</option>`
+                )
+                .join("")}
+            </select>
+            <select id="clsCampusFilter" class="form-select" style="width: 220px;">
+              <option value="ALL" ${campusFilter === "ALL" ? "selected" : ""}>All Campuses</option>
+              ${(st.campusDirectory || [])
+                .filter(c => c.id !== "C06")
+                .map(
+                  (c) =>
+                    `<option value="${c.id}" ${campusFilter === c.id ? "selected" : ""}>${esc(c.shortName)}</option>`
                 )
                 .join("")}
             </select>
@@ -1080,6 +1691,11 @@
       });
       document.getElementById("clsProg")?.addEventListener("change", (e) => {
         progFilter = e.target.value;
+        draw();
+      });
+      document.getElementById("clsCampusFilter")?.addEventListener("change", (e) => {
+        campusFilter = e.target.value;
+        window.setActiveCampus(campusFilter);
         draw();
       });
 
@@ -2334,6 +2950,7 @@
 
   window.SMS_VIEWS_CORE = {
     renderDashboard,
+    renderCampusDashboard,
     renderInvestorAnalytics,
     renderAiInsights,
     renderPrograms,

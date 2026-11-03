@@ -4,7 +4,7 @@
  */
 
 (function () {
-  const STORAGE_KEY = "SMS_PROTOTYPE_STATE_V3_REALISTIC_ROSTER";
+  const STORAGE_KEY = "SMS_PROTOTYPE_STATE_V6_CLEAN_DASHBOARDS";
 
   const SCHOOL_PRESETS = {
     "milky-way": {
@@ -12,7 +12,7 @@
       nameEn: "Milky Way School",
       nameKh: "សាលាមីគីវ៉េ",
       shortName: "Milky Way School",
-      tagline: "Ref: MWS-SMIS-2026-CQ-BILL24 · 40,000 Students · 2,000 Staff · 60 Campuses",
+      tagline: "5 Campuses in Phnom Penh · 3,745 Students · 232 Staff · 122 Classes",
       primaryColor: "#0077b6",
       primaryHover: "#023e8a",
       primaryLight: "#f0f9ff",
@@ -28,11 +28,10 @@
       exchangeRateKhr: 4100,
       campuses: [
         "MWS Campus 01 — Sen Sok HQ (#78 St. BT-12M)",
-        "MWS Campus 02 — Toul Kork Branch",
-        "MWS Campus 03 — Chbar Ampov Branch",
-        "MWS Campus 04 — Chroy Changvar Branch",
-        "MWS Campus 05 — Chamkarmon Branch",
-        "All 60 Campuses (40,000 Students / 2,000 Staff)",
+        "MWS Campus 02 — Toul Kork Premier Branch",
+        "MWS Campus 03 — Chbar Ampov Campus",
+        "MWS Campus 04 — BKK Urban Academy",
+        "MWS Campus 05 — Russey Keo Regional Branch",
       ],
     },
     "tele-ict": {
@@ -112,9 +111,144 @@
       type: "SUPER_ADMIN",
     },
     activePresetId: "milky-way",
-    activeCampus: "All 60 Campuses (40,000 Students)",
+    activeCampus: "All 5 Campuses (3,745 Students)",
+    activeCampusId: "ALL",
+    selectedCampusDashboardId: "C01",
     bilingualMode: true,
     selectedAcademicYearId: 3,
+
+    campusDirectory: [
+      {
+        id: "C01",
+        code: "MWS-C01",
+        shortName: "Sen Sok HQ",
+        nameEn: "Campus #01 — Sen Sok Flagship HQ",
+        nameKh: "សាខាទី ០១ — សែនសុខ (ទីស្នាក់ការកណ្តាល)",
+        district: "Sen Sok, Phnom Penh",
+        address: "#78, St. BT-12M (Borey New World La Sen Sok), Krang Thnong",
+        principal: "Dr. Sokha Chan",
+        principalKh: "បណ្ឌិត ចាន់ សុខា",
+        principalPhone: "012 334 556",
+        principalEmail: "sokha.chan@milkywayschool.edu.kh",
+        totalStudents: 1120,
+        capacity: 1200,
+        totalStaff: 68,
+        totalTeachers: 52,
+        activeClassesCount: 36,
+        tuitionCollectedUsd: 1685000,
+        tuitionPendingUsd: 62000,
+        collectionRate: 96.4,
+        attendanceRate: 97.2,
+        programsOffered: ["KGE", "IEP", "STEM", "CHN"],
+        featuredGrades: "Grades K–12 · Cambridge & MoEYS",
+        badge: "Flagship HQ",
+        color: "#0077b6"
+      },
+      {
+        id: "C02",
+        code: "MWS-C02",
+        shortName: "Toul Kork",
+        nameEn: "Campus #02 — Toul Kork Premier Branch",
+        nameKh: "សាខាទី ០២ — ទួលគោក",
+        district: "Toul Kork, Phnom Penh",
+        address: "#88 St. 315, Sangkat Boeung Kak II, Khan Toul Kork",
+        principal: "Ms. Bopha Pich",
+        principalKh: "ពេជ្រ បុប្ផា",
+        principalPhone: "089 667 112",
+        principalEmail: "bopha.pich@milkywayschool.edu.kh",
+        totalStudents: 790,
+        capacity: 850,
+        totalStaff: 48,
+        totalTeachers: 38,
+        activeClassesCount: 26,
+        tuitionCollectedUsd: 1145000,
+        tuitionPendingUsd: 58000,
+        collectionRate: 95.2,
+        attendanceRate: 96.5,
+        programsOffered: ["KGE", "IEP", "STEM"],
+        featuredGrades: "Grades 1–12 · Cambridge Focus",
+        badge: "Premier Branch",
+        color: "#2E3192"
+      },
+      {
+        id: "C03",
+        code: "MWS-C03",
+        shortName: "Chbar Ampov",
+        nameEn: "Campus #03 — Chbar Ampov Campus",
+        nameKh: "សាខាទី ០៣ — ច្បារអំពៅ",
+        district: "Chbar Ampov, Phnom Penh",
+        address: "Borey Peng Huoth Boeung Snor, National Road 1, Chbar Ampov",
+        principal: "Mr. Vannak Keo",
+        principalKh: "កែវ វណ្ណៈ",
+        principalPhone: "015 778 223",
+        principalEmail: "vannak.keo@milkywayschool.edu.kh",
+        totalStudents: 685,
+        capacity: 750,
+        totalStaff: 42,
+        totalTeachers: 34,
+        activeClassesCount: 22,
+        tuitionCollectedUsd: 948000,
+        tuitionPendingUsd: 49000,
+        collectionRate: 95.1,
+        attendanceRate: 95.8,
+        programsOffered: ["KGE", "IEP", "STEM"],
+        featuredGrades: "Grades 1–12 · STEM Hub",
+        badge: "Branch",
+        color: "#0f766e"
+      },
+      {
+        id: "C04",
+        code: "MWS-C04",
+        shortName: "Boeung Keng Kang",
+        nameEn: "Campus #04 — BKK Urban Academy",
+        nameKh: "សាខាទី ០៤ — បឹងកេងកង",
+        district: "Boeung Keng Kang, Phnom Penh",
+        address: "#42 St. 310, Sangkat Boeung Keng Kang I, Khan BKK",
+        principal: "Ms. Sreyneang Meas",
+        principalKh: "មាស ស្រីនាង",
+        principalPhone: "092 119 228",
+        principalEmail: "sreyneang.meas@milkywayschool.edu.kh",
+        totalStudents: 560,
+        capacity: 600,
+        totalStaff: 36,
+        totalTeachers: 28,
+        activeClassesCount: 18,
+        tuitionCollectedUsd: 875000,
+        tuitionPendingUsd: 26000,
+        collectionRate: 97.1,
+        attendanceRate: 98.0,
+        programsOffered: ["IEP", "CHN"],
+        featuredGrades: "Early Years to Grade 9",
+        badge: "Urban Center",
+        color: "#b45309"
+      },
+      {
+        id: "C05",
+        code: "MWS-C05",
+        shortName: "Russey Keo",
+        nameEn: "Campus #05 — Russey Keo Regional Branch",
+        nameKh: "សាខាទី ០៥ — ឫស្សីកែវ",
+        district: "Russey Keo, Phnom Penh",
+        address: "National Road 5, Sangkat Kilometre 6, Khan Russey Keo",
+        principal: "Mr. Dara Vong",
+        principalKh: "វង្ស តារា",
+        principalPhone: "017 445 889",
+        principalEmail: "dara.vong@milkywayschool.edu.kh",
+        totalStudents: 590,
+        capacity: 650,
+        totalStaff: 38,
+        totalTeachers: 30,
+        activeClassesCount: 20,
+        tuitionCollectedUsd: 792000,
+        tuitionPendingUsd: 41000,
+        collectionRate: 95.0,
+        attendanceRate: 95.4,
+        programsOffered: ["KGE", "STEM"],
+        featuredGrades: "Grades 1–12 · Tech Center",
+        badge: "Branch",
+        color: "#4338ca"
+      }
+    ],
 
     schoolProfile: { ...SCHOOL_PRESETS["milky-way"] },
 
@@ -144,9 +278,9 @@
         isActive: true,
         isDefault: 1,
         sortOrder: 1,
-        totalClasses: 14,
-        totalStudents: 412,
-        total: 426,
+        totalClasses: 54,
+        totalStudents: 1680,
+        total: 1680,
         description: "Full Ministry of Education, Youth and Sport (MoEYS) accredited national curriculum from Grade 1 to Grade 12 with national BacII exam preparation.",
       },
       {
@@ -160,9 +294,9 @@
         isActive: true,
         isDefault: 0,
         sortOrder: 2,
-        totalClasses: 10,
-        totalStudents: 285,
-        total: 295,
+        totalClasses: 38,
+        totalStudents: 1150,
+        total: 1150,
         description: "Cambridge Primary & Lower Secondary curriculum taught by native and certified international educators.",
       },
       {
@@ -176,9 +310,9 @@
         isActive: true,
         isDefault: 0,
         sortOrder: 3,
-        totalClasses: 6,
-        totalStudents: 148,
-        total: 154,
+        totalClasses: 18,
+        totalStudents: 575,
+        total: 575,
         description: "Specialized Science, Technology, Engineering, and Mathematics track featuring AI literacy, Python coding, and VEX Robotics labs.",
       },
       {
@@ -192,9 +326,9 @@
         isActive: true,
         isDefault: 0,
         sortOrder: 4,
-        totalClasses: 4,
-        totalStudents: 95,
-        total: 99,
+        totalClasses: 12,
+        totalStudents: 340,
+        total: 340,
         description: "Trilingual immersion pathway preparing students for HSK proficiency alongside English and Khmer core subjects.",
       },
       {
@@ -252,6 +386,7 @@
     classes: [
       {
         id: 101,
+        campusId: "C01",
         code: "CLS-12A",
         classNameEn: "Grade 12-A (Science Track)",
         classNameKh: "ថ្នាក់ទី ១២-A (វិទ្យាសាស្ត្រ)",
@@ -276,6 +411,7 @@
       },
       {
         id: 102,
+        campusId: "C01",
         code: "CLS-10STEM",
         classNameEn: "Grade 10-S1 (AI & Robotics)",
         classNameKh: "ថ្នាក់ទី ១០-S1 (ស្ទែម និង AI)",
@@ -300,6 +436,7 @@
       },
       {
         id: 103,
+        campusId: "C02",
         code: "CLS-7IEP",
         classNameEn: "Grade 7-Cambridge Emerald",
         classNameKh: "ថ្នាក់ទី ៧-Cambridge Emerald",
@@ -324,6 +461,7 @@
       },
       {
         id: 104,
+        campusId: "C03",
         code: "CLS-9B",
         classNameEn: "Grade 9-B (National Diploma)",
         classNameKh: "ថ្នាក់ទី ៩-B (ឌីប្លូម)",
@@ -348,6 +486,7 @@
       },
       {
         id: 105,
+        campusId: "C04",
         code: "CLS-KG2",
         classNameEn: "Kindergarten K2 Sunshine",
         classNameKh: "មត្តេយ្យ កម្រិត ២ Sunshine",
@@ -372,6 +511,7 @@
       },
       {
         id: 106,
+        campusId: "C04",
         code: "CLS-4CHN",
         classNameEn: "Grade 4-Panda (Trilingual)",
         classNameKh: "ថ្នាក់ទី ៤-Panda (ត្រីភាសា)",
@@ -396,6 +536,7 @@
       },
       {
         id: 107,
+        campusId: "C01",
         code: "CLS-6A-2024",
         classNameEn: "Grade 6-A (Honors Cohort)",
         classNameKh: "ថ្នាក់ទី ៦-A",
@@ -418,6 +559,106 @@
         startDate: "2024-09-01",
         endDate: "2025-06-30",
       },
+      {
+        id: 108,
+        campusId: "C02",
+        code: "CLS-8IEP",
+        classNameEn: "Grade 8-Cambridge Sapphire",
+        classNameKh: "ថ្នាក់ទី ៨-Cambridge Sapphire",
+        programId: 2,
+        program: { id: 2, code: "IEP", nameEn: "International English Program", nameKh: "កម្មវិធីភាសាអង់គ្លេសអន្តរជាតិ" },
+        academicYearId: 3,
+        academicYear: { id: 3, name: "2025-2026" },
+        gradeId: 4,
+        grade: { id: 4, nameEn: "Grade 8 (Year 9 Cambridge)", nameKh: "ថ្នាក់ទី ៨ អន្តរជាតិ" },
+        teacherId: 4,
+        teacher: { id: 4, firstNameEn: "Bopha", lastNameEn: "Pich", fullName: "Ms. Bopha Pich" },
+        roomId: 4,
+        room: { id: 4, name: "Room B-204" },
+        schedule: "Mon - Fri",
+        shift: 4,
+        shiftText: "Full Day",
+        status: "ongoing",
+        statusCode: 1,
+        totalStudents: 28,
+        startDate: "2025-09-01",
+        endDate: "2026-07-15"
+      },
+      {
+        id: 109,
+        campusId: "C03",
+        code: "CLS-10CA",
+        classNameEn: "Grade 10-CA (STEM Explorers)",
+        classNameKh: "ថ្នាក់ទី ១០-CA (ស្ទែម)",
+        programId: 3,
+        program: { id: 3, code: "STEM", nameEn: "STEM & Robotics Innovation", nameKh: "កម្មវិធីស្ទែម" },
+        academicYearId: 3,
+        academicYear: { id: 3, name: "2025-2026" },
+        gradeId: 6,
+        grade: { id: 6, nameEn: "Grade 10 STEM", nameKh: "ថ្នាក់ទី ១០ ស្ទែម" },
+        teacherId: 5,
+        teacher: { id: 5, firstNameEn: "Vannak", lastNameEn: "Keo", fullName: "Mr. Vannak Keo" },
+        roomId: 2,
+        room: { id: 2, name: "Room A-102" },
+        schedule: "Mon - Fri",
+        shift: 1,
+        shiftText: "Morning",
+        status: "ongoing",
+        statusCode: 1,
+        totalStudents: 27,
+        startDate: "2025-09-01",
+        endDate: "2026-07-15"
+      },
+      {
+        id: 110,
+        campusId: "C05",
+        code: "CLS-10RK",
+        classNameEn: "Grade 10-RK (Robotics & AI)",
+        classNameKh: "ថ្នាក់ទី ១០-RK (រ៉ូបូត និង AI)",
+        programId: 3,
+        program: { id: 3, code: "STEM", nameEn: "STEM & Robotics Innovation", nameKh: "កម្មវិធីស្ទែម" },
+        academicYearId: 3,
+        academicYear: { id: 3, name: "2025-2026" },
+        gradeId: 6,
+        grade: { id: 6, nameEn: "Grade 10 STEM", nameKh: "ថ្នាក់ទី ១០ ស្ទែម" },
+        teacherId: 3,
+        teacher: { id: 3, firstNameEn: "Dara", lastNameEn: "Vong", fullName: "Mr. Dara Vong" },
+        roomId: 5,
+        room: { id: 5, name: "STEM & Robotics Lab 301" },
+        schedule: "Mon - Fri",
+        shift: 1,
+        shiftText: "Morning",
+        status: "ongoing",
+        statusCode: 1,
+        totalStudents: 29,
+        startDate: "2025-09-01",
+        endDate: "2026-07-15"
+      },
+      {
+        id: 111,
+        campusId: "C05",
+        code: "CLS-12RK",
+        classNameEn: "Grade 12-RK (BacII Intensive)",
+        classNameKh: "ថ្នាក់ទី ១២-RK (បាក់ឌុប)",
+        programId: 1,
+        program: { id: 1, code: "KGE", nameEn: "Khmer General Education", nameKh: "កម្មវិធីចំណេះទូទៅភាសាខ្មែរ" },
+        academicYearId: 3,
+        academicYear: { id: 3, name: "2025-2026" },
+        gradeId: 7,
+        grade: { id: 7, nameEn: "Grade 12 (BacII Science)", nameKh: "ថ្នាក់ទី ១២" },
+        teacherId: 2,
+        teacher: { id: 2, firstNameEn: "Dr. Sokha", lastNameEn: "Chan", fullName: "Dr. Sokha Chan" },
+        roomId: 3,
+        room: { id: 3, name: "Room B-201" },
+        schedule: "Mon - Sat",
+        shift: 4,
+        shiftText: "Full Day",
+        status: "ongoing",
+        statusCode: 1,
+        totalStudents: 31,
+        startDate: "2025-09-01",
+        endDate: "2026-07-15"
+      },
     ],
 
     classTimetable: [
@@ -433,6 +674,7 @@
     students: [
       {
         id: 1,
+        campusId: "C01",
         student_card_id: "STU-2026-001",
         first_name_kh: "សុខ",
         last_name_kh: "ចាន់រក្សា",
@@ -507,6 +749,7 @@
       },
       {
         id: 2,
+        campusId: "C01",
         student_card_id: "STU-2026-002",
         first_name_kh: "ឈិន",
         last_name_kh: "ឧត្តម",
@@ -578,6 +821,7 @@
       },
       {
         id: 3,
+        campusId: "C05",
         student_card_id: "STU-2026-003",
         first_name_kh: "វង្ស",
         last_name_kh: "សុភ័ក្រ្តា",
@@ -636,6 +880,7 @@
       },
       {
         id: 4,
+        campusId: "C02",
         student_card_id: "STU-2026-004",
         first_name_kh: "កែវ",
         last_name_kh: "ពេជ្រមុនី",
@@ -693,6 +938,7 @@
       },
       {
         id: 5,
+        campusId: "C03",
         student_card_id: "STU-2026-005",
         first_name_kh: "មាស",
         last_name_kh: "រតនៈ",
@@ -740,6 +986,7 @@
       },
       {
         id: 6,
+        campusId: "C04",
         student_card_id: "STU-2026-006",
         first_name_kh: "លឹម",
         last_name_kh: "ម៉ីលីង",
@@ -802,6 +1049,7 @@
       },
       {
         id: 11,
+        campusId: "C01",
         student_card_id: "STU-2026-007",
         first_name_kh: "សុខ",
         last_name_kh: "ចាន់បញ្ញា",
@@ -865,6 +1113,7 @@
       },
       {
         id: 12,
+        campusId: "C01",
         student_card_id: "STU-2026-008",
         first_name_kh: "ហេង",
         last_name_kh: "សុវណ្ណរាជ",
@@ -916,6 +1165,7 @@
       },
       {
         id: 13,
+        campusId: "C01",
         student_card_id: "STU-2026-009",
         first_name_kh: "ប្រាក់",
         last_name_kh: "ស្រីពេជ្រ",
@@ -963,6 +1213,7 @@
       },
       {
         id: 14,
+        campusId: "C02",
         student_card_id: "STU-2026-010",
         first_name_kh: "រស់",
         last_name_kh: "មុនីរ៉ា",
@@ -1010,6 +1261,7 @@
       },
       {
         id: 15,
+        campusId: "C02",
         student_card_id: "STU-2026-011",
         first_name_kh: "ឃួន",
         last_name_kh: "សុជាតិ",
@@ -1057,6 +1309,7 @@
       },
       {
         id: 16,
+        campusId: "C05",
         student_card_id: "STU-2026-012",
         first_name_kh: "ទេព",
         last_name_kh: "កល្យាណ",
@@ -1104,6 +1357,7 @@
       },
       {
         id: 17,
+        campusId: "C03",
         student_card_id: "STU-2026-013",
         first_name_kh: "សាន",
         last_name_kh: "វិចិត្រ",
@@ -1151,6 +1405,7 @@
       },
       {
         id: 18,
+        campusId: "C03",
         student_card_id: "STU-2026-014",
         first_name_kh: "អ៊ឹង",
         last_name_kh: "ម៉ូលីកា",
@@ -1198,6 +1453,7 @@
       },
       {
         id: 19,
+        campusId: "C05",
         student_card_id: "STU-2026-015",
         first_name_kh: "ផន",
         last_name_kh: "ណារ៉ុង",
@@ -1245,6 +1501,7 @@
       },
       {
         id: 20,
+        campusId: "C04",
         student_card_id: "STU-2026-016",
         first_name_kh: "យឹម",
         last_name_kh: "អារីយ៉ា",
@@ -1292,6 +1549,7 @@
       },
       {
         id: 21,
+        campusId: "C04",
         student_card_id: "STU-2026-017",
         first_name_kh: "តាំង",
         last_name_kh: "វីរៈ",
@@ -1339,6 +1597,7 @@
       },
       {
         id: 22,
+        campusId: "C04",
         student_card_id: "STU-2026-018",
         first_name_kh: "ចេង",
         last_name_kh: "សៀវឡុង",
@@ -1387,6 +1646,7 @@
       // Applications Tab Students (5 Applicants)
       {
         id: 7,
+        campusId: "C02",
         student_card_id: "APP-2026-101",
         first_name_kh: "ហ៊ុន",
         last_name_kh: "វីរៈបុត្រ",
@@ -1422,6 +1682,7 @@
       },
       {
         id: 8,
+        campusId: "C04",
         student_card_id: "APP-2026-102",
         first_name_kh: "ជា",
         last_name_kh: "សុវណ្ណារី",
@@ -1457,6 +1718,7 @@
       },
       {
         id: 23,
+        campusId: "C02",
         student_card_id: "APP-2026-103",
         first_name_kh: "ខouch",
         last_name_kh: "ម៉េងលី",
@@ -1492,6 +1754,7 @@
       },
       {
         id: 24,
+        campusId: "C04",
         student_card_id: "APP-2026-104",
         first_name_kh: "តាន់",
         last_name_kh: "សៀវវិន",
@@ -1527,6 +1790,7 @@
       },
       {
         id: 25,
+        campusId: "C03",
         student_card_id: "APP-2026-105",
         first_name_kh: "សឿន",
         last_name_kh: "ចាន់ធីតា",
@@ -1563,6 +1827,7 @@
       // Waitlists Tab Students (5 Waitlisted)
       {
         id: 9,
+        campusId: "C01",
         student_card_id: "WTL-2026-201",
         first_name_kh: "ប៉ែន",
         last_name_kh: "សុខា",
@@ -1597,6 +1862,7 @@
       },
       {
         id: 10,
+        campusId: "C05",
         student_card_id: "WTL-2026-202",
         first_name_kh: "ញឹម",
         last_name_kh: "ពិសី",
@@ -1631,6 +1897,7 @@
       },
       {
         id: 26,
+        campusId: "C02",
         student_card_id: "WTL-2026-203",
         first_name_kh: "គឹម",
         last_name_kh: "រតនា",
@@ -1665,6 +1932,7 @@
       },
       {
         id: 27,
+        campusId: "C04",
         student_card_id: "WTL-2026-204",
         first_name_kh: "សំ",
         last_name_kh: "បូរមី",
@@ -1699,6 +1967,7 @@
       },
       {
         id: 28,
+        campusId: "C02",
         student_card_id: "WTL-2026-205",
         first_name_kh: "ឡេង",
         last_name_kh: "ឧត្តម",
@@ -1753,6 +2022,7 @@
       { id: 213, nameEn: "Heng Rithy", nameKh: "ហេង រិទ្ធី", gender: "Male", relation: "Father", occupation: "Commercial Pilot", phone: "017 818 919", email: "rithy.heng@gmail.com", address: "St. 130, Daun Penh, Phnom Penh", children: ["Heng Sovannreach (G12-A)"], accStatus: "Active", isLocked: false, username: "par_hengrithy" },
       { id: 215, nameEn: "Prak Sovann", nameKh: "ប្រាក់ សុវណ្ណ", gender: "Male", relation: "Father", occupation: "Hospital Administrator", phone: "092 556 778", email: "sovann.prak@gmail.com", address: "Borey New World La Sen Sok, Phnom Penh", children: ["Prak Sreypich (G12-A)"], accStatus: "Active", isLocked: false, username: "par_praksovann" },
       { id: 219, nameEn: "Khuon Vanna", nameKh: "ឃួន វណ្ណា", gender: "Male", relation: "Father", occupation: "Software Architect", phone: "078 332 211", email: "vanna.khuon@gmail.com", address: "St. 315, Boeung Kak I, Toul Kork", children: ["Khuon Socheat (G10-S1)"], accStatus: "Active", isLocked: false, username: "par_khuonvanna" },
+      { id: 221, campusId: "C05", nameEn: "Tep Visal", nameKh: "ទេព វិសាល", gender: "Male", relation: "Father", occupation: "Electrical Engineer", phone: "016 778 899", email: "visal.tep@gmail.com", address: "Kilometre 6, Russey Keo, Phnom Penh", children: ["Tep Kalyan (G10-S1)"], accStatus: "Active", isLocked: false, username: "par_tepvisal" },
       { id: 225, nameEn: "Eung Sokheng", nameKh: "អ៊ឹង សុខហេង", gender: "Male", relation: "Father", occupation: "Supply Chain Manager", phone: "012 606 707", email: "sokheng.eung@gmail.com", address: "Borey Chip Mong 60M, Mean Chey", children: ["Eung Molika (G9-B)"], accStatus: "Active", isLocked: false, username: "par_eungsokheng" },
       { id: 229, nameEn: "Yim Sopheak", nameKh: "យឹម សុភ័ក្រ", gender: "Male", relation: "Father", occupation: "Fintech Product Lead", phone: "017 202 303", email: "sopheak.yim@gmail.com", address: "Borey Orkide, Chroy Changvar", children: ["Yim Ariya (KG-K2)"], accStatus: "Active", isLocked: false, username: "par_yimsopheak" },
     ],
@@ -1810,6 +2080,7 @@
     invoices: [
       {
         id: 501,
+        campusId: "C01",
         invoiceNo: "INV-2026-0501",
         studentId: 1,
         studentCardId: "STU-2026-001",
@@ -1833,6 +2104,7 @@
       },
       {
         id: 502,
+        campusId: "C01",
         invoiceNo: "INV-2026-0502",
         studentId: 2,
         studentCardId: "STU-2026-002",
@@ -1857,6 +2129,7 @@
       },
       {
         id: 503,
+        campusId: "C05",
         invoiceNo: "INV-2026-0503",
         studentId: 3,
         studentCardId: "STU-2026-003",
@@ -1880,6 +2153,7 @@
       },
       {
         id: 504,
+        campusId: "C02",
         invoiceNo: "INV-2026-0504",
         studentId: 4,
         studentCardId: "STU-2026-004",
@@ -1903,6 +2177,7 @@
       },
       {
         id: 505,
+        campusId: "C03",
         invoiceNo: "INV-2026-0505",
         studentId: 5,
         studentCardId: "STU-2026-005",
@@ -1925,6 +2200,7 @@
       },
       {
         id: 506,
+        campusId: "C01",
         invoiceNo: "INV-2026-0506",
         studentId: 11,
         studentCardId: "STU-2026-007",
@@ -1948,6 +2224,7 @@
       },
       {
         id: 507,
+        campusId: "C01",
         invoiceNo: "INV-2026-0507",
         studentId: 12,
         studentCardId: "STU-2026-008",
@@ -1970,6 +2247,7 @@
       },
       {
         id: 508,
+        campusId: "C01",
         invoiceNo: "INV-2026-0508",
         studentId: 13,
         studentCardId: "STU-2026-009",
@@ -1993,6 +2271,7 @@
       },
       {
         id: 509,
+        campusId: "C02",
         invoiceNo: "INV-2026-0509",
         studentId: 14,
         studentCardId: "STU-2026-010",
@@ -2015,6 +2294,7 @@
       },
       {
         id: 510,
+        campusId: "C02",
         invoiceNo: "INV-2026-0510",
         studentId: 15,
         studentCardId: "STU-2026-011",
@@ -2038,6 +2318,7 @@
       },
       {
         id: 511,
+        campusId: "C03",
         invoiceNo: "INV-2026-0511",
         studentId: 18,
         studentCardId: "STU-2026-014",
@@ -2061,6 +2342,7 @@
       },
       {
         id: 512,
+        campusId: "C04",
         invoiceNo: "INV-2026-0512",
         studentId: 20,
         studentCardId: "STU-2026-016",
@@ -2314,12 +2596,35 @@
     },
   };
 
+  // Derive guardian and staff campusId from linked students so every campus has parents & staff
+  function ensureCampusLinks(stateObj) {
+    if (!stateObj) return;
+    const students = stateObj.students || [];
+    (stateObj.guardians || []).forEach((g) => {
+      if (!g.campusId) {
+        const child = students.find((s) => s.father?.id === g.id || s.mother?.id === g.id);
+        g.campusId = child?.campusId || "C01";
+      }
+    });
+    const staffCampusMap = { 1: "ALL", 2: "C01", 3: "C05", 4: "C02", 5: "C03", 6: "C04", 7: "C01", 8: "C02", 9: "C03" };
+    (stateObj.staffs || []).forEach((stf) => {
+      if (!stf.campusId) {
+        stf.campusId = staffCampusMap[stf.id] || "C01";
+      }
+    });
+  }
+  ensureCampusLinks(INITIAL_STATE);
+
   function loadState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (parsed && parsed.students && parsed.classes) {
+          if (Array.isArray(parsed.campusDirectory)) {
+            parsed.campusDirectory = parsed.campusDirectory.filter(c => c.id !== "C06");
+          }
+          ensureCampusLinks(parsed);
           return parsed;
         }
       }
@@ -2346,9 +2651,33 @@
     return fresh;
   }
 
+
+  function getCampusById(campusId) {
+    const list = window.SMS_STATE?.campusDirectory || INITIAL_STATE.campusDirectory;
+    return list.find((c) => c.id === campusId) || list[0];
+  }
+
+  function getCampusDirectory() {
+    return window.SMS_STATE?.campusDirectory || INITIAL_STATE.campusDirectory;
+  }
+
+  function setActiveCampus(campusId) {
+    if (!window.SMS_STATE) return;
+    window.SMS_STATE.activeCampusId = campusId;
+    if (campusId && campusId !== "ALL") {
+      window.SMS_STATE.selectedCampusDashboardId = campusId;
+    }
+    window.saveSmsState();
+    const sel = document.getElementById("topbarCampusSelect");
+    if (sel) sel.value = campusId;
+  }
+
   window.SMS_PRESETS = SCHOOL_PRESETS;
   window.SMS_STATE = loadState();
   window.saveSmsState = () => saveState(window.SMS_STATE);
   window.resetSmsState = resetState;
+  window.getCampusById = getCampusById;
+  window.getCampusDirectory = getCampusDirectory;
+  window.setActiveCampus = setActiveCampus;
 })();
 

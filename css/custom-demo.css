@@ -371,6 +371,43 @@ h1, h2, h3, h4, h5, h6,
   color: var(--text-muted);
 }
 
+.min-stat-card.is-link {
+  cursor: pointer;
+}
+
+/* Clickable table rows (replaces per-row action buttons) */
+.row-link {
+  cursor: pointer;
+}
+
+.row-link:hover td {
+  background: var(--surface-hover, #f8fafc);
+}
+
+.row-link .row-chevron {
+  color: var(--text-muted);
+  opacity: 0.5;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.row-link:hover .row-chevron {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+/* Exception-only emphasis */
+.text-attention {
+  color: #b45309;
+  font-weight: 600;
+}
+
+/* Totals row */
+.table tfoot td {
+  font-weight: 600;
+  border-top: 2px solid var(--border-subtle);
+  background: var(--surface-subtle, #f9fafb);
+}
+
 /* ============================================================================
    3. REFINED TABLES (Modern Web Guidance: responsive-table)
    ============================================================================ */

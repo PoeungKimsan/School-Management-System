@@ -40,18 +40,14 @@
 
         <nav class="min-nav-scroll" id="sidebarnav" aria-label="Main Navigation">
           <div class="min-nav-group">
-            <div class="min-nav-label">Overview</div>
+            <div class="min-nav-label">Dashboards</div>
             <a class="min-nav-link nav-link active" href="#/smnadm/dashboard">
+              <i class="fe fe-pie-chart"></i>
+              <span>Company Overview</span>
+            </a>
+            <a class="min-nav-link nav-link" href="#/smnadm/campus-dashboard">
               <i class="fe fe-grid"></i>
-              <span>Dashboard</span>
-            </a>
-            <a class="min-nav-link nav-link" href="#/smnadm/investor-analytics">
-              <i class="fe fe-trending-up"></i>
-              <span>Investor &amp; TCO</span>
-            </a>
-            <a class="min-nav-link nav-link" href="#/smnadm/ai-insights">
-              <i class="fe fe-activity"></i>
-              <span>AI Retention</span>
+              <span>Campus Dashboard</span>
             </a>
           </div>
 
@@ -59,32 +55,28 @@
             <div class="min-nav-label">Core School</div>
             <a class="min-nav-link nav-link" href="#/smnadm/academic/classes/all" data-group="academic">
               <i class="fe fe-book-open"></i>
-              <span>Academics</span>
+              <span>Classes &amp; Academics</span>
             </a>
             <a class="min-nav-link nav-link" href="#/smnadm/students/table" data-group="students">
               <i class="fe fe-users"></i>
-              <span>Students</span>
+              <span>Students Info</span>
             </a>
             <a class="min-nav-link nav-link" href="#/smnadm/guardians/table" data-group="guardians">
               <i class="fe fe-heart"></i>
-              <span>Guardians</span>
+              <span>Parents &amp; Guardians</span>
             </a>
             <a class="min-nav-link nav-link" href="#/smnadm/staffs/table" data-group="staffs">
               <i class="fe fe-briefcase"></i>
-              <span>Faculty &amp; HR</span>
+              <span>Faculty &amp; Teachers</span>
             </a>
             <a class="min-nav-link nav-link" href="#/smnadm/payments/table" data-group="finance">
               <i class="fe fe-credit-card"></i>
-              <span>Finance</span>
+              <span>Tuition &amp; Billing</span>
             </a>
           </div>
 
           <div class="min-nav-group mb-0">
             <div class="min-nav-label">Campus &amp; System</div>
-            <a class="min-nav-link nav-link" href="#/smnadm/operations/mobile-app" data-group="operations">
-              <i class="fe fe-smartphone"></i>
-              <span>Smart Campus</span>
-            </a>
             <a class="min-nav-link nav-link" href="#/smnadm/announcement/table" data-group="announcements">
               <i class="fe fe-bell"></i>
               <span>Announcements</span>
@@ -100,7 +92,7 @@
         <div class="min-sidebar-footer">
           <label for="pitchPresetSelector">White-Label School Preset</label>
           <select id="pitchPresetSelector" class="form-select form-select-sm mb-2">
-            <option value="milky-way">Milky Way School (40k / 60 Campuses)</option>
+            <option value="milky-way">Milky Way School (5 Campuses Network)</option>
             <option value="tele-ict">Tele-ICT Academy</option>
             <option value="mekong-global">Mekong Global School</option>
             <option value="royal-stem">Royal STEM Academy</option>
@@ -151,16 +143,15 @@
           </div>
 
           <div class="d-flex align-items-center gap-3">
-            <!-- 60-Campus Multi-Tenant Scope Selector (3.4.2 / 4.2) -->
-            <div class="d-none d-xl-flex align-items-center gap-1">
-              <select id="topbarCampusSelect" class="form-select form-select-sm rounded-pill bg-light border" style="width: 245px; font-size: 0.78rem;">
-                <option value="ALL">All 60 Campuses (40,000 Students)</option>
-                <option value="C01">Campus #01 · Sen Sok HQ (BT-12M)</option>
+            <!-- Multi-Campus Scope Selector -->
+            <div class="d-none d-md-flex align-items-center gap-1">
+              <select id="topbarCampusSelect" class="form-select form-select-sm rounded-pill bg-light border" style="width: 250px; font-size: 0.78rem;">
+                <option value="ALL">All Campuses (Company Overview)</option>
+                <option value="C01">Campus #01 · Sen Sok HQ</option>
                 <option value="C02">Campus #02 · Toul Kork Branch</option>
                 <option value="C03">Campus #03 · Chbar Ampov Branch</option>
                 <option value="C04">Campus #04 · Boeung Keng Kang</option>
                 <option value="C05">Campus #05 · Russey Keo Branch</option>
-                <option value="C06">Campuses #06–#60 · Regional Network</option>
               </select>
             </div>
 
