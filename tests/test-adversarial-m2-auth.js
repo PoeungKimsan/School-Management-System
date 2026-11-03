@@ -145,11 +145,14 @@ async function runTestSuite() {
 
   // 1. Locate Chrome Binary
   const chromePaths = [
+    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+    (process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, "Google/Chrome/Application/chrome.exe") : ""),
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "/usr/bin/google-chrome",
     "/usr/bin/chromium",
     "/usr/bin/chromium-browser"
-  ];
+  ].filter(Boolean);
   const chromeBin = chromePaths.find((p) => fs.existsSync(p));
   if (!chromeBin) {
     console.error(`${colors.red}FATAL: Google Chrome / Chromium executable not found in standard paths.${colors.reset}`);
@@ -512,7 +515,7 @@ async function runTestSuite() {
     report(35, "Student header displays greeting with student name ('Chanreaksa')", p5b.title.includes("Chanreaksa"), `Title: '${p5b.title}'`);
     report(36, "Student header eyebrow displays 'Tuesday, 3 November'", p5b.eyebrow === "Tuesday, 3 November");
     report(37, "Student avatar displays 'SC' initials", p5b.avatar === "SC");
-    report(38, "Student navigation renders 5 mobile tabs", p5b.tabCount === 5, `Tabs: ${p5b.tabs.join(", ")}`);
+    report(38, "Student navigation renders 6 mobile tabs", p5b.tabCount === 6, `Tabs: ${p5b.tabs.join(", ")}`);
     report(39, "Default active tab is 'home'", p5b.activeTab === "home");
 
     // ==========================================================================
@@ -608,7 +611,7 @@ async function runTestSuite() {
     })()`);
 
     report(48, "Parent login transitions to Parent Portal with 'SV' avatar", p7b.title === "Parent Portal" && p7b.avatar === "SV");
-    report(49, "Parent portal contains 5 tabs: home, alerts, scores, schedule, payments", p7b.tabs.join(",") === "home,alerts,scores,schedule,payments");
+    report(49, "Parent portal contains 6 tabs: home, alerts, scores, schedule, payments, news", p7b.tabs.join(",") === "home,alerts,scores,schedule,payments,news");
     report(50, "Push banner is NOT present immediately upon login (timer scheduled for 1.5s)", !p7b.pushBannerPresentImmediately);
 
     // Wait 1600ms to allow 1.5s post-transition timer to fire

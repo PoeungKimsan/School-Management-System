@@ -124,7 +124,8 @@ if (!isRefOnly) {
     },
     reports: {
       1: {
-        gpa: "3.85",
+        overallScore: "91.9%",
+        score: "91.9%",
         rank: "2 of 31",
         subjects: [
           { name: "Mathematics", score: 95 },
@@ -137,7 +138,8 @@ if (!isRefOnly) {
         ]
       },
       11: {
-        gpa: "3.78",
+        overallScore: "91.0%",
+        score: "91.0%",
         rank: "4 of 28",
         subjects: [
           { name: "Cambridge Math", score: 93 },
@@ -262,7 +264,7 @@ runTest("Grade Averages (Chanreaksa: 91.9, Chanpanha: 91.0)", () => {
   assert.strictEqual(r1.subjects.length, 7, "Child 1 must have 7 subjects");
   const avg1 = refHelpers.calcAvg(r1.subjects);
   assert.strictEqual(avg1, "91.9", `Child 1 average must equal 91.9 (got ${avg1})`);
-  assert.strictEqual(r1.gpa, "3.85", "Child 1 GPA must equal 3.85");
+  assert.strictEqual(r1.overallScore, "91.9%", "Child 1 overall score must equal 91.9%");
   assert.strictEqual(r1.rank, "2 of 31", "Child 1 rank must equal '2 of 31'");
 
   // Letter Grades for Child 1
@@ -280,7 +282,7 @@ runTest("Grade Averages (Chanreaksa: 91.9, Chanpanha: 91.0)", () => {
   assert.strictEqual(r11.subjects.length, 6, "Child 11 must have 6 subjects");
   const avg11 = refHelpers.calcAvg(r11.subjects);
   assert.strictEqual(avg11, "91.0", `Child 11 average must equal 91.0 (got ${avg11})`);
-  assert.strictEqual(r11.gpa, "3.78", "Child 11 GPA must equal 3.78");
+  assert.strictEqual(r11.overallScore, "91.0%", "Child 11 overall score must equal 91.0%");
   assert.strictEqual(r11.rank, "4 of 28", "Child 11 rank must equal '4 of 28'");
 });
 

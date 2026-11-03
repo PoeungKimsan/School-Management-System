@@ -265,7 +265,8 @@
     reports: {
       1: {
         term: "2025–2026 · Semester 1 Midterm",
-        gpa: "3.85",
+        overallScore: "91.9%",
+        score: "91.9%",
         rank: "2 of 31",
         teacher: "Dr. Sokha Chan",
         comment: "Exceptional analytical performance in Mathematics and AI Computer Science; top 1% of Grade 12 cohort.",
@@ -287,7 +288,8 @@
       },
       11: {
         term: "2025–2026 · Semester 1 Midterm",
-        gpa: "3.78",
+        overallScore: "91.0%",
+        score: "91.0%",
         rank: "4 of 28",
         teacher: "Ms. Bopha Pich",
         comment: "Excels in Cambridge Mathematics and coding club; confident, curious learner.",
@@ -365,7 +367,94 @@
       title: "Independence Day",
       body: "Mon, 9 November · No classes · Campus closed",
       icon: "bi-flag-fill"
-    }
+    },
+
+    announcements: [
+      {
+        id: 101,
+        title: "Independence Day — Campus Closed",
+        titleKh: "ទិវាបុណ្យឯករាជ្យជាតិ ៩ វិច្ឆិកា",
+        category: "Holiday",
+        type: "announcement",
+        pinned: true,
+        date: "2026-11-02",
+        author: "School Administration",
+        audience: "All Campuses · Students & Parents",
+        icon: "bi-flag-fill",
+        summary: "Mon, 9 November · No classes · Campus closed in observance of the 73rd National Independence Day.",
+        body: "Please be informed that all Milky Way School campuses will be closed on Monday, 9 November 2026 in observance of the 73rd National Independence Day of the Kingdom of Cambodia. Regular classes and school bus services will resume on Tuesday, 10 November 2026."
+      },
+      {
+        id: 102,
+        title: "Semester 1 Parent-Teacher Conference & Honor Roll",
+        titleKh: "កម្មវិធីជំនួបមាតាបិតាសិស្ស និងប្រគល់ប័ណ្ណសរសើរប្រចាំឆមាសទី ១",
+        category: "Event",
+        type: "announcement",
+        pinned: false,
+        date: "2026-11-01",
+        author: "Dr. Sokha Chan · Academic Office",
+        audience: "All Parents & Students",
+        icon: "bi-people-fill",
+        summary: "Saturday, 14 November (08:00 AM – 12:00 PM) at Auditorium C-100 · Midterm progress review & awards.",
+        body: "We cordially invite all parents, guardians, and students to attend the Semester 1 Parent-Teacher Conference on Saturday, 14 November 2026 from 08:00 AM to 12:00 PM at Auditorium C-100 (Sen Sok HQ). Homeroom teachers will review midterm evaluation reports, and Honor Roll certificates will be awarded to top-performing students across all grades."
+      },
+      {
+        id: 103,
+        title: "Cambodia National STEM & VEX Robotics Showcase 2026",
+        titleKh: "ការតាំងពិព័រណ៍ស្នាដៃស្ទែម និងរ៉ូបូតថ្នាក់ជាតិ ២០២៦",
+        category: "Campus News",
+        type: "news",
+        pinned: false,
+        date: "2026-10-30",
+        author: "Mr. Dara Vong · STEM Lab",
+        audience: "Grade 7–12 · STEM & IEP",
+        icon: "bi-cpu-fill",
+        summary: "Our Grade 12 Science Track and Grade 7 Cambridge IEP coding club teams advance to the national finals.",
+        body: "Congratulations to our Grade 12-A Science Track and Grade 7 Cambridge IEP Robotics & Coding Club students! Their autonomous VEX robotics, IoT smart-campus sensors, and AI projects will be showcased at the Innovation Hub (Building C) on 5–6 November 2026. Parents and students are welcome to visit the exhibition booths."
+      },
+      {
+        id: 104,
+        title: "Grade 12 BacII Mock Exam Schedule & Study Hall",
+        titleKh: "កាលវិភាគប្រឡងសាកល្បងមធ្យមសិក្សាទុតិយភូមិ ថ្នាក់ទី ១២",
+        category: "Academic",
+        type: "announcement",
+        pinned: false,
+        date: "2026-10-28",
+        author: "Dr. Sokha Chan · Mathematics Dept",
+        audience: "Grade 12 · Science Track",
+        icon: "bi-mortarboard-fill",
+        summary: "Saturday morning BacII mock exams continue through November; library study hall extended to 05:30 PM.",
+        body: "All Grade 12 students are reminded that weekly Saturday morning BacII mock examinations begin promptly at 07:30 AM in Room B-201. To support exam preparation, the Sen Sok HQ Main Library and STEM Lab 301 will remain open until 05:30 PM Monday through Friday with faculty tutors available."
+      },
+      {
+        id: 105,
+        title: "2026 Royal Water Festival (Bon Om Touk) Holiday",
+        titleKh: "សេចក្តីជូនដំណឹងស្តីពីការឈប់សម្រាកព្រះរាជពិធីបុណ្យអុំទូក ២០២៦",
+        category: "Holiday",
+        type: "announcement",
+        pinned: false,
+        date: "2026-10-26",
+        author: "Registrar Office",
+        audience: "All Campuses · Students & Parents",
+        icon: "bi-water",
+        summary: "Campuses closed 23–25 November 2026 for the Royal Water Festival. Classes resume Thursday, 26 November.",
+        body: "Dear Parents, Guardians, and Students: Please be informed that all campuses will be closed from Monday, 23 November to Wednesday, 25 November 2026 in observance of the Royal Water Festival (Bon Om Touk). Classes will resume as normal on Thursday, 26 November 2026. Wishing all families a safe and joyful holiday!"
+      },
+      {
+        id: 106,
+        title: "Inter-Campus Football & Athletics Cup Results",
+        titleKh: "លទ្ធផលការប្រកួតកីឡាបាល់ទាត់ និងអត្តពលកម្មអន្តរសាខា",
+        category: "Campus News",
+        type: "news",
+        pinned: false,
+        date: "2026-10-22",
+        author: "Mr. Rotha Chea · Athletics & PE",
+        audience: "Campus #01 · Sen Sok HQ",
+        icon: "bi-trophy-fill",
+        summary: "Sen Sok HQ Campus #01 wins gold in the U-14 and U-18 Inter-Campus Athletics Cup!",
+        body: "Our student athletes from Sen Sok HQ Campus #01 delivered an outstanding performance at the annual Inter-Campus Football & Athletics Cup, bringing home gold medals in both the U-14 (Cambridge IEP) and U-18 (High School) divisions. Thank you to all students, coaches, and parents who cheered on our teams at the Sports Hall."
+      }
+    ]
   };
 
   // Dual UMD / Node CommonJS Export

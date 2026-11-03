@@ -39,7 +39,9 @@
     if (typeof window === "undefined" || typeof document === "undefined") return;
     const W = 425;
     const H = 876;
-    const s = Math.max(0.45, Math.min(1, (window.innerHeight - 80) / H, (window.innerWidth - 32) / W));
+    const innerHeight = (typeof window !== "undefined" && typeof window.innerHeight !== "undefined") ? window.innerHeight : (typeof globalThis.innerHeight !== "undefined" ? globalThis.innerHeight : 900);
+    const innerWidth = (typeof window !== "undefined" && typeof window.innerWidth !== "undefined") ? window.innerWidth : (typeof globalThis.innerWidth !== "undefined" ? globalThis.innerWidth : 450);
+    const s = Math.max(0.45, Math.min(1, (innerHeight - 80) / H, (innerWidth - 32) / W));
     const dev = document.getElementById("pmDevice");
     const wrap = document.getElementById("pmDeviceWrap");
     if (!dev || !wrap) return;
@@ -471,7 +473,9 @@
     alertFilter: "all",         // "all" | 1 | 11
     payFilter: "due",           // "due" | "paid"
     payChildFilter: "all",      // "all" | 1 | 11
-    sheet: null,                // null | "account" | "child" | "pay" | "qr"
+    newsFilter: "all",          // "all" | "announcement" | "news" | "holiday"
+    activeNewsId: null,         // active announcement/news item id for detail sheet
+    sheet: null,                // null | "account" | "child" | "pay" | "qr" | "news"
     pay: null,                  // null | { invoiceId, method, step, receiptNo }
     invoices: [],               // deep-cloned mutable invoice records
     gateLog: [],                // deep-cloned mutable gate log records
@@ -493,6 +497,8 @@
     state.activeChildId = 1;
     state.childId = 1;
     state.payChildFilter = "all";
+    state.newsFilter = "all";
+    state.activeNewsId = null;
     state.notify = { 1: true, 11: true };
     state.invoices = D.invoices ? JSON.parse(JSON.stringify(D.invoices)) : [];
     state.gateLog = D.gateLog ? JSON.parse(JSON.stringify(D.gateLog)) : [];
@@ -1052,6 +1058,10 @@
             <i class="bi bi-qr-code-scan"></i>
             <span>Check-in</span>
           </button>
+          <button type="button" class="pm-tab ${state.tab === 'news' ? 'active' : ''}" data-action="tab" data-tab="news" role="tab" aria-selected="${state.tab === 'news'}">
+            <i class="bi bi-megaphone-fill"></i>
+            <span>News</span>
+          </button>
         </nav>
       `;
     }
@@ -1083,28 +1093,32 @@
           ${hasOverdue ? '<span class="pm-tab-dot" aria-label="Overdue payment warning"></span>' : ''}
           <span>Payments</span>
         </button>
+        <button type="button" class="pm-tab ${state.tab === 'news' ? 'active' : ''}" data-action="tab" data-tab="news" role="tab" aria-selected="${state.tab === 'news'}">
+          <i class="bi bi-megaphone-fill"></i>
+          <span>News</span>
+        </button>
       </nav>
     `;
   }
 
   const SUBJECT_METADATA = {
-    "English":                  { code: "ENG-101", credits: 4, teacher: "Ms. Bopha Pich" },
-    "Academic English":         { code: "ENG-101", credits: 4, teacher: "Ms. Bopha Pich" },
-    "Khmer Literature":         { code: "KHM-101", credits: 5, teacher: "Ms. Sreyneang Meas" },
-    "Mathematics":              { code: "MAT-101", credits: 6, teacher: "Dr. Sokha Chan" },
-    "Physics":                  { code: "PHY-201", credits: 5, teacher: "Mr. Dara Vong" },
-    "Chemistry":                { code: "CHM-201", credits: 5, teacher: "Mr. Vannak Keo" },
-    "Biology":                  { code: "BIO-201", credits: 4, teacher: "Mr. Vannak Keo" },
-    "History":                  { code: "HIS-101", credits: 3, teacher: "Ms. Sreyneang Meas" },
-    "Social Studies & History": { code: "HIS-101", credits: 3, teacher: "Ms. Sreyneang Meas" },
-    "Computer Science & AI":    { code: "CSI-301", credits: 4, teacher: "Mr. Dara Vong" },
+    "English":                  { code: "ENG-101", evaluation: "Monthly", teacher: "Ms. Bopha Pich" },
+    "Academic English":         { code: "ENG-101", evaluation: "Monthly", teacher: "Ms. Bopha Pich" },
+    "Khmer Literature":         { code: "KHM-101", evaluation: "Monthly", teacher: "Ms. Sreyneang Meas" },
+    "Mathematics":              { code: "MAT-101", evaluation: "Monthly", teacher: "Dr. Sokha Chan" },
+    "Physics":                  { code: "PHY-201", evaluation: "Monthly", teacher: "Mr. Dara Vong" },
+    "Chemistry":                { code: "CHM-201", evaluation: "Monthly", teacher: "Mr. Vannak Keo" },
+    "Biology":                  { code: "BIO-201", evaluation: "Monthly", teacher: "Mr. Vannak Keo" },
+    "History":                  { code: "HIS-101", evaluation: "Monthly", teacher: "Ms. Sreyneang Meas" },
+    "Social Studies & History": { code: "HIS-101", evaluation: "Monthly", teacher: "Ms. Sreyneang Meas" },
+    "Computer Science & AI":    { code: "CSI-301", evaluation: "Monthly", teacher: "Mr. Dara Vong" },
     // Child 11 Cambridge IEP Support
-    "Cambridge Math":           { code: "CAM-M7",  credits: 5, teacher: "Mr. James Carter" },
-    "Cambridge English":        { code: "CAM-E7",  credits: 5, teacher: "Ms. Bopha Pich" },
-    "Cambridge Science":        { code: "CAM-S7",  credits: 4, teacher: "Mr. Vannak Keo" },
-    "Khmer Language":           { code: "KHM-7",   credits: 4, teacher: "Ms. Sreyneang Meas" },
-    "Computing":                { code: "CMP-7",   credits: 3, teacher: "Mr. Dara Vong" },
-    "Global Perspectives":      { code: "GLP-7",   credits: 3, teacher: "Ms. Lina Park" }
+    "Cambridge Math":           { code: "CAM-M7",  evaluation: "Monthly", teacher: "Mr. James Carter" },
+    "Cambridge English":        { code: "CAM-E7",  evaluation: "Monthly", teacher: "Ms. Bopha Pich" },
+    "Cambridge Science":        { code: "CAM-S7",  evaluation: "Monthly", teacher: "Mr. Vannak Keo" },
+    "Khmer Language":           { code: "KHM-7",   evaluation: "Monthly", teacher: "Ms. Sreyneang Meas" },
+    "Computing":                { code: "CMP-7",   evaluation: "Monthly", teacher: "Mr. Dara Vong" },
+    "Global Perspectives":      { code: "GLP-7",   evaluation: "Monthly", teacher: "Ms. Lina Park" }
   };
 
   function getGradeClasses(score) {
@@ -1140,7 +1154,7 @@
   function renderReportContent(childId = 1) {
     const D = getPMData();
     const child = (D.children && D.children[childId]) || (D.children && D.children[1]) || {};
-    const rep = (D.reports && D.reports[childId]) || { gpa: "3.85", rank: "2 of 31", subjects: [], recent: [] };
+    const rep = (D.reports && D.reports[childId]) || { overallScore: "91.9%", score: "91.9%", rank: "2 of 31", subjects: [], recent: [] };
     const avg = PM_HELPERS.calcAverage(rep.subjects);
     const tMeta = getTeacherMeta(rep.teacher);
 
@@ -1157,20 +1171,20 @@
         </div>
       ` : ""}
 
-      <!-- GPA & Average Score Overview Card -->
+      <!-- Overall Score & Rank Overview Card -->
       <div class="pm-card" style="display: flex; align-items: center; gap: 16px; padding: 18px; margin-bottom: 16px;">
-        <!-- Circular Progress Average Ring for 91.9 -->
+        <!-- Circular Progress Average Ring for 91.9% -->
         <div
           class="pm-ring"
           style="background: conic-gradient(var(--brand-primary) calc(${avg} * 3.6deg), #eaecf0 0deg); width: 88px; height: 88px; flex-shrink: 0;"
-          aria-label="Overall average score: ${avg}"
+          aria-label="Overall average score: ${avg}%"
         >
           <div class="pm-ring-content">
             <div class="pm-score-val" style="font-size: 21px; font-weight: 800; color: var(--text-main); line-height: 1.1; letter-spacing: -0.02em;">
-              ${avg}
+              ${avg}%
             </div>
             <div style="font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-top: 2px;">
-              Average
+              Score
             </div>
           </div>
         </div>
@@ -1184,9 +1198,9 @@
           </div>
           <div style="display: flex; gap: 14px; margin-top: 4px;">
             <div class="pm-stat-box">
-              <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.04em;">Term GPA</div>
+              <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.04em;">Overall Score</div>
               <div class="val" style="font-size: 22px; font-weight: 800; color: var(--brand-primary); line-height: 1.2;">
-                ${esc(rep.gpa || "3.85")}
+                ${avg}%
               </div>
             </div>
             <div style="width: 1px; background: var(--border-subtle); margin: 2px 0;"></div>
@@ -1213,7 +1227,7 @@
         ${(rep.subjects || []).map((s) => {
           const meta = SUBJECT_METADATA[s.name] || {
             code: s.code || "GEN-100",
-            credits: s.credits || 4,
+            evaluation: s.evaluation || "Monthly",
             teacher: s.teacher || "Instructor"
           };
           const gradeInfo = getGradeClasses(s.score);
@@ -1231,7 +1245,7 @@
                     </span>
                   </div>
                   <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
-                    ${esc(meta.teacher)} · <span style="color: var(--text-muted);">${meta.credits} credits</span>
+                    ${esc(meta.teacher)} · <span style="color: var(--text-muted);">${meta.evaluation || "Monthly"}</span>
                   </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -1458,10 +1472,272 @@
     `;
   }
 
+  function getNewsItems() {
+    const D = getPMData();
+    if (Array.isArray(D.announcements) && D.announcements.length > 0) {
+      return D.announcements;
+    }
+    if (D.announcement) {
+      return [
+        {
+          id: 101,
+          title: D.announcement.title || "Independence Day",
+          titleKh: "ទិវាបុណ្យឯករាជ្យជាតិ ៩ វិច្ឆិកា",
+          category: "Holiday",
+          type: "announcement",
+          pinned: true,
+          date: "2026-11-02",
+          author: "School Administration",
+          audience: "All Campuses · Students & Parents",
+          icon: D.announcement.icon || "bi-flag-fill",
+          summary: D.announcement.body || "Mon, 9 November · No classes · Campus closed",
+          body: D.announcement.body || "Mon, 9 November · No classes · Campus closed"
+        }
+      ];
+    }
+    return [];
+  }
+
+  function getNewsCategoryStyle(category) {
+    const cat = String(category || "").toLowerCase();
+    if (cat.includes("holiday")) {
+      return { pill: "danger", bg: "#fef3f2", color: "#b42318" };
+    }
+    if (cat.includes("news")) {
+      return { pill: "success", bg: "#ecfdf3", color: "#027a48" };
+    }
+    if (cat.includes("academic")) {
+      return { pill: "info", bg: "#f0f9ff", color: "#026aa2" };
+    }
+    return { pill: "brand", bg: "var(--brand-primary-light)", color: "var(--brand-primary)" };
+  }
+
+  function renderNewsSheet() {
+    const items = getNewsItems();
+    const item = items.find((x) => x.id === state.activeNewsId) || items[0];
+    if (!item) return "";
+    const catStyle = getNewsCategoryStyle(item.category);
+
+    return `
+      <div class="pm-sheet-backdrop" data-action="close-sheet"></div>
+      <div class="pm-sheet" role="dialog" aria-modal="true" aria-label="Announcement & News Details">
+        <div class="pm-sheet-header">
+          <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+            <span class="pm-pill ${catStyle.pill}">${esc(item.category || "Notice")}</span>
+            ${item.pinned ? '<span class="pm-pill warning"><i class="bi bi-pin-angle-fill"></i> Pinned</span>' : ""}
+          </div>
+          <button
+            type="button"
+            class="pm-sheet-close"
+            data-action="close-sheet"
+            aria-label="Close sheet"
+          >
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <h2 style="font-size: 18px; font-weight: 800; color: var(--text-main); line-height: 1.3; margin: 0 0 4px;">
+            ${esc(item.title)}
+          </h2>
+          ${item.titleKh ? `
+            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.4;">
+              ${esc(item.titleKh)}
+            </div>
+          ` : ""}
+        </div>
+
+        <div class="pm-card pm-list" style="margin-bottom: 14px;">
+          <div class="pm-row pm-row-between" style="padding: 10px 14px;">
+            <span style="font-size: 12.5px; color: var(--text-muted);">Published</span>
+            <span style="font-size: 12.5px; font-weight: 600; color: var(--text-main);">${PM_HELPERS.fmtDate(item.date)}</span>
+          </div>
+          <div class="pm-row pm-row-between" style="padding: 10px 14px;">
+            <span style="font-size: 12.5px; color: var(--text-muted);">From</span>
+            <span style="font-size: 12.5px; font-weight: 600; color: var(--text-main);">${esc(item.author || "School Administration")}</span>
+          </div>
+          <div class="pm-row pm-row-between" style="padding: 10px 14px;">
+            <span style="font-size: 12.5px; color: var(--text-muted);">Audience</span>
+            <span style="font-size: 12.5px; font-weight: 600; color: var(--text-main);">${esc(item.audience || "All Students & Parents")}</span>
+          </div>
+        </div>
+
+        <div class="pm-card" style="padding: 14px 16px; background: var(--surface-bg); margin-bottom: 18px;">
+          <p style="font-size: 13.5px; color: var(--text-main); line-height: 1.55; margin: 0;">
+            ${esc(item.body || item.summary || "")}
+          </p>
+        </div>
+
+        <button type="button" class="pm-btn-primary" data-action="close-sheet">
+          Done
+        </button>
+      </div>
+    `;
+  }
+
+  function renderNewsContent() {
+    const allItems = getNewsItems();
+    const activeFilter = state.newsFilter || "all";
+
+    const annCount = allItems.filter((i) => i.type === "announcement").length;
+    const newsCount = allItems.filter((i) => i.type === "news").length;
+    const holidayCount = allItems.filter((i) => String(i.category || "").toLowerCase().includes("holiday")).length;
+
+    const filteredItems = allItems.filter((item) => {
+      if (activeFilter === "announcement") return item.type === "announcement";
+      if (activeFilter === "news") return item.type === "news";
+      if (activeFilter === "holiday") return String(item.category || "").toLowerCase().includes("holiday");
+      return true;
+    });
+
+    const pinnedItem = allItems.find((i) => i.pinned) || allItems[0];
+
+    return `
+      <div class="pm-news-view">
+        ${pinnedItem && activeFilter === "all" ? `
+          <!-- Pinned Announcement Highlight Banner -->
+          <div
+            class="pm-card-hero pm-news-pinned"
+            data-action="news-open"
+            data-news-id="${pinnedItem.id}"
+            role="button"
+            tabindex="0"
+            style="cursor: pointer; margin-bottom: 14px;"
+            aria-label="Pinned announcement: ${esc(pinnedItem.title)}"
+          >
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span class="pm-pill" style="background: rgba(255, 255, 255, 0.22); color: #ffffff; font-weight: 700;">
+                <i class="bi bi-pin-angle-fill"></i> Pinned Notice · ${esc(pinnedItem.category)}
+              </span>
+              <span style="font-size: 11.5px; opacity: 0.85;">${PM_HELPERS.fmtDate(pinnedItem.date)}</span>
+            </div>
+            <div style="font-size: 17px; font-weight: 800; line-height: 1.25; margin-bottom: 3px;">
+              ${esc(pinnedItem.title)}
+            </div>
+            ${pinnedItem.titleKh ? `
+              <div style="font-size: 12px; opacity: 0.85; margin-bottom: 8px;">
+                ${esc(pinnedItem.titleKh)}
+              </div>
+            ` : ""}
+            <div style="font-size: 13px; opacity: 0.94; line-height: 1.4; margin-bottom: 10px;">
+              ${esc(pinnedItem.summary || pinnedItem.body)}
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.2); font-size: 12px; opacity: 0.9;">
+              <span><i class="bi bi-building"></i> ${esc(pinnedItem.author)}</span>
+              <span style="font-weight: 600;">Read notice <i class="bi bi-chevron-right" style="font-size: 10px;"></i></span>
+            </div>
+          </div>
+        ` : ""}
+
+        <!-- Category Filter Chips -->
+        <div class="pm-chips" role="tablist" aria-label="News & Announcements Category Filter">
+          <button
+            type="button"
+            class="pm-chip ${activeFilter === 'all' ? 'active' : ''}"
+            data-action="news-filter"
+            data-filter="all"
+            role="tab"
+            aria-selected="${activeFilter === 'all'}"
+          >
+            All (${allItems.length})
+          </button>
+          <button
+            type="button"
+            class="pm-chip ${activeFilter === 'announcement' ? 'active' : ''}"
+            data-action="news-filter"
+            data-filter="announcement"
+            role="tab"
+            aria-selected="${activeFilter === 'announcement'}"
+          >
+            Announcements (${annCount})
+          </button>
+          <button
+            type="button"
+            class="pm-chip ${activeFilter === 'news' ? 'active' : ''}"
+            data-action="news-filter"
+            data-filter="news"
+            role="tab"
+            aria-selected="${activeFilter === 'news'}"
+          >
+            Campus News (${newsCount})
+          </button>
+          <button
+            type="button"
+            class="pm-chip ${activeFilter === 'holiday' ? 'active' : ''}"
+            data-action="news-filter"
+            data-filter="holiday"
+            role="tab"
+            aria-selected="${activeFilter === 'holiday'}"
+          >
+            Holidays (${holidayCount})
+          </button>
+        </div>
+
+        <!-- Announcements & News Feed -->
+        <div class="pm-section-label" style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+          <span>School Feed</span>
+          <span style="font-size: 11px; text-transform: none; font-weight: 500; color: var(--text-muted);">
+            ${filteredItems.length} ${filteredItems.length === 1 ? "post" : "posts"}
+          </span>
+        </div>
+
+        <div class="pm-news-list" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+          ${filteredItems.map((item) => {
+            const catStyle = getNewsCategoryStyle(item.category);
+            return `
+              <div
+                class="pm-card pm-news-card"
+                data-action="news-open"
+                data-news-id="${item.id}"
+                role="button"
+                tabindex="0"
+                style="padding: 14px 16px; margin-bottom: 0; cursor: pointer;"
+              >
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px;">
+                  <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                    <span class="pm-pill ${catStyle.pill}">
+                      <i class="bi ${esc(item.icon || 'bi-megaphone-fill')}"></i> ${esc(item.category)}
+                    </span>
+                    ${item.pinned ? '<span class="pm-pill warning" style="font-size: 10.5px; padding: 2px 7px;">Pinned</span>' : ""}
+                  </div>
+                  <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 500; flex-shrink: 0;">
+                    ${PM_HELPERS.fmtDate(item.date)}
+                  </span>
+                </div>
+
+                <div class="pm-news-title" style="font-size: 14.5px; font-weight: 700; color: var(--text-main); line-height: 1.3; margin-bottom: 2px;">
+                  ${esc(item.title)}
+                </div>
+                ${item.titleKh ? `
+                  <div class="pm-news-kh" style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">
+                    ${esc(item.titleKh)}
+                  </div>
+                ` : ""}
+
+                <div class="pm-news-summary" style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.45; margin-bottom: 10px;">
+                  ${esc(item.summary || item.body)}
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px solid #f2f4f7; font-size: 11.5px; color: var(--text-muted);">
+                  <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px;">
+                    ${esc(item.author)} · ${esc(item.audience)}
+                  </span>
+                  <span style="color: var(--brand-primary); font-weight: 600; flex-shrink: 0;">
+                    Read <i class="bi bi-chevron-right" style="font-size: 10px;"></i>
+                  </span>
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </div>
+    `;
+  }
+
   function renderStudentTabContent() {
     const D = getPMData();
     const child = (D.children && D.children[1]) || { nameEn: "Sok Chanreaksa", cardId: "STU-2026-001", classShort: "G12-A", first: "Chanreaksa" };
-    const rep = (D.reports && D.reports[1]) || { gpa: "3.85", rank: "2 of 31", subjects: [], recent: [] };
+    const rep = (D.reports && D.reports[1]) || { overallScore: "91.9%", score: "91.9%", rank: "2 of 31", subjects: [], recent: [] };
     const att = PM_HELPERS.attendanceSummary(1, D);
     const durationStr = PM_HELPERS.campusDuration(1, state.gateLog);
     const todayStatus = PM_HELPERS.childToday(1, state.gateLog);
@@ -1542,14 +1818,14 @@
 
           <div class="pm-stat-card" data-action="tab" data-tab="report" role="button" tabindex="0" aria-label="Go to Report">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em;">Average score</span>
+              <span style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em;">Overall score</span>
               <i class="bi bi-chevron-right" style="font-size: 11px; color: var(--text-muted);"></i>
             </div>
             <div style="font-size: 26px; font-weight: 800; color: var(--brand-primary); margin: 4px 0 2px;">
-              ${avgScore}
+              ${avgScore}%
             </div>
             <div style="font-size: 12px; color: var(--text-secondary);">
-              GPA ${esc(rep.gpa)} · Rank ${esc(rep.rank)}
+              Score ${avgScore}% · Rank ${esc(rep.rank || "-")}
             </div>
           </div>
         </div>
@@ -1608,9 +1884,19 @@
         </div>
 
         <!-- Announcements Card -->
-        <div class="pm-section-label" style="margin-top: 16px;">Announcements</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 16px 4px 8px;">
+          <span class="pm-section-label" style="margin: 0;">Announcements</span>
+          <button
+            type="button"
+            class="pm-link-btn"
+            data-action="tab"
+            data-tab="news"
+          >
+            See all <i class="bi bi-chevron-right" style="font-size: 11px;"></i>
+          </button>
+        </div>
         ${D.announcement ? `
-          <div class="pm-card" style="padding: 14px 16px; margin-bottom: 16px; display: flex; gap: 14px; align-items: flex-start;">
+          <div class="pm-card" data-action="tab" data-tab="news" role="button" tabindex="0" style="padding: 14px 16px; margin-bottom: 16px; display: flex; gap: 14px; align-items: flex-start; cursor: pointer;">
             <div style="width: 40px; height: 40px; border-radius: 12px; background: var(--brand-primary-light); color: var(--brand-primary); display: grid; place-items: center; font-size: 18px; flex-shrink: 0;">
               <i class="bi ${esc(D.announcement.icon || 'bi-flag-fill')}"></i>
             </div>
@@ -1622,6 +1908,7 @@
                 ${esc(D.announcement.body)}
               </div>
             </div>
+            <i class="bi bi-chevron-right" style="font-size: 13px; color: var(--text-muted); align-self: center;"></i>
           </div>
         ` : ''}
       `;
@@ -1945,6 +2232,10 @@
       `;
     }
 
+    if (state.tab === "news") {
+      return renderNewsContent();
+    }
+
     return "";
   }
 
@@ -1961,8 +2252,8 @@
       const c11Status = PM_HELPERS.childToday(11, state.gateLog);
       const c1Att = PM_HELPERS.attendanceSummary(1, D);
       const c11Att = PM_HELPERS.attendanceSummary(11, D);
-      const c1Rep = (D.reports && D.reports[1]) || { gpa: "0.0", subjects: [] };
-      const c11Rep = (D.reports && D.reports[11]) || { gpa: "0.0", subjects: [] };
+      const c1Rep = (D.reports && D.reports[1]) || { overallScore: "0.0%", rank: "-", subjects: [] };
+      const c11Rep = (D.reports && D.reports[11]) || { overallScore: "0.0%", rank: "-", subjects: [] };
       const c1Avg = PM_HELPERS.calcAverage(c1Rep.subjects);
       const c11Avg = PM_HELPERS.calcAverage(c11Rep.subjects);
 
@@ -2014,13 +2305,13 @@
                   </div>
                   <div class="pm-child-metric-divider"></div>
                   <div class="pm-child-metric">
-                    <div class="pm-child-metric-val">${avg}</div>
-                    <div class="pm-child-metric-lbl">Midterm Avg</div>
+                    <div class="pm-child-metric-val">${avg}%</div>
+                    <div class="pm-child-metric-lbl">Overall Score</div>
                   </div>
                   <div class="pm-child-metric-divider"></div>
                   <div class="pm-child-metric">
-                    <div class="pm-child-metric-val">${esc(rep.gpa)}</div>
-                    <div class="pm-child-metric-lbl">GPA Score</div>
+                    <div class="pm-child-metric-val">${esc(rep.rank || "-")}</div>
+                    <div class="pm-child-metric-lbl">Class Rank</div>
                   </div>
                 </div>
 
@@ -2122,6 +2413,30 @@
             `;
           }).join("")}
         </div>
+
+        <!-- Announcements & News Preview Widget -->
+        <div class="pm-section-header">
+          <span class="pm-section-label" style="margin: 0;">Announcements & News</span>
+          <button type="button" class="pm-link-btn" data-action="tab" data-tab="news">
+            See all <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+        ${D.announcement ? `
+          <div class="pm-card" data-action="tab" data-tab="news" role="button" tabindex="0" style="padding: 14px 16px; margin-bottom: 20px; display: flex; gap: 14px; align-items: flex-start; cursor: pointer;">
+            <div style="width: 40px; height: 40px; border-radius: 12px; background: var(--brand-primary-light); color: var(--brand-primary); display: grid; place-items: center; font-size: 18px; flex-shrink: 0;">
+              <i class="bi ${esc(D.announcement.icon || 'bi-flag-fill')}"></i>
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-size: 14.5px; font-weight: 700; color: var(--text-main); margin-bottom: 2px;">
+                ${esc(D.announcement.title)}
+              </div>
+              <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.35;">
+                ${esc(D.announcement.body)}
+              </div>
+            </div>
+            <i class="bi bi-chevron-right" style="font-size: 13px; color: var(--text-muted); align-self: center;"></i>
+          </div>
+        ` : ''}
       `;
     }
 
@@ -2417,6 +2732,10 @@
       `;
     }
 
+    if (state.tab === "news") {
+      return renderNewsContent();
+    }
+
     return "";
   }
 
@@ -2445,6 +2764,9 @@
       } else if (state.tab === "checkin") {
         eyebrow = "Campus Gate Security";
         title = "Gate Check-in";
+      } else if (state.tab === "news") {
+        eyebrow = "School Updates & Circulars";
+        title = "News & Notices";
       }
 
       return `
@@ -2468,6 +2790,7 @@
         ${state.sheet === "child" ? renderChildSheet() : ""}
         ${state.sheet === "qr" ? renderQrSheet() : ""}
         ${state.sheet === "pay" ? renderPaySheet() : ""}
+        ${state.sheet === "news" ? renderNewsSheet() : ""}
       `;
     } else {
       const activeChildId = state.activeChildId || state.childId || 1;
@@ -2488,6 +2811,9 @@
       } else if (state.tab === "payments") {
         eyebrow = "School Invoicing";
         title = "Tuition & Fees";
+      } else if (state.tab === "news") {
+        eyebrow = "School Updates & Circulars";
+        title = "News & Notices";
       }
 
       return `
@@ -2512,6 +2838,7 @@
         ${state.sheet === "child" ? renderChildSheet() : ""}
         ${state.sheet === "qr" ? renderQrSheet() : ""}
         ${state.sheet === "pay" ? renderPaySheet() : ""}
+        ${state.sheet === "news" ? renderNewsSheet() : ""}
       `;
     }
   }
@@ -2826,6 +3153,20 @@
         const f = actEl.dataset.filter;
         state.alertFilter = f === "all" ? "all" : Number(f);
         render();
+        break;
+      }
+      case "news-filter": {
+        state.newsFilter = actEl.dataset.filter || "all";
+        render();
+        break;
+      }
+      case "news-open": {
+        const nId = Number(actEl.dataset.newsId);
+        if (nId) {
+          state.activeNewsId = nId;
+          state.sheet = "news";
+          render();
+        }
         break;
       }
       case "pay-child-filter": {

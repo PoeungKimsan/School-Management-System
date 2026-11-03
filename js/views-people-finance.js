@@ -2738,7 +2738,7 @@
                   <div class="p-3 rounded-3 bg-white border mb-2">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                       <span class="fw-semibold text-dark">Sok Chanreaksa</span>
-                      <span class="badge bg-success-soft">Present · GPA 3.85</span>
+                      <span class="badge bg-success-soft">Present · 91.9% · Rank 2 of 31</span>
                     </div>
                     <div class="small text-muted">Grade 12-A · Sen Sok HQ Campus</div>
                   </div>

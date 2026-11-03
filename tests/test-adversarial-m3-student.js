@@ -10,7 +10,7 @@
  *   Section 2: Campus Duration & Gate Log State Engine Edge Cases
  *   Section 3: Pseudo-QR Generator Integrity & Multi-format Analysis
  *   Section 4: Attendance Summary & Monthly Calendar Calculation
- *   Section 5: Report Card Scoring, GPA & Letter Scale Bounds
+ *   Section 5: Report Card Scoring, Overall Score & Letter Scale Bounds
  *   Section 6: Headless Chrome CDP Live UI & Tab Interaction Verification
  *
  * Dual Mode:
@@ -507,23 +507,23 @@ console.log(`\n${colors.bold}${colors.yellow}--- Section 4: Attendance Summary &
 }
 
 // =============================================================================
-// SECTION 5: Report Card Scoring, GPA & Letter Scale Bounds
+// SECTION 5: Report Card Scoring, Overall Score & Letter Scale Bounds
 // =============================================================================
-console.log(`\n${colors.bold}${colors.yellow}--- Section 5: Report Card Scoring, GPA & Letter Scale Bounds ---${colors.reset}`);
+console.log(`\n${colors.bold}${colors.yellow}--- Section 5: Report Card Scoring, Overall Score & Letter Scale Bounds ---${colors.reset}`);
 
-// Check 25: Child 1 Report Card (GPA 3.85, Rank '2 of 31', Average score 91.9 across 7 subjects)
+// Check 25: Child 1 Report Card (Overall Score 91.9%, Rank '2 of 31', Average score 91.9 across 7 subjects)
 {
   const r1 = D.reports[1];
   const avg = PM_HELPERS.calcAverage(r1.subjects);
   const avgCorrect = avg === "91.9";
-  const gpaCorrect = r1.gpa === "3.85";
+  const scoreCorrect = r1.overallScore === "91.9%" || r1.score === "91.9%";
   const rankCorrect = r1.rank === "2 of 31";
 
   report(
     25,
-    "Child 1 Midterm Report: Average 91.9, GPA 3.85, Rank '2 of 31' across 7 subjects",
-    avgCorrect && gpaCorrect && rankCorrect,
-    `Avg: ${avg}, GPA: ${r1.gpa}, Rank: ${r1.rank}, Subjects: ${r1.subjects.length}`
+    "Child 1 Midterm Report: Average 91.9, Overall Score 91.9%, Rank '2 of 31' across 7 subjects",
+    avgCorrect && scoreCorrect && rankCorrect,
+    `Avg: ${avg}, Score: ${r1.overallScore || r1.score}, Rank: ${r1.rank}, Subjects: ${r1.subjects.length}`
   );
 }
 
@@ -613,11 +613,14 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function runBrowserE2ESuite() {
   const chromePaths = [
+    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+    (process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, "Google/Chrome/Application/chrome.exe") : ""),
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "/usr/bin/google-chrome",
     "/usr/bin/chromium",
     "/usr/bin/chromium-browser"
-  ];
+  ].filter(Boolean);
   const chromeBin = chromePaths.find((p) => fs.existsSync(p));
   if (!chromeBin) {
     console.log(`  ${colors.yellow}⚠ SKIPPED browser E2E tests: Chrome binary not found in standard paths${colors.reset}`);
@@ -703,7 +706,7 @@ async function runBrowserE2ESuite() {
       const hasCheckout = homeData.heroText && homeData.heroText.includes("11:32 AM");
       const hasBio = homeData.heroText && homeData.heroText.includes("Biology");
       const hasAttCard = homeData.statCards.some(s => s.includes("96.3%") && s.toLowerCase().includes("attendance"));
-      const hasAvgCard = homeData.statCards.some(s => s.includes("91.9") && s.toLowerCase().includes("average score"));
+      const hasAvgCard = homeData.statCards.some(s => s.includes("91.9") && (s.toLowerCase().includes("score") || s.toLowerCase().includes("overall")));
 
       report(
         27,
@@ -781,15 +784,15 @@ async function runBrowserE2ESuite() {
       })()`);
 
       const has919 = repData.ringText && repData.ringText.includes("91.9");
-      const hasGPA = repData.metaText.includes("3.85");
+      const hasScore = repData.metaText.includes("91.9%") || repData.ringText.includes("91.9%");
       const hasRank = repData.metaText.includes("2 of 31");
       const has7Subjects = repData.subjectRows.length === 7;
 
       report(
         30,
-        "Live UI Report Tab: Circular score ring displays 91.9, GPA 3.85, Rank '2 of 31', and 7 subjects",
-        has919 && hasGPA && hasRank && has7Subjects,
-        `Score: ${repData.ringText}, GPA 3.85 & Rank 2 of 31 confirmed, Subjects: ${repData.subjectRows.length}`
+        "Live UI Report Tab: Circular score ring displays 91.9%, Score 91.9%, Rank '2 of 31', and 7 subjects",
+        has919 && hasScore && hasRank && has7Subjects,
+        `Score: ${repData.ringText}, Score 91.9% & Rank 2 of 31 confirmed, Subjects: ${repData.subjectRows.length}`
       );
     }
 

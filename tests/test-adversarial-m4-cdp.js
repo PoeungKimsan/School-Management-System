@@ -9,6 +9,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
 const http = require("http");
 const { spawn } = require("child_process");
 
@@ -127,11 +128,14 @@ async function runTestSuite() {
   console.log(`Target URL:          ${BASE_URL}`);
 
   const chromePaths = [
+    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+    (process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, "Google/Chrome/Application/chrome.exe") : ""),
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "/Applications/Chromium.app/Contents/MacOS/Chromium",
     "/usr/bin/google-chrome",
     "/usr/bin/chromium-browser"
-  ];
+  ].filter(Boolean);
   let chromeBin = chromePaths.find((p) => fs.existsSync(p));
   if (!chromeBin) {
     console.error("No Chrome binary found on system.");
@@ -139,7 +143,7 @@ async function runTestSuite() {
   }
 
   const cdpPort = 9222 + Math.floor(Math.random() * 500);
-  const tmpDir = path.join("/tmp", `cdp-test-m4-${Date.now()}`);
+  const tmpDir = path.join(os.tmpdir(), `cdp-test-m4-${Date.now()}`);
   fs.mkdirSync(tmpDir, { recursive: true });
 
   const chromeProc = spawn(chromeBin, [
@@ -283,7 +287,7 @@ async function runTestSuite() {
     report(5, "Parent header displays greeting 'Good morning, Vibol!'", shell.greeting === "Good morning, Vibol!");
     report(6, "Parent account avatar displays initials 'SV'", shell.avatar === "SV");
     report(7, "Parent Home header is clean without a redundant header child switcher dropdown", !shell.hasSwitcher);
-    report(8, "Parent tab bar contains 5 tabs: [home, alerts, scores, schedule, payments]", shell.tabs.join(",") === "home,alerts,scores,schedule,payments");
+    report(8, "Parent tab bar contains 6 tabs: [home, alerts, scores, schedule, payments, news]", shell.tabs.join(",") === "home,alerts,scores,schedule,payments,news");
     report(9, "Default active tab is 'home'", shell.activeTab === "home");
     report(10, "Payments tab displays overdue red dot indicator (.pm-tab-dot)", shell.hasPaymentDot);
 
@@ -316,9 +320,9 @@ async function runTestSuite() {
     })()`);
 
     report(11, "Child 1 Status Card: Sok Chanreaksa Off campus · Out 11:32 AM", homeData.c1Name === "Sok Chanreaksa" && homeData.c1Status.includes("Off campus") && homeData.c1Status.includes("11:32 AM"));
-    report(12, "Child 1 Metrics: Attendance 96.3%, Midterm Avg 91.9, GPA 3.85", homeData.c1Metrics[0] === "96.3%" && homeData.c1Metrics[1] === "91.9" && homeData.c1Metrics[2] === "3.85");
+    report(12, "Child 1 Metrics: Attendance 96.3%, Overall Score 91.9%, Class Rank 2 of 31", homeData.c1Metrics[0] === "96.3%" && homeData.c1Metrics[1] === "91.9%" && homeData.c1Metrics[2] === "2 of 31");
     report(13, "Child 11 Status Card: Sok Chanpanha On campus · In 07:12 AM", homeData.c11Name === "Sok Chanpanha" && homeData.c11Status.includes("On campus") && homeData.c11Status.includes("07:12 AM"));
-    report(14, "Child 11 Metrics: Attendance 100.0%, Midterm Avg 91.0, GPA 3.78", homeData.c11Metrics[0] === "100.0%" && homeData.c11Metrics[1] === "91.0" && homeData.c11Metrics[2] === "3.78");
+    report(14, "Child 11 Metrics: Attendance 100.0%, Overall Score 91.0%, Class Rank 4 of 28", homeData.c11Metrics[0] === "100.0%" && homeData.c11Metrics[1] === "91.0%" && homeData.c11Metrics[2] === "4 of 28");
     report(15, "Next Payment Card: Total family balance $1,710.00", homeData.payTotal.includes("$1,710.00"));
     report(16, "Next Payment Card: Urgent overdue alert displays INV-2026-0618 ($45.00 Overdue)", homeData.hasOverdueAlert && homeData.overdueText.includes("INV-2026-0618") && homeData.overdueText.includes("$45.00"));
     report(17, "Latest Gate Alerts Widget: Top 3 events chronologically descending (11:32 AM on top)", homeData.hasGateWidget && homeData.gateRows.length === 3 && homeData.gateRows[0].includes("11:32 AM"));
@@ -580,7 +584,7 @@ async function runTestSuite() {
     })()`);
 
     report(38, "Scores tab displays Child Context Bar 'Viewing Sok Chanpanha · G7-IEP'", scores11.barText.includes("Viewing") && scores11.barText.includes("Sok Chanpanha") && (scores11.barText.includes("G7-IEP") || scores11.barText.includes("G8-B")));
-    report(39, "Scores tab renders Midterm evaluation for Chanpanha (Average 91.0, GPA 3.78, 6 subjects)", scores11.score === "91.0" && scores11.gpa === "3.78" && scores11.subjectCount === 6);
+    report(39, "Scores tab renders Midterm evaluation for Chanpanha (Average 91.0, Overall Score 91.0%, 6 subjects)", scores11.score.includes("91.0") && scores11.gpa === "91.0%" && scores11.subjectCount === 6);
     report(40, "Teacher quote card displays Homeroom Advisor Ms. Bopha Pich with initials 'BP'", scores11.teacher?.includes("Ms. Bopha Pich") && scores11.initials === "BP");
 
     // Use Context Bar 'Change' button to switch back to Sok Chanreaksa (ID 1)
@@ -615,7 +619,7 @@ async function runTestSuite() {
     })()`);
 
     report(41, "Context bar switch updates to 'Viewing Sok Chanreaksa · G12-A'", scores1.barText.includes("Sok Chanreaksa") && scores1.barText.includes("G12-A"));
-    report(42, "Scores view dynamically updates to Chanreaksa (Average 91.9, GPA 3.85, 7 subjects)", scores1.score === "91.9" && scores1.gpa === "3.85" && scores1.subjectCount === 7);
+    report(42, "Scores view dynamically updates to Chanreaksa (Average 91.9, Overall Score 91.9%, 7 subjects)", scores1.score.includes("91.9") && scores1.gpa === "91.9%" && scores1.subjectCount === 7);
     report(43, "Teacher quote card dynamically updates to Dr. Sokha Chan with initials 'SC'", scores1.teacher?.includes("Dr. Sokha Chan") && scores1.initials === "SC");
 
     // Navigate to Schedule tab (active child is 1)
@@ -974,7 +978,7 @@ async function runTestSuite() {
     console.log(`\n${colors.bold}--- PHASE 9: Adversarial UI Resiliency & DOM Integrity Fuzzing ---${colors.reset}`);
 
     // Rapid Tab Switching Fuzzing (25 rapid switches)
-    const testTabs = ["home", "alerts", "scores", "schedule", "payments"];
+    const testTabs = ["home", "alerts", "scores", "schedule", "payments", "news"];
     for (let i = 0; i < 25; i++) {
       const randomTab = testTabs[Math.floor(Math.random() * testTabs.length)];
       await cdp.evaluate(`(() => {

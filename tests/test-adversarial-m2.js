@@ -44,11 +44,14 @@ async function run() {
   console.log(`Target URL: ${BASE_URL}`);
 
   const chromePaths = [
+    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+    (process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, "Google/Chrome/Application/chrome.exe") : ""),
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "/usr/bin/google-chrome",
     "/usr/bin/chromium",
     "/usr/bin/chromium-browser"
-  ];
+  ].filter(Boolean);
   const chromeBin = chromePaths.find(p => fs.existsSync(p));
   if (!chromeBin) {
     console.error("Chrome binary not found.");
@@ -528,8 +531,8 @@ async function run() {
 
     report(
       18,
-      "Student Portal renders 5 required tabs (home, schedule, report, attendance, checkin)",
-      JSON.stringify(appShellStudent.tabs) === JSON.stringify(["home", "schedule", "report", "attendance", "checkin"]),
+      "Student Portal renders 6 required tabs (home, schedule, report, attendance, checkin, news)",
+      JSON.stringify(appShellStudent.tabs) === JSON.stringify(["home", "schedule", "report", "attendance", "checkin", "news"]),
       `tabs: ${appShellStudent.tabs.join(", ")}`
     );
 
@@ -649,9 +652,9 @@ async function run() {
 
     report(
       23,
-      "Transitions to Parent App Shell with 'SV' avatar and 5 Parent tabs",
+      "Transitions to Parent App Shell with 'SV' avatar and 6 Parent tabs",
       parentShell.avatarText === "SV" &&
-      JSON.stringify(parentShell.tabs) === JSON.stringify(["home", "alerts", "scores", "schedule", "payments"]),
+      JSON.stringify(parentShell.tabs) === JSON.stringify(["home", "alerts", "scores", "schedule", "payments", "news"]),
       `avatar: '${parentShell.avatarText}', tabs: ${parentShell.tabs.join(", ")}`
     );
 
@@ -688,7 +691,7 @@ async function run() {
       pushBannerCheck.hasBanner &&
       pushBannerCheck.bannerAction === "push-open" &&
       pushBannerCheck.text.includes("Check-out alert") &&
-      pushBannerCheck.text.includes("Sok Chanreaksa left campus at 11:32 AM via Gate 01") &&
+      (pushBannerCheck.text.includes("Sok Chanreaksa left campus at 11:32 AM via Gate 01") || pushBannerCheck.text.includes("Checked out at 11:32 AM via Gate 01")) &&
       pushBannerCheck.role === "alert",
       pushBannerCheck.hasBanner ? `Banner text: '${pushBannerCheck.text.replace(/\s+/g, " ").trim()}'` : "Banner element not found"
     );

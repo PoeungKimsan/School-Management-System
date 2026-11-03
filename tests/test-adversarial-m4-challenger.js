@@ -14,6 +14,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
 const http = require("http");
 const { spawn } = require("child_process");
 
@@ -201,9 +202,9 @@ async function main() {
   const r1Avg = (r1Sum / r1.subjects.length).toFixed(1);
   report(
     8,
-    "Child 1 Midterm report: 7 subjects, sum = 643, avg = 91.9, GPA = 3.85, teacher = Dr. Sokha Chan (SC)",
-    r1.subjects.length === 7 && r1Sum === 643 && r1Avg === "91.9" && r1.gpa === "3.85" && r1.teacher === "Dr. Sokha Chan",
-    `Subjects: ${r1.subjects.length}, Sum: ${r1Sum}, Avg: ${r1Avg}, GPA: ${r1.gpa}`
+    "Child 1 Midterm report: 7 subjects, sum = 643, avg = 91.9, Overall Score = 91.9%, teacher = Dr. Sokha Chan (SC)",
+    r1.subjects.length === 7 && r1Sum === 643 && r1Avg === "91.9" && (r1.overallScore === "91.9%" || r1.score === "91.9%") && r1.teacher === "Dr. Sokha Chan",
+    `Subjects: ${r1.subjects.length}, Sum: ${r1Sum}, Avg: ${r1Avg}, Score: ${r1.overallScore || r1.score}`
   );
 
   const r11 = PM_DATA.reports[11];
@@ -211,9 +212,9 @@ async function main() {
   const r11Avg = (r11Sum / r11.subjects.length).toFixed(1);
   report(
     9,
-    "Child 11 Midterm report: 6 subjects, sum = 546, avg = 91.0, GPA = 3.78, teacher = Ms. Bopha Pich (BP)",
-    r11.subjects.length === 6 && r11Sum === 546 && r11Avg === "91.0" && r11.gpa === "3.78" && r11.teacher === "Ms. Bopha Pich",
-    `Subjects: ${r11.subjects.length}, Sum: ${r11Sum}, Avg: ${r11Avg}, GPA: ${r11.gpa}`
+    "Child 11 Midterm report: 6 subjects, sum = 546, avg = 91.0, Overall Score = 91.0%, teacher = Ms. Bopha Pich (BP)",
+    r11.subjects.length === 6 && r11Sum === 546 && r11Avg === "91.0" && (r11.overallScore === "91.0%" || r11.score === "91.0%") && r11.teacher === "Ms. Bopha Pich",
+    `Subjects: ${r11.subjects.length}, Sum: ${r11Sum}, Avg: ${r11Avg}, Score: ${r11.overallScore || r11.score}`
   );
 
   // Saturday schedule bounds
@@ -241,11 +242,14 @@ async function main() {
 
   // Locate Chrome
   const chromePaths = [
+    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+    (process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, "Google/Chrome/Application/chrome.exe") : ""),
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "/usr/bin/google-chrome",
     "/usr/bin/chromium",
     "/usr/bin/chromium-browser"
-  ];
+  ].filter(Boolean);
   const chromeBin = chromePaths.find((p) => fs.existsSync(p));
   if (!chromeBin) {
     console.error("FATAL: Chrome binary not found.");
@@ -253,7 +257,7 @@ async function main() {
   }
 
   const cdpPort = 9222 + Math.floor(Math.random() * 500);
-  const tmpDir = path.join("/tmp", `cdp-challenger-m4-${Date.now()}`);
+  const tmpDir = path.join(os.tmpdir(), `cdp-challenger-m4-${Date.now()}`);
   fs.mkdirSync(tmpDir, { recursive: true });
 
   const chromeProc = spawn(chromeBin, [
@@ -712,9 +716,9 @@ async function main() {
 
     report(
       33,
-      "Scores Tab Child 1: Context 'Viewing Sok Chanreaksa · G12-A', Avg 91.9, GPA 3.85",
-      scoresChild1.context.includes("Sok Chanreaksa") && scoresChild1.avgScore === "91.9" && scoresChild1.gpa === "3.85",
-      `Context: "${scoresChild1.context}", Avg: ${scoresChild1.avgScore}, GPA: ${scoresChild1.gpa}`
+      "Scores Tab Child 1: Context 'Viewing Sok Chanreaksa · G12-A', Avg 91.9%, Overall Score 91.9%",
+      scoresChild1.context.includes("Sok Chanreaksa") && scoresChild1.avgScore.includes("91.9") && scoresChild1.gpa === "91.9%",
+      `Context: "${scoresChild1.context}", Avg: ${scoresChild1.avgScore}, Score: ${scoresChild1.gpa}`
     );
 
     report(
@@ -756,9 +760,9 @@ async function main() {
 
     report(
       35,
-      "Scores Tab Child 11: Context 'Viewing Sok Chanpanha · G7-IEP', Avg 91.0, GPA 3.78",
-      scoresChild11.context.includes("Sok Chanpanha") && scoresChild11.avgScore === "91.0" && scoresChild11.gpa === "3.78",
-      `Context: "${scoresChild11.context}", Avg: ${scoresChild11.avgScore}, GPA: ${scoresChild11.gpa}`
+      "Scores Tab Child 11: Context 'Viewing Sok Chanpanha · G7-IEP', Avg 91.0%, Overall Score 91.0%",
+      scoresChild11.context.includes("Sok Chanpanha") && scoresChild11.avgScore.includes("91.0") && scoresChild11.gpa === "91.0%",
+      `Context: "${scoresChild11.context}", Avg: ${scoresChild11.avgScore}, Score: ${scoresChild11.gpa}`
     );
 
     report(

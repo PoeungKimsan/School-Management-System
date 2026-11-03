@@ -25,7 +25,7 @@
  *      - Rapid weekday switching stress test.
  *   4. Report Tab Verification:
  *      - Circular average ring displays 91.9 with conic-gradient.
- *      - Term GPA 3.85 and Class Rank 2 of 31.
+ *      - Overall Score 91.9% and Class Rank 2 of 31.
  *      - All 7 subjects display score, letter grade pill (A+, A), and progress bar width.
  *      - Recent assessments breakdown (Integration Quiz, Lab Report, Essay, Unit Test).
  *      - Homeroom teacher evaluation quote card from Dr. Sokha Chan.
@@ -177,11 +177,14 @@ async function runTestSuite() {
 
   // 1. Locate Chrome Binary
   const chromePaths = [
+    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+    (process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, "Google/Chrome/Application/chrome.exe") : ""),
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "/usr/bin/google-chrome",
     "/usr/bin/chromium",
     "/usr/bin/chromium-browser"
-  ];
+  ].filter(Boolean);
   const chromeBin = chromePaths.find((p) => fs.existsSync(p));
   if (!chromeBin) {
     console.error(`${colors.red}FATAL: Google Chrome / Chromium executable not found in standard paths.${colors.reset}`);
@@ -320,9 +323,9 @@ async function runTestSuite() {
     report(5, "Login transition completes: Login form removed from DOM", p1Shell.loginFormGone);
     report(6, "App Shell body and header successfully rendered", p1Shell.headerExists && p1Shell.bodyExists);
     report(7, "Student avatar displays 'SC' initials", p1Shell.avatarInitials === "SC");
-    report(8, "Student navigation tab bar renders exactly 5 tabs", p1Shell.tabCount === 5, `Tabs: ${p1Shell.tabs.join(", ")}`);
-    report(9, "5 Student tabs are [home, schedule, report, attendance, checkin]",
-      JSON.stringify(p1Shell.tabs) === JSON.stringify(["home", "schedule", "report", "attendance", "checkin"]));
+    report(8, "Student navigation tab bar renders exactly 6 tabs", p1Shell.tabCount === 6, `Tabs: ${p1Shell.tabs.join(", ")}`);
+    report(9, "6 Student tabs are [home, schedule, report, attendance, checkin, news]",
+      JSON.stringify(p1Shell.tabs) === JSON.stringify(["home", "schedule", "report", "attendance", "checkin", "news"]));
     report(10, "Default active tab upon login is 'home'", p1Shell.activeTab === "home");
 
     // ==========================================================================
@@ -374,8 +377,8 @@ async function runTestSuite() {
       p2Home.heroText.includes("Biology") && p2Home.heroText.includes("13:30 – 14:45"));
     report(17, "Attendance stat overview card displays 96.3% and 24 Present",
       p2Home.attCardText.includes("96.3%") && p2Home.attCardText.includes("24 Present"));
-    report(18, "Average score stat overview card displays 91.9, GPA 3.85, Rank 2 of 31",
-      p2Home.repCardText.includes("91.9") && p2Home.repCardText.includes("3.85") && p2Home.repCardText.includes("2 of 31"));
+    report(18, "Average score stat overview card displays 91.9%, Rank 2 of 31",
+      p2Home.repCardText.includes("91.9") && p2Home.repCardText.includes("2 of 31"));
     report(19, "Today's classes mini-list renders periods on Home tab", p2Home.periodRowCount >= 5);
     report(20, "Independence Day announcement card rendered",
       p2Home.announcementExists && p2Home.announcementText.includes("Independence Day"));
@@ -604,7 +607,7 @@ async function runTestSuite() {
       const ringLabel = ring ? ring.getAttribute("aria-label") : "";
       const ringStyle = ring ? ring.getAttribute("style") : "";
 
-      const gpaEl = Array.from(document.querySelectorAll("div")).find(d => d.textContent.trim() === "Term GPA");
+      const gpaEl = Array.from(document.querySelectorAll("div")).find(d => d.textContent.trim() === "Overall Score" || d.textContent.trim() === "Term GPA");
       const gpaVal = gpaEl && gpaEl.nextElementSibling ? gpaEl.nextElementSibling.textContent.trim() : "";
 
       const rankEl = Array.from(document.querySelectorAll("div")).find(d => d.textContent.trim() === "Class Rank");
@@ -642,10 +645,10 @@ async function runTestSuite() {
       };
     })()`);
 
-    report(36, "Report average circular ring displays '91.9'", p4Report.ringText === "91.9");
+    report(36, "Report average circular ring displays '91.9%'", p4Report.ringText.includes("91.9"));
     report(37, "Report ring style contains dynamic conic-gradient for 91.9",
       p4Report.ringStyle.includes("91.9") || p4Report.ringStyle.includes("conic-gradient"));
-    report(38, "Term GPA displays '3.85'", p4Report.gpaVal === "3.85");
+    report(38, "Overall Score displays '91.9%'", p4Report.gpaVal === "91.9%");
     report(39, "Class Rank displays '2 of 31'", p4Report.rankVal === "2 of 31");
     report(40, "Subject breakdown displays exactly 7 subjects", p4Report.subjectCount === 7, `Found ${p4Report.subjectCount} subjects`);
 
@@ -997,8 +1000,8 @@ async function runTestSuite() {
     // ==========================================================================
     console.log(`\n${colors.bold}${colors.magenta}--- PHASE 8: Adversarial Resiliency & Stress Testing ---${colors.reset}`);
 
-    // Fuzz rapid tab switching across all 5 tabs in pseudo-random pattern
-    const tabsList = ["home", "schedule", "report", "attendance", "checkin"];
+    // Fuzz rapid tab switching across all 6 tabs in pseudo-random pattern
+    const tabsList = ["home", "schedule", "report", "attendance", "checkin", "news"];
     for (let i = 0; i < 25; i++) {
       const targetTab = tabsList[Math.floor(Math.random() * tabsList.length)];
       await cdp.evaluate(`(() => {
