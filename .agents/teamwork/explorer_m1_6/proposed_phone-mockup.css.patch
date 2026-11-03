@@ -1,0 +1,26 @@
+--- a/phone-mockup/phone-mockup.css
++++ b/phone-mockup/phone-mockup.css
+@@ -185,7 +185,6 @@
+   top: 11px;
+   left: 50%;
+   transform: translateX(-50%);
+-  translate: -50% 0;
+   width: 126px;
+   height: 37px;
+   border-radius: 20px;
+@@ -233,7 +232,6 @@
+   bottom: 8px;
+   left: 50%;
+   transform: translateX(-50%);
+-  translate: -50% 0;
+   width: 134px;
+   height: 5px;
+   border-radius: 3px;
+@@ -697,7 +695,6 @@
+   left: 50%;
+   bottom: 100px;
+   transform: translateX(-50%);
+-  translate: -50% 0;
+   z-index: 80;
+   background: rgba(16, 24, 40, 0.92);
+   color: #ffffff;

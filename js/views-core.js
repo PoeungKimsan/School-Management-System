@@ -70,6 +70,7 @@
   // ============================================================================
   function renderDashboard(container) {
     const st = window.SMS_STATE;
+    window.syncSchoolMetrics?.(st);
     const yr = getCurrentYearObj();
     const campuses = (st.campusDirectory || []).filter((c) => c.id !== "C06");
 
@@ -331,35 +332,61 @@
   // ============================================================================
   function renderCampusDashboard(container) {
     const st = window.SMS_STATE;
+    window.syncSchoolMetrics?.(st);
     const campuses = (st.campusDirectory || []).filter((c) => c.id !== "C06");
 
     let activeCampusId =
-      st.activeCampusId && st.activeCampusId !== "ALL"
-        ? st.activeCampusId
-        : st.selectedCampusDashboardId || "C01";
+      st.selectedCampusDashboardId ||
+      (st.activeCampusId && st.activeCampusId !== "ALL" ? st.activeCampusId : "C01");
 
     let campus = campuses.find((c) => c.id === activeCampusId) || campuses[0];
     let activeTab = "classes"; // 'classes', 'students', 'parents', 'faculty', 'billing'
+    let classStatusFilter = "ongoing"; // 'ongoing', 'ALL'
+    let stuTabFilter = "registered"; // 'registered', 'applications', 'waitlists'
+    let invStatusFilter = "ALL"; // 'ALL', 'Paid', 'Unpaid'
     let classSearchQ = "";
     let stuSearchQ = "";
     let parentSearchQ = "";
+    let stuPage = 1;
+    let parentPage = 1;
+    let invPage = 1;
+    const PAGE_SIZE = 25;
 
     const draw = () => {
-      const campusClasses = st.classes.filter(
+      window.syncSchoolMetrics?.(st);
+      const allCampusClasses = st.classes.filter(
         (c) => c.campusId === campus.id || (!c.campusId && campus.id === "C01")
       );
-      const campusStudents = st.students.filter(
+      const ongoingCampusClasses = allCampusClasses.filter((c) => c.status === "ongoing");
+      const campusClasses = classStatusFilter === "ongoing" ? ongoingCampusClasses : allCampusClasses;
+
+      const allCampusStudents = st.students.filter(
         (s) => s.campusId === campus.id || (!s.campusId && campus.id === "C01")
       );
+      const regCampusStudents = allCampusStudents.filter((s) => s.tab === "registered");
+      const appCampusStudents = allCampusStudents.filter((s) => s.tab === "applications");
+      const wtlCampusStudents = allCampusStudents.filter((s) => s.tab === "waitlists");
+      const campusStudents = allCampusStudents.filter((s) => s.tab === stuTabFilter);
+
       const campusGuardians = st.guardians.filter(
         (g) => g.campusId === campus.id || (!g.campusId && campus.id === "C01")
       );
       const campusStaff = st.staffs.filter(
-        (stf) => stf.campusId === campus.id || stf.campusId === "ALL" || (!stf.campusId && campus.id === "C01")
+        (stf) =>
+          (stf.campusId === campus.id || (campus.id === "C01" && stf.campusId === "ALL")) &&
+          stf.employmentStatus === "Working"
       );
-      const campusInvoices = st.invoices.filter(
+      const allCampusInvoices = st.invoices.filter(
         (inv) => inv.campusId === campus.id || (!inv.campusId && campus.id === "C01")
       );
+      const paidCampusInvoices = allCampusInvoices.filter((inv) => inv.status === "Paid");
+      const unpaidCampusInvoices = allCampusInvoices.filter((inv) => inv.status !== "Paid");
+      const campusInvoices =
+        invStatusFilter === "ALL"
+          ? allCampusInvoices
+          : invStatusFilter === "Paid"
+          ? paidCampusInvoices
+          : unpaidCampusInvoices;
 
       const campusUtilPct = campus.capacity
         ? Math.round((campus.totalStudents / campus.capacity) * 100)
@@ -374,6 +401,7 @@
           (c.teacher?.fullName || "").toLowerCase().includes(classSearchQ)
         );
       });
+      const shownClassesTotalStudents = filteredClasses.reduce((sum, c) => sum + (Number(c.totalStudents) || 0), 0);
 
       const filteredStudents = campusStudents.filter((s) => {
         if (!stuSearchQ) return true;
@@ -385,6 +413,9 @@
           (s.phone || "").toLowerCase().includes(stuSearchQ)
         );
       });
+      const stuTotalPages = Math.max(1, Math.ceil(filteredStudents.length / PAGE_SIZE));
+      if (stuPage > stuTotalPages) stuPage = stuTotalPages;
+      const pagedStudents = filteredStudents.slice((stuPage - 1) * PAGE_SIZE, stuPage * PAGE_SIZE);
 
       const filteredGuardians = campusGuardians.filter((g) => {
         if (!parentSearchQ) return true;
@@ -395,6 +426,13 @@
           (g.occupation || "").toLowerCase().includes(parentSearchQ)
         );
       });
+      const parentTotalPages = Math.max(1, Math.ceil(filteredGuardians.length / PAGE_SIZE));
+      if (parentPage > parentTotalPages) parentPage = parentTotalPages;
+      const pagedGuardians = filteredGuardians.slice((parentPage - 1) * PAGE_SIZE, parentPage * PAGE_SIZE);
+
+      const invTotalPages = Math.max(1, Math.ceil(campusInvoices.length / PAGE_SIZE));
+      if (invPage > invTotalPages) invPage = invTotalPages;
+      const pagedInvoices = campusInvoices.slice((invPage - 1) * PAGE_SIZE, invPage * PAGE_SIZE);
 
       container.innerHTML = `
         <!-- Single Campus Switcher Pills -->
@@ -403,7 +441,7 @@
             .map(
               (c) => `
             <button type="button" class="min-subnav-link ${c.id === campus.id ? "active" : ""}" data-cid="${c.id}">
-              ${esc(c.shortName)}
+              ${esc(c.shortName)} (${c.totalStudents})
             </button>
           `
             )
@@ -438,10 +476,10 @@
           <div class="col-xl-3 col-md-6">
             <div class="min-stat-card is-link" data-switchtab="classes">
               <div class="min-stat-label">
-                <span>Classes</span>
+                <span>Active Classes</span>
               </div>
               <div class="min-stat-value">${campus.activeClassesCount}</div>
-              <div class="min-stat-meta">Across ${(campus.programsOffered || []).length} programs</div>
+              <div class="min-stat-meta">${campus.totalStudents.toLocaleString()} enrolled students across ${(campus.programsOffered || []).length} programs</div>
             </div>
           </div>
 
@@ -451,7 +489,7 @@
                 <span>Staff</span>
               </div>
               <div class="min-stat-value">${campus.totalStaff}</div>
-              <div class="min-stat-meta">${campus.totalTeachers} teachers</div>
+              <div class="min-stat-meta">${campus.totalTeachers} teachers · ${campus.totalStaff - campus.totalTeachers} admin &amp; finance</div>
             </div>
           </div>
 
@@ -460,19 +498,19 @@
               <div class="min-stat-label">
                 <span>Tuition</span>
               </div>
-              <div class="min-stat-value">$${(campus.tuitionCollectedUsd / 1000000).toFixed(2)}M</div>
+              <div class="min-stat-value">$${(campus.tuitionCollectedUsd / 1000).toFixed(0)}K</div>
               <div class="min-stat-meta">${campus.collectionRate}% collected · $${Math.round((campus.tuitionPendingUsd || 0) / 1000)}K outstanding</div>
             </div>
           </div>
         </div>
 
-        <!-- 5 Clean Single-Purpose Tabs -->
+        <!-- 5 Clean Single-Purpose Tabs with Exact Counts -->
         <div class="min-subnav mb-3" role="tablist">
-          <button type="button" class="min-subnav-link ${activeTab === "classes" ? "active" : ""}" data-cstab="classes">Classes</button>
-          <button type="button" class="min-subnav-link ${activeTab === "students" ? "active" : ""}" data-cstab="students">Students</button>
-          <button type="button" class="min-subnav-link ${activeTab === "parents" ? "active" : ""}" data-cstab="parents">Parents</button>
-          <button type="button" class="min-subnav-link ${activeTab === "faculty" ? "active" : ""}" data-cstab="faculty">Faculty</button>
-          <button type="button" class="min-subnav-link ${activeTab === "billing" ? "active" : ""}" data-cstab="billing">Billing</button>
+          <button type="button" class="min-subnav-link ${activeTab === "classes" ? "active" : ""}" data-cstab="classes">Classes (${campus.activeClassesCount})</button>
+          <button type="button" class="min-subnav-link ${activeTab === "students" ? "active" : ""}" data-cstab="students">Students (${campus.totalStudents})</button>
+          <button type="button" class="min-subnav-link ${activeTab === "parents" ? "active" : ""}" data-cstab="parents">Parents (${campus.totalParents})</button>
+          <button type="button" class="min-subnav-link ${activeTab === "faculty" ? "active" : ""}" data-cstab="faculty">Faculty (${campus.totalStaff})</button>
+          <button type="button" class="min-subnav-link ${activeTab === "billing" ? "active" : ""}" data-cstab="billing">Billing (${allCampusInvoices.length})</button>
         </div>
 
         <!-- TAB 1: CLASSES -->
@@ -481,9 +519,21 @@
             ? `
           <div class="card">
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-              <input type="search" id="campusClsSearch" class="form-control" style="max-width: 300px;" placeholder="Search class, room, or teacher..." value="${esc(classSearchQ)}">
+              <div class="d-flex flex-wrap align-items-center gap-2">
+                <input type="search" id="campusClsSearch" class="form-control" style="max-width: 280px;" placeholder="Search class, room, or teacher..." value="${esc(classSearchQ)}">
+                ${
+                  allCampusClasses.length > ongoingCampusClasses.length
+                    ? `
+                  <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn ${classStatusFilter === "ongoing" ? "btn-primary" : "btn-light border"}" data-clsst="ongoing">Active (${ongoingCampusClasses.length})</button>
+                    <button type="button" class="btn ${classStatusFilter === "ALL" ? "btn-primary" : "btn-light border"}" data-clsst="ALL">All (${allCampusClasses.length})</button>
+                  </div>
+                `
+                    : ""
+                }
+              </div>
               <div class="d-flex align-items-center gap-3">
-                <span class="text-muted small">${filteredClasses.length} classes</span>
+                <span class="text-muted small">${filteredClasses.length} classes · ${shownClassesTotalStudents} enrolled students</span>
                 <button class="btn btn-outline-primary btn-sm" id="btnCampusAddClass">+ New Class</button>
               </div>
             </div>
@@ -506,7 +556,10 @@
                         (cls) => `
                           <tr class="row-link" onclick="window.navigateTo('/smnadm/academic/classes/class-details/overview/${cls.id}')">
                             <td>
-                              <div class="fw-semibold text-dark">${esc(cls.classNameEn)}</div>
+                              <div class="fw-semibold text-dark">
+                                ${esc(cls.classNameEn)}
+                                ${cls.status !== "ongoing" ? `<span class="badge bg-secondary-soft ms-1 text-capitalize">${esc(cls.status)}</span>` : ""}
+                              </div>
                               <div class="text-muted small">${esc(cls.classNameKh)} · <span class="font-monospace">${esc(cls.code)}</span></div>
                             </td>
                             <td>
@@ -518,7 +571,7 @@
                               <div class="text-dark">${esc(cls.room?.name || "Room TBD")}</div>
                               <div class="text-muted small">${esc(cls.shiftText || "Full Day")}</div>
                             </td>
-                            <td class="fw-semibold text-dark">${cls.totalStudents}</td>
+                            <td class="fw-semibold text-dark">${cls.totalStudents} students</td>
                             <td class="text-end">
                               <i class="fe fe-chevron-right row-chevron"></i>
                             </td>
@@ -527,6 +580,13 @@
                       )
                       .join("")}
                   </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="4">${esc(campus.shortName)} ${classStatusFilter === "ongoing" ? "Active Classes" : "All Classes"} Total (${filteredClasses.length} Classes)</td>
+                      <td class="fw-bold text-dark">${shownClassesTotalStudents} Students</td>
+                      <td></td>
+                    </tr>
+                  </tfoot>
                 </table>
               </div>
             </div>
@@ -541,8 +601,15 @@
             ? `
           <div class="card">
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-              <input type="search" id="campusStuSearch" class="form-control" style="max-width: 300px;" placeholder="Search student name, ID, or phone..." value="${esc(stuSearchQ)}">
-              <span class="text-muted small">${filteredStudents.length} students</span>
+              <div class="d-flex flex-wrap align-items-center gap-2">
+                <input type="search" id="campusStuSearch" class="form-control" style="max-width: 280px;" placeholder="Search student name, ID, or phone..." value="${esc(stuSearchQ)}">
+                <div class="btn-group btn-group-sm" role="group">
+                  <button type="button" class="btn ${stuTabFilter === "registered" ? "btn-primary" : "btn-light border"}" data-stutab="registered">Enrolled (${regCampusStudents.length})</button>
+                  <button type="button" class="btn ${stuTabFilter === "applications" ? "btn-primary" : "btn-light border"}" data-stutab="applications">Applications (${appCampusStudents.length})</button>
+                  <button type="button" class="btn ${stuTabFilter === "waitlists" ? "btn-primary" : "btn-light border"}" data-stutab="waitlists">Waitlist (${wtlCampusStudents.length})</button>
+                </div>
+              </div>
+              <span class="text-muted small">Showing ${filteredStudents.length ? (stuPage - 1) * PAGE_SIZE + 1 : 0}–${Math.min(stuPage * PAGE_SIZE, filteredStudents.length)} of ${filteredStudents.length} students</span>
             </div>
             <div class="card-body p-0">
               <div tabindex="0" role="region" aria-label="Campus students table" class="table-wrapper table-responsive">
@@ -559,7 +626,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    ${filteredStudents
+                    ${pagedStudents
                       .map((s) => {
                         const prog = (s.programs && s.programs[0]) || {};
                         const sc = s.scores || { math: 85, english: 88 };
@@ -596,6 +663,19 @@
                   </tbody>
                 </table>
               </div>
+              ${
+                stuTotalPages > 1
+                  ? `
+                <div class="d-flex justify-content-between align-items-center px-4 py-3 border-top bg-light">
+                  <span class="small text-muted">Page ${stuPage} of ${stuTotalPages} (${filteredStudents.length} total in ${esc(campus.shortName)})</span>
+                  <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-light border" id="btnCampusStuPrev" ${stuPage <= 1 ? "disabled" : ""}>← Previous</button>
+                    <button type="button" class="btn btn-light border" id="btnCampusStuNext" ${stuPage >= stuTotalPages ? "disabled" : ""}>Next →</button>
+                  </div>
+                </div>
+              `
+                  : ""
+              }
             </div>
           </div>
         `
@@ -609,7 +689,7 @@
           <div class="card">
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
               <input type="search" id="campusParentSearch" class="form-control" style="max-width: 300px;" placeholder="Search parent name, occupation, or phone..." value="${esc(parentSearchQ)}">
-              <span class="text-muted small">${filteredGuardians.length} parents</span>
+              <span class="text-muted small">Showing ${filteredGuardians.length ? (parentPage - 1) * PAGE_SIZE + 1 : 0}–${Math.min(parentPage * PAGE_SIZE, filteredGuardians.length)} of ${filteredGuardians.length} parents</span>
             </div>
             <div class="card-body p-0">
               <div tabindex="0" role="region" aria-label="Campus parents table" class="table-wrapper table-responsive">
@@ -625,7 +705,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    ${filteredGuardians
+                    ${pagedGuardians
                       .map(
                         (g) => `
                           <tr class="row-link" onclick="window.navigateTo('/smnadm/guardians/details/${g.id}')">
@@ -653,6 +733,19 @@
                   </tbody>
                 </table>
               </div>
+              ${
+                parentTotalPages > 1
+                  ? `
+                <div class="d-flex justify-content-between align-items-center px-4 py-3 border-top bg-light">
+                  <span class="small text-muted">Page ${parentPage} of ${parentTotalPages} (${filteredGuardians.length} total parents in ${esc(campus.shortName)})</span>
+                  <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-light border" id="btnCampusParPrev" ${parentPage <= 1 ? "disabled" : ""}>← Previous</button>
+                    <button type="button" class="btn btn-light border" id="btnCampusParNext" ${parentPage >= parentTotalPages ? "disabled" : ""}>Next →</button>
+                  </div>
+                </div>
+              `
+                  : ""
+              }
             </div>
           </div>
         `
@@ -665,7 +758,7 @@
             ? `
           <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-              <span class="text-muted small">${campusStaff.length} staff</span>
+              <span class="text-muted small">${campusStaff.length} active staff (${campus.totalTeachers} teachers · ${campusStaff.length - campus.totalTeachers} leadership &amp; operations)</span>
               <button class="btn btn-sm btn-light border" onclick="window.navigateTo('/smnadm/staffs/table')">
                 All Faculty
               </button>
@@ -715,11 +808,18 @@
           activeTab === "billing"
             ? `
           <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <span class="text-muted small">${campusInvoices.length} invoices</span>
-              <button class="btn btn-sm btn-light border" onclick="window.navigateTo('/smnadm/payments/table')">
-                All Invoices
-              </button>
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+              <div class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn ${invStatusFilter === "ALL" ? "btn-primary" : "btn-light border"}" data-invst="ALL">All (${allCampusInvoices.length})</button>
+                <button type="button" class="btn ${invStatusFilter === "Paid" ? "btn-primary" : "btn-light border"}" data-invst="Paid">Paid (${paidCampusInvoices.length})</button>
+                <button type="button" class="btn ${invStatusFilter === "Unpaid" ? "btn-primary" : "btn-light border"}" data-invst="Unpaid">Unpaid (${unpaidCampusInvoices.length})</button>
+              </div>
+              <div class="d-flex align-items-center gap-3">
+                <span class="text-muted small">$${campus.tuitionCollectedUsd.toLocaleString()} collected · $${campus.tuitionPendingUsd.toLocaleString()} pending</span>
+                <button class="btn btn-sm btn-light border" onclick="window.navigateTo('/smnadm/payments/table')">
+                  All Invoices
+                </button>
+              </div>
             </div>
             <div class="card-body p-0">
               <div tabindex="0" role="region" aria-label="Campus invoices list" class="table-wrapper table-responsive">
@@ -735,7 +835,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    ${campusInvoices
+                    ${pagedInvoices
                       .map((inv) => {
                         const tot = calcInvoiceTotal(inv);
                         return `
@@ -756,8 +856,28 @@
                       })
                       .join("")}
                   </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="3">${esc(campus.shortName)} Tuition Summary (${allCampusInvoices.length} Invoices)</td>
+                      <td>$${(campus.tuitionCollectedUsd + campus.tuitionPendingUsd).toLocaleString()}</td>
+                      <td colspan="2">${campus.collectionRate}% Collected ($${campus.tuitionCollectedUsd.toLocaleString()} Paid)</td>
+                    </tr>
+                  </tfoot>
                 </table>
               </div>
+              ${
+                invTotalPages > 1
+                  ? `
+                <div class="d-flex justify-content-between align-items-center px-4 py-3 border-top bg-light">
+                  <span class="small text-muted">Page ${invPage} of ${invTotalPages} (${campusInvoices.length} invoices)</span>
+                  <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-light border" id="btnCampusInvPrev" ${invPage <= 1 ? "disabled" : ""}>← Previous</button>
+                    <button type="button" class="btn btn-light border" id="btnCampusInvNext" ${invPage >= invTotalPages ? "disabled" : ""}>Next →</button>
+                  </div>
+                </div>
+              `
+                  : ""
+              }
             </div>
           </div>
         `
@@ -769,8 +889,12 @@
       container.querySelectorAll("[data-cid]").forEach((btn) => {
         btn.addEventListener("click", () => {
           const cid = btn.dataset.cid;
-          window.setActiveCampus(cid);
+          st.selectedCampusDashboardId = cid;
+          window.saveSmsState();
           campus = campuses.find((c) => c.id === cid) || campuses[0];
+          stuPage = 1;
+          parentPage = 1;
+          invPage = 1;
           draw();
         });
       });
@@ -789,6 +913,66 @@
         });
       });
 
+      container.querySelectorAll("[data-clsst]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          classStatusFilter = btn.dataset.clsst;
+          draw();
+        });
+      });
+
+      container.querySelectorAll("[data-stutab]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          stuTabFilter = btn.dataset.stutab;
+          stuPage = 1;
+          draw();
+        });
+      });
+
+      container.querySelectorAll("[data-invst]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          invStatusFilter = btn.dataset.invst;
+          invPage = 1;
+          draw();
+        });
+      });
+
+      document.getElementById("btnCampusStuPrev")?.addEventListener("click", () => {
+        if (stuPage > 1) {
+          stuPage--;
+          draw();
+        }
+      });
+      document.getElementById("btnCampusStuNext")?.addEventListener("click", () => {
+        if (stuPage < stuTotalPages) {
+          stuPage++;
+          draw();
+        }
+      });
+      document.getElementById("btnCampusParPrev")?.addEventListener("click", () => {
+        if (parentPage > 1) {
+          parentPage--;
+          draw();
+        }
+      });
+      document.getElementById("btnCampusParNext")?.addEventListener("click", () => {
+        if (parentPage < parentTotalPages) {
+          parentPage++;
+          draw();
+        }
+      });
+      document.getElementById("btnCampusInvPrev")?.addEventListener("click", () => {
+        if (invPage > 1) {
+          invPage--;
+          draw();
+        }
+      });
+      document.getElementById("btnCampusInvNext")?.addEventListener("click", () => {
+        if (invPage < invTotalPages) {
+          invPage++;
+          draw();
+        }
+      });
+
       document.getElementById("campusClsSearch")?.addEventListener("input", (e) => {
         classSearchQ = e.target.value.trim().toLowerCase();
         draw();
@@ -796,11 +980,13 @@
 
       document.getElementById("campusStuSearch")?.addEventListener("input", (e) => {
         stuSearchQ = e.target.value.trim().toLowerCase();
+        stuPage = 1;
         draw();
       });
 
       document.getElementById("campusParentSearch")?.addEventListener("input", (e) => {
         parentSearchQ = e.target.value.trim().toLowerCase();
+        parentPage = 1;
         draw();
       });
 
@@ -831,7 +1017,7 @@
                 <div class="col-md-6">
                   <label class="form-label" for="ccTeacher">Homeroom Teacher</label>
                   <select id="ccTeacher" class="form-select">
-                    ${st.staffs.map((t) => `<option value="${t.id}">${esc(t.nameEn)}</option>`).join("")}
+                    ${campusStaff.map((t) => `<option value="${t.id}">${esc(t.nameEn)}</option>`).join("")}
                   </select>
                 </div>
                 <div class="col-md-6">
@@ -852,7 +1038,7 @@
         document.getElementById("formNewCampusClass")?.addEventListener("submit", (e) => {
           e.preventDefault();
           const prog = st.programs.find((p) => p.id === Number(document.getElementById("ccProg").value)) || st.programs[0];
-          const teacher = st.staffs.find((t) => t.id === Number(document.getElementById("ccTeacher").value)) || st.staffs[1];
+          const teacher = st.staffs.find((t) => t.id === Number(document.getElementById("ccTeacher").value)) || campusStaff[0] || st.staffs[1];
           const room = st.rooms.find((r) => r.id === Number(document.getElementById("ccRoom").value)) || st.rooms[0];
           const newCls = {
             id: Date.now(),
@@ -863,18 +1049,18 @@
             programId: prog.id,
             program: { id: prog.id, code: prog.code, nameEn: prog.nameEn, nameKh: prog.nameKh },
             academicYearId: 3,
-            academicYear: "2025-2026",
-            gradeId: 7,
-            grade: { id: 7, nameEn: "Grade 11", nameKh: "ថ្នាក់ទី ១១" },
+            academicYear: { id: 3, name: "2025-2026" },
+            gradeId: 13,
+            grade: { id: 13, nameEn: "Grade 11 (Upper Secondary)", nameKh: "ថ្នាក់ទី ១១" },
             teacherId: teacher.id,
             teacher: { id: teacher.id, fullName: teacher.nameEn, nameKh: teacher.nameKh },
             roomId: room.id,
             room: { id: room.id, name: room.name },
-            schedule: "Mon - Fri (07:30 - 15:30)",
+            schedule: "Mon - Fri",
             shiftText: "Full Day",
             status: "ongoing",
             statusCode: 1,
-            totalStudents: 26,
+            totalStudents: 0,
             startDate: "2025-09-01",
             endDate: "2026-07-15",
           };
@@ -895,6 +1081,15 @@
   // ============================================================================
   function renderInvestorAnalytics(container) {
     const st = window.SMS_STATE;
+    window.syncSchoolMetrics?.(st);
+    const campuses = (st.campusDirectory || []).filter((c) => c.id !== "C06");
+    const totalStudentsAll = campuses.reduce((a, c) => a + (c.totalStudents || 0), 0);
+    const totalCapacityAll = campuses.reduce((a, c) => a + (c.capacity || 0), 0);
+    const totalCollectedAll = campuses.reduce((a, c) => a + (c.tuitionCollectedUsd || 0), 0);
+    const totalPendingAll = campuses.reduce((a, c) => a + (c.tuitionPendingUsd || 0), 0);
+    const totalBilledAll = totalCollectedAll + totalPendingAll;
+    const collectionRateAll = totalBilledAll ? ((totalCollectedAll / totalBilledAll) * 100).toFixed(1) : "95.5";
+
     container.innerHTML = `
       <div class="min-subnav">
         <button type="button" class="min-subnav-link active" onclick="window.navigateTo('/smnadm/investor-analytics')">ROI &amp; Benchmarks</button>
@@ -914,9 +1109,9 @@
       <div class="row g-4 mb-5">
         <div class="col-md-3">
           <div class="min-stat-card">
-            <div class="min-stat-label"><span>Annual Recurring Tuition</span><span class="badge bg-success-soft">+22.8%</span></div>
-            <div class="min-stat-value">$1.74M</div>
-            <div class="min-stat-meta">Across ${st.schoolProfile.campuses.length} active campuses</div>
+            <div class="min-stat-label"><span>Annual Tuition Collected</span><span class="badge bg-success-soft">+22.8%</span></div>
+            <div class="min-stat-value">$${(totalCollectedAll / 1000000).toFixed(2)}M</div>
+            <div class="min-stat-meta">$${totalCollectedAll.toLocaleString()} across ${campuses.length} active campuses</div>
           </div>
         </div>
         <div class="col-md-3">
@@ -930,14 +1125,14 @@
           <div class="min-stat-card">
             <div class="min-stat-label"><span>Cohort Retention</span><span class="badge bg-primary-soft">11.4x LTV:CAC</span></div>
             <div class="min-stat-value">96.4%</div>
-            <div class="min-stat-meta">AI retention alerts active</div>
+            <div class="min-stat-meta">${totalStudentsAll.toLocaleString()} enrolled students</div>
           </div>
         </div>
         <div class="col-md-3">
           <div class="min-stat-card">
             <div class="min-stat-label"><span>On-Time Collection</span><span class="badge bg-info-soft">&lt; 5d DSO</span></div>
-            <div class="min-stat-value">94.8%</div>
-            <div class="min-stat-meta">ABA KHQR &amp; mobile push</div>
+            <div class="min-stat-value">${collectionRateAll}%</div>
+            <div class="min-stat-meta">$${Math.round(totalPendingAll / 1000)}K pending · ABA KHQR</div>
           </div>
         </div>
       </div>
@@ -953,17 +1148,17 @@
               <div class="mb-4">
                 <div class="d-flex justify-content-between mb-1">
                   <label class="form-label fw-medium mb-0" for="roiStudents">Student Enrollment</label>
-                  <span class="fw-semibold text-dark" id="roiStudentsVal">1,200 Students</span>
+                  <span class="fw-semibold text-dark" id="roiStudentsVal">${totalStudentsAll.toLocaleString()} Students</span>
                 </div>
-                <input type="range" class="form-range" id="roiStudents" min="200" max="5000" step="50" value="1200">
+                <input type="range" class="form-range" id="roiStudents" min="200" max="5000" step="20" value="${totalStudentsAll}">
               </div>
 
               <div class="mb-4">
                 <div class="d-flex justify-content-between mb-1">
                   <label class="form-label fw-medium mb-0" for="roiTuition">Avg Annual Tuition (USD)</label>
-                  <span class="fw-semibold text-dark" id="roiTuitionVal">$1,650 / yr</span>
+                  <span class="fw-semibold text-dark" id="roiTuitionVal">$2,150 / yr</span>
                 </div>
-                <input type="range" class="form-range" id="roiTuition" min="500" max="6000" step="50" value="1650">
+                <input type="range" class="form-range" id="roiTuition" min="500" max="6000" step="50" value="2150">
               </div>
 
               <div class="mb-4">
@@ -978,15 +1173,15 @@
                 <div class="row text-center g-3">
                   <div class="col-4 border-end">
                     <div class="small text-muted mb-1">Gross Tuition</div>
-                    <div class="fw-semibold fs-5 text-dark" id="roiGrossOut">$1,980,000</div>
+                    <div class="fw-semibold fs-5 text-dark" id="roiGrossOut">$${(totalStudentsAll * 2150).toLocaleString()}</div>
                   </div>
                   <div class="col-4 border-end">
                     <div class="small text-muted mb-1">Net Lift / Yr</div>
-                    <div class="fw-semibold fs-5 text-success" id="roiRecoveredOut">+$128,700</div>
+                    <div class="fw-semibold fs-5 text-success" id="roiRecoveredOut">+$${Math.round(totalStudentsAll * 2150 * 0.065).toLocaleString()}</div>
                   </div>
                   <div class="col-4">
                     <div class="small text-muted mb-1">Admin Saved</div>
-                    <div class="fw-semibold fs-5 text-dark" id="roiHoursOut">4,320 hrs</div>
+                    <div class="fw-semibold fs-5 text-dark" id="roiHoursOut">${Math.round(totalStudentsAll * 3.6).toLocaleString()} hrs</div>
                   </div>
                 </div>
               </div>
@@ -997,7 +1192,7 @@
         <div class="col-lg-6">
           <div class="card h-100">
             <div class="card-header">
-              <h5 class="mb-1">Campus Utilization</h5>
+              <h5 class="mb-1">Campus Utilization (${campuses.length} Active Campuses)</h5>
               <p class="text-muted small mb-0">${esc(st.schoolProfile.nameEn)} branches</p>
             </div>
             <div class="card-body p-0">
@@ -1006,31 +1201,37 @@
                   <thead>
                     <tr>
                       <th>Campus</th>
-                      <th>Capacity</th>
+                      <th>Students / Capacity</th>
+                      <th>Classes</th>
                       <th>Utilization</th>
                       <th>Collection</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td class="fw-medium text-dark">${esc(st.schoolProfile.campuses[0] || "Main Campus")}</td>
-                      <td>550</td>
-                      <td>92%</td>
-                      <td><span class="badge bg-success-soft">96.2%</span></td>
-                    </tr>
-                    <tr>
-                      <td class="fw-medium text-dark">${esc(st.schoolProfile.campuses[1] || "Branch Campus 2")}</td>
-                      <td>320</td>
-                      <td>84%</td>
-                      <td><span class="badge bg-success-soft">93.5%</span></td>
-                    </tr>
-                    <tr>
-                      <td class="fw-medium text-dark">${esc(st.schoolProfile.campuses[2] || "Early Years Campus")}</td>
-                      <td>180</td>
-                      <td>78%</td>
-                      <td><span class="badge bg-info-soft">91.0%</span></td>
-                    </tr>
+                    ${campuses
+                      .map((c) => {
+                        const util = c.capacity ? Math.round((c.totalStudents / c.capacity) * 100) : 90;
+                        return `
+                          <tr>
+                            <td class="fw-medium text-dark">${esc(c.shortName)}</td>
+                            <td>${c.totalStudents.toLocaleString()} / ${c.capacity.toLocaleString()}</td>
+                            <td>${c.activeClassesCount}</td>
+                            <td>${util}%</td>
+                            <td><span class="badge bg-success-soft">${c.collectionRate}%</span></td>
+                          </tr>
+                        `;
+                      })
+                      .join("")}
                   </tbody>
+                  <tfoot>
+                    <tr>
+                      <td>All ${campuses.length} Campuses Combined</td>
+                      <td>${totalStudentsAll.toLocaleString()} / ${totalCapacityAll.toLocaleString()}</td>
+                      <td>${campuses.reduce((a, c) => a + (c.activeClassesCount || 0), 0)}</td>
+                      <td>${totalCapacityAll ? Math.round((totalStudentsAll / totalCapacityAll) * 100) : 90}%</td>
+                      <td>${collectionRateAll}%</td>
+                    </tr>
+                  </tfoot>
                 </table>
               </div>
             </div>
@@ -1168,9 +1369,11 @@
   // ============================================================================
   function renderPrograms(container) {
     const st = window.SMS_STATE;
+    window.syncSchoolMetrics?.(st);
     let searchQ = "";
 
     const draw = () => {
+      window.syncSchoolMetrics?.(st);
       const list = st.programs.filter(
         (p) =>
           !searchQ ||
@@ -1178,13 +1381,15 @@
           p.nameKh.toLowerCase().includes(searchQ) ||
           p.code.toLowerCase().includes(searchQ)
       );
+      const totalProgStudents = list.reduce((a, p) => a + (Number(p.totalStudents) || 0), 0);
+      const totalProgClasses = list.reduce((a, p) => a + (Number(p.totalClasses) || 0), 0);
 
       container.innerHTML = `
         ${renderAcademicSubnav("programs")}
         <div class="min-page-header">
           <div>
             <h1 class="min-page-title">Academic Programs</h1>
-            <p class="min-page-subtitle">Accredited tracks and curriculum standards across all levels.</p>
+            <p class="min-page-subtitle">Accredited tracks and curriculum standards across all levels (${totalProgStudents.toLocaleString()} enrolled students · ${totalProgClasses} active classes).</p>
           </div>
           <button class="btn btn-primary" id="btnAddProgram">+ New Program</button>
         </div>
@@ -1192,7 +1397,7 @@
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center">
             <input type="search" id="progSearch" class="form-control" style="max-width: 320px;" placeholder="Filter programs..." value="${esc(searchQ)}">
-            <span class="text-muted small">${list.length} programs</span>
+            <span class="text-muted small">${list.length} programs · ${totalProgStudents.toLocaleString()} students · ${totalProgClasses} active classes</span>
           </div>
           <div class="card-body p-0">
             <div tabindex="0" role="region" aria-label="Academic programs table" class="table-wrapper table-responsive">
@@ -1223,7 +1428,7 @@
                         <div>${esc(p.curriculumType)}</div>
                         <div class="text-muted small">${esc(p.languageOfInstruction)}</div>
                       </td>
-                      <td>${p.totalStudents} students · ${p.totalClasses} classes</td>
+                      <td><strong>${p.totalStudents}</strong> students · <strong>${p.totalClasses}</strong> active classes</td>
                       <td>
                         ${
                           p.isActive
@@ -1244,6 +1449,13 @@
                     )
                     .join("")}
                 </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="4">All Programs Combined Total</td>
+                    <td>${totalProgStudents.toLocaleString()} Students · ${totalProgClasses} Active Classes</td>
+                    <td colspan="2" class="text-end">${st.programs.filter((p) => p.isActive).length} Active Programs</td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
           </div>
@@ -1359,17 +1571,21 @@
   // ============================================================================
   function renderGrades(container) {
     const st = window.SMS_STATE;
+    window.syncSchoolMetrics?.(st);
     let progFilter = "ALL";
 
     const draw = () => {
+      window.syncSchoolMetrics?.(st);
       const list = st.grades.filter((g) => progFilter === "ALL" || Number(g.programId) === Number(progFilter));
+      const totalGradeStudents = list.reduce((a, g) => a + (Number(g.totalStudents) || 0), 0);
+      const totalGradeClasses = list.reduce((a, g) => a + (Number(g.totalClasses) || 0), 0);
 
       container.innerHTML = `
         ${renderAcademicSubnav("grades")}
         <div class="min-page-header">
           <div>
             <h1 class="min-page-title">Grades &amp; Curriculum</h1>
-            <p class="min-page-subtitle">Configure grade levels and weekly subject hour allocations.</p>
+            <p class="min-page-subtitle">Configure grade levels and weekly subject hour allocations (${totalGradeStudents.toLocaleString()} students across ${totalGradeClasses} active classes).</p>
           </div>
           <button class="btn btn-primary" id="btnAddGrade">+ New Grade</button>
         </div>
@@ -1385,6 +1601,7 @@
                 )
                 .join("")}
             </select>
+            <span class="text-muted small">${list.length} grades · ${totalGradeStudents.toLocaleString()} students · ${totalGradeClasses} active classes</span>
           </div>
           <div class="card-body p-0">
             <div tabindex="0" role="region" aria-label="Grades table" class="table-wrapper table-responsive">
@@ -1413,7 +1630,7 @@
                           <td><span class="badge bg-primary-soft">${esc(g.code)}</span></td>
                           <td>${esc(g.programName)}</td>
                           <td>${subList.length} subjects · ${totalHrs} hrs/wk</td>
-                          <td>${g.totalStudents} students (${g.totalClasses} classes)</td>
+                          <td><strong>${g.totalStudents}</strong> students (${g.totalClasses} active classes)</td>
                           <td class="text-end">
                             <button class="btn btn-sm btn-outline-primary" data-act="subjects" data-id="${g.id}">
                               Assign Subjects
@@ -1424,6 +1641,13 @@
                     })
                     .join("")}
                 </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="4">All ${list.length} Grades Combined Total</td>
+                    <td>${totalGradeStudents.toLocaleString()} Students · ${totalGradeClasses} Active Classes</td>
+                    <td class="text-end">${st.subjects.length} Curriculum Subjects</td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
           </div>
@@ -1570,14 +1794,15 @@
   // ============================================================================
   function renderClassesAll(container) {
     const st = window.SMS_STATE;
+    window.syncSchoolMetrics?.(st);
     let statusFilter = "ALL";
     let searchQ = "";
     let progFilter = "ALL";
     let campusFilter = st.activeCampusId || "ALL";
 
     const draw = () => {
-      const filtered = st.classes.filter((c) => {
-        const matchSt = statusFilter === "ALL" || c.status === statusFilter;
+      window.syncSchoolMetrics?.(st);
+      const baseClasses = st.classes.filter((c) => {
         const matchProg = progFilter === "ALL" || Number(c.programId) === Number(progFilter);
         const matchCampus = campusFilter === "ALL" || c.campusId === campusFilter;
         const matchQ =
@@ -1586,14 +1811,21 @@
           c.classNameKh.toLowerCase().includes(searchQ) ||
           c.code.toLowerCase().includes(searchQ) ||
           (c.teacher?.fullName || "").toLowerCase().includes(searchQ);
-        return matchSt && matchProg && matchCampus && matchQ;
+        return matchProg && matchCampus && matchQ;
       });
+      const filtered = baseClasses.filter((c) => statusFilter === "ALL" || c.status === statusFilter);
+      const ongoingCount = baseClasses.filter((c) => c.status === "ongoing").length;
+      const upcomingCount = baseClasses.filter((c) => c.status === "upcoming").length;
+      const endedCount = baseClasses.filter((c) => c.status === "ended").length;
+      const totalOngoingStudents = baseClasses
+        .filter((c) => c.status === "ongoing")
+        .reduce((a, c) => a + (Number(c.totalStudents) || 0), 0);
 
       container.innerHTML = `
         ${renderAcademicSubnav("classes")}
         <div class="min-page-header">
           <div>
-            <h1 class="min-page-title">Academic Classes</h1>
+            <h1 class="min-page-title">Academic Classes (${ongoingCount} Active · ${totalOngoingStudents.toLocaleString()} Students)</h1>
             <p class="min-page-subtitle">Select any class to manage its roster, weekly timetable, attendance, and grades.</p>
           </div>
           <button class="btn btn-primary" id="btnAddClass">+ New Class</button>
@@ -1613,22 +1845,22 @@
                 .join("")}
             </select>
             <select id="clsCampusFilter" class="form-select" style="width: 220px;">
-              <option value="ALL" ${campusFilter === "ALL" ? "selected" : ""}>All Campuses</option>
+              <option value="ALL" ${campusFilter === "ALL" ? "selected" : ""}>All Campuses (${st.classes.filter((c) => c.status === "ongoing").length} Active)</option>
               ${(st.campusDirectory || [])
                 .filter(c => c.id !== "C06")
                 .map(
                   (c) =>
-                    `<option value="${c.id}" ${campusFilter === c.id ? "selected" : ""}>${esc(c.shortName)}</option>`
+                    `<option value="${c.id}" ${campusFilter === c.id ? "selected" : ""}>${esc(c.shortName)} (${c.activeClassesCount} Active)</option>`
                 )
                 .join("")}
             </select>
           </div>
           <div class="min-subnav mb-0">
             ${[
-              { k: "ALL", l: `All (${st.classes.length})` },
-              { k: "ongoing", l: "Ongoing" },
-              { k: "upcoming", l: "Upcoming" },
-              { k: "ended", l: "Ended" },
+              { k: "ALL", l: `All (${baseClasses.length})` },
+              { k: "ongoing", l: `Ongoing (${ongoingCount})` },
+              { k: "upcoming", l: `Upcoming (${upcomingCount})` },
+              { k: "ended", l: `Ended (${endedCount})` },
             ]
               .map(
                 (t) => `
@@ -1790,6 +2022,7 @@
   // ============================================================================
   function renderClassDetail(container, classId) {
     const st = window.SMS_STATE;
+    window.syncSchoolMetrics?.(st);
     const cls = st.classes.find((c) => Number(c.id) === Number(classId)) || st.classes[0];
     let activeTab = "overview";
     let showHonorRoll = false;
@@ -1798,16 +2031,42 @@
     let selectedPeriod = "Period 1 (07:30–08:30 · Mathematics)";
 
     const getClassStudents = () => {
-      const direct = st.students.filter(
+      if (cls.status === "ended") {
+        return st.students.filter(
+          (s) =>
+            s.tab === "registered" &&
+            (s.programs || []).some((p) => Number(p.class?.id) === Number(cls.id))
+        );
+      }
+      return st.students.filter(
         (s) =>
           s.tab === "registered" &&
-          (s.programs || []).some((p) => Number(p.class?.id) === Number(cls.id))
+          Number(s.programs?.[0]?.class?.id) === Number(cls.id)
       );
-      return direct.length >= 2 ? direct : st.students.filter((s) => s.tab === "registered");
     };
 
     const draw = () => {
+      window.syncSchoolMetrics?.(st);
       const students = getClassStudents();
+      const classLeaves = st.leaveRequests.filter((l) => Number(l.classId) === Number(cls.id));
+      const displayLeaves = classLeaves.length
+        ? classLeaves
+        : students.slice(0, 2).map((s, idx) => ({
+            id: 9000 + Number(cls.id) * 10 + idx,
+            studentId: s.id,
+            studentName: s.full_name_en,
+            classId: cls.id,
+            className: cls.classNameEn,
+            leaveType: idx === 0 ? "Medical Leave" : "Family Event",
+            fromDate: "2026-11-04",
+            toDate: "2026-11-04",
+            days: 1,
+            reason: idx === 0 ? "Dental checkup (Parent App notification)" : "Family ceremony in province",
+            submittedBy: s.father?.nameEn || "Guardian",
+            status: idx === 0 ? "Pending" : "Approved",
+          }));
+      const clsCampus = (st.campusDirectory || []).find((c) => c.id === (cls.campusId || "C01"));
+      const clsCampusLabel = clsCampus ? `${clsCampus.id} · ${clsCampus.shortName}` : cls.campusId || "C01";
 
       const rankedStudents = students
         .map((s) => {
@@ -1827,10 +2086,14 @@
         .sort((a, b) => b.total - a.total)
         .map((item, idx) => ({ ...item, rank: idx + 1 }));
 
+      if (cls.campusId) {
+        st.selectedCampusDashboardId = cls.campusId;
+      }
+
       container.innerHTML = `
         <div class="mb-3 d-flex justify-content-between align-items-center">
-          <a href="#/smnadm/academic/classes/all" class="text-secondary text-decoration-none small">
-            <i class="fe fe-arrow-left me-1"></i>Back to Classes
+          <a href="#/smnadm/campus-dashboard" class="text-secondary text-decoration-none small">
+            <i class="fe fe-arrow-left me-1"></i>Back to Campus Dashboard (${esc(clsCampusLabel)})
           </a>
           <button class="btn btn-sm btn-light border" onclick="window.navigateTo('/smnadm/academic/scheduler')">
             Master Schedule &amp; Coverage →
@@ -1840,7 +2103,7 @@
         <div class="min-page-header">
           <div>
             <h1 class="min-page-title">${esc(cls.classNameEn)}</h1>
-            <p class="min-page-subtitle">${esc(cls.classNameKh)} · Teacher: ${esc(cls.teacher?.fullName)} · ${esc(cls.room?.name)}</p>
+            <p class="min-page-subtitle">${esc(cls.classNameKh)} · ${esc(clsCampusLabel)} · Teacher: ${esc(cls.teacher?.fullName)} · ${esc(cls.room?.name)} · ${students.length} Students</p>
           </div>
           <button class="btn btn-primary" id="btnAssignStuToClass">+ Assign Student</button>
         </div>
@@ -1848,12 +2111,12 @@
         <!-- Clean Segmented 6-Tab Bar -->
         <div class="min-subnav">
           ${[
-            { k: "overview", l: "Overview & Roster" },
+            { k: "overview", l: `Overview & Roster (${students.length})` },
             { k: "schedule", l: "Weekly Schedule" },
-            { k: "attendance", l: "Attendance" },
+            { k: "attendance", l: `Attendance (${students.length})` },
             { k: "scores", l: "Scores & Honor Roll" },
             { k: "reports", l: "Monthly Reports" },
-            { k: "leaves", l: `Leave Requests (${st.leaveRequests.filter((l) => l.status === "Pending").length})` },
+            { k: "leaves", l: `Leave Requests (${displayLeaves.filter((l) => l.status === "Pending").length})` },
           ]
             .map(
               (t) => `
@@ -1875,6 +2138,10 @@
                 <div class="card-header"><h5 class="mb-0">Class Summary</h5></div>
                 <div class="card-body small">
                   <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">Campus</span>
+                    <span class="fw-medium text-dark">${esc(clsCampusLabel)}</span>
+                  </div>
+                  <div class="d-flex justify-content-between py-2 border-bottom">
                     <span class="text-muted">Program</span>
                     <span class="fw-medium text-dark">${esc(cls.program?.nameEn)}</span>
                   </div>
@@ -1889,6 +2156,10 @@
                   <div class="d-flex justify-content-between py-2 border-bottom">
                     <span class="text-muted">Classroom</span>
                     <span class="fw-medium text-dark">${esc(cls.room?.name)} (${esc(cls.shiftText)})</span>
+                  </div>
+                  <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">Enrolled Students</span>
+                    <span class="fw-semibold text-dark">${students.length} Students</span>
                   </div>
                   <div class="d-flex justify-content-between pt-2">
                     <span class="text-muted">Academic Year</span>
@@ -2293,7 +2564,7 @@
             ? `
           <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-              <h5 class="mb-0">Absence &amp; Leave Requests</h5>
+              <h5 class="mb-0">Absence &amp; Leave Requests (${esc(cls.classNameEn)})</h5>
               <button class="btn btn-sm btn-primary" id="btnNewLeave">+ Log Leave</button>
             </div>
             <div class="card-body p-0">
@@ -2309,7 +2580,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    ${st.leaveRequests
+                    ${displayLeaves
                       .map(
                         (l) => `
                       <tr>
@@ -2383,6 +2654,7 @@
           const stu = st.students.find((s) => s.id === Number(document.getElementById("selStuAssign").value));
           if (stu) {
             stu.tab = "registered";
+            stu.campusId = cls.campusId || stu.campusId || "C01";
             if (!stu.programs || !stu.programs.length) stu.programs = [];
             stu.programs[0] = {
               id: Date.now(),
@@ -2393,7 +2665,6 @@
               status: "Studying",
               payment_status: "Paid",
             };
-            cls.totalStudents = (cls.totalStudents || 25) + 1;
             window.saveSmsState();
             window.closeDynamicModal();
             window.showToast(`${stu.full_name_en} assigned to ${cls.classNameEn}.`, "success");
@@ -2534,7 +2805,12 @@
 
       container.querySelectorAll(".leave-act").forEach((btn) => {
         btn.addEventListener("click", () => {
-          const lv = st.leaveRequests.find((l) => l.id === Number(btn.dataset.lid));
+          const lid = Number(btn.dataset.lid);
+          let lv = st.leaveRequests.find((l) => l.id === lid);
+          if (!lv) {
+            lv = displayLeaves.find((l) => l.id === lid);
+            if (lv) st.leaveRequests.unshift(lv);
+          }
           if (lv) {
             lv.status = btn.dataset.st;
             window.saveSmsState();

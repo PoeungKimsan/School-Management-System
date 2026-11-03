@@ -236,7 +236,7 @@
       path.startsWith("/smnadm/optional") ||
       path.startsWith("/smnadm/reports")
     ) {
-      return "/smnadm/academic/classes/all";
+      return "/smnadm/campus-dashboard";
     }
     if (path.startsWith("/smnadm/students") || path.startsWith("/smnadm/inquiries")) {
       return "/smnadm/students/table";
@@ -498,14 +498,22 @@
       document.getElementById("db-wrapper")?.classList.toggle("sidebar-open");
     });
 
+    document.querySelectorAll("#sidebarnav .nav-link[data-group]").forEach((link) => {
+      link.addEventListener("click", () => {
+        if (window.setActiveCampus) {
+          window.setActiveCampus("ALL");
+        }
+      });
+    });
+
     handleRoute();
   }
 
   function openCampusDashboard(campusId) {
-    if (campusId && campusId !== "ALL") {
-      window.setActiveCampus(campusId);
-    } else {
-      window.setActiveCampus("C01");
+    if (window.SMS_STATE) {
+      window.SMS_STATE.selectedCampusDashboardId =
+        campusId && campusId !== "ALL" ? campusId : "C01";
+      window.saveSmsState();
     }
     navigateTo("/smnadm/campus-dashboard");
   }

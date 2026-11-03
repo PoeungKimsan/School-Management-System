@@ -77,19 +77,46 @@
   // ============================================================================
   function renderStudentsTable(container) {
     const st = window.SMS_STATE;
+    window.syncSchoolMetrics?.(st);
     let activeTab = "registered";
     let searchQ = "";
     let progFilter = "ALL";
     let campusFilter = st.activeCampusId || "ALL";
     let selectedWaitlistIds = new Set();
+    let page = 1;
+    const PAGE_SIZE = 25;
 
     const draw = () => {
+      window.syncSchoolMetrics?.(st);
+      const campuses = (st.campusDirectory || []).filter((c) => c.id !== "C06");
+      const totalStudentsAll = campuses.reduce((a, c) => a + (c.totalStudents || 0), 0);
+      const totalCapacityAll = campuses.reduce((a, c) => a + (c.capacity || 0), 0);
+      const avgUtilizationAll = totalCapacityAll ? Math.round((totalStudentsAll / totalCapacityAll) * 100) : 92;
+      const totalWeightedAtt = campuses.reduce(
+        (a, c) => a + (c.totalStudents || 0) * (c.attendanceRate || 95),
+        0
+      );
+      const avgAttendanceAll = totalStudentsAll ? (totalWeightedAtt / totalStudentsAll).toFixed(1) : "96.6";
+      const presentStudentsAll = Math.round((Number(avgAttendanceAll) / 100) * totalStudentsAll);
+      const activeClassesAll = campuses.reduce((a, c) => a + (c.activeClassesCount || 0), 0);
+      const campusStudentBreakdown = campuses
+        .map((c) => `${c.shortName}: ${c.totalStudents.toLocaleString()}`)
+        .join(" · ");
+
       const scopedStudents = st.students.filter((s) => campusFilter === "ALL" || s.campusId === campusFilter);
+      const selectedCampusObj = campuses.find((c) => c.id === campusFilter);
+      const registeredTotalLabel =
+        campusFilter === "ALL"
+          ? totalStudentsAll.toLocaleString()
+          : (selectedCampusObj?.totalStudents || scopedStudents.filter((s) => s.tab === "registered").length).toLocaleString();
+
       const counts = {
         registered: scopedStudents.filter((s) => s.tab === "registered").length,
         applications: scopedStudents.filter((s) => s.tab === "applications").length,
         waitlists: scopedStudents.filter((s) => s.tab === "waitlists").length,
       };
+      const allAppsCount = st.students.filter((s) => s.tab === "applications").length;
+      const allWaitlistsCount = st.students.filter((s) => s.tab === "waitlists").length;
 
       const rows = scopedStudents.filter((s) => {
         if (s.tab !== activeTab) return false;
@@ -105,13 +132,16 @@
           (s.programs || []).some((p) => Number(p.program?.id) === Number(progFilter));
         return matchQ && matchProg;
       });
+      const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+      if (page > totalPages) page = totalPages;
+      const pageRows = rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
       container.innerHTML = `
         ${renderStudentsSubnav("directory")}
         <div class="min-page-header">
           <div>
-            <h1 class="min-page-title">Students</h1>
-            <p class="min-page-subtitle">Manage enrolled students, online applicants, and class waitlist placement.</p>
+            <h1 class="min-page-title">Students (${totalStudentsAll.toLocaleString()} Total Across All Campuses)</h1>
+            <p class="min-page-subtitle">Combined student enrollment across all ${campuses.length} campuses · ${esc(campusStudentBreakdown)}</p>
           </div>
           <div class="d-flex gap-2">
             ${
@@ -127,11 +157,54 @@
           </div>
         </div>
 
+        <!-- 4-Card All-Campuses Combined Summary Strip -->
+        <div class="row g-4 mb-4">
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card">
+              <div class="min-stat-label">
+                <span>Total Students (All Campuses)</span>
+              </div>
+              <div class="min-stat-value">${totalStudentsAll.toLocaleString()}</div>
+              <div class="min-stat-meta">${avgUtilizationAll}% of ${totalCapacityAll.toLocaleString()} combined seats across ${campuses.length} campuses</div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card">
+              <div class="min-stat-label">
+                <span>Present Today (All Campuses)</span>
+              </div>
+              <div class="min-stat-value">${presentStudentsAll.toLocaleString()}</div>
+              <div class="min-stat-meta">${avgAttendanceAll}% combined daily attendance rate</div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card">
+              <div class="min-stat-label">
+                <span>Active Classes &amp; Programs</span>
+              </div>
+              <div class="min-stat-value">${activeClassesAll} Classes</div>
+              <div class="min-stat-meta">Across ${st.programs.filter((p) => p.isActive).length} programs (KGE · IEP · STEM · CHN)</div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card">
+              <div class="min-stat-label">
+                <span>Admissions Pipeline</span>
+              </div>
+              <div class="min-stat-value">${allAppsCount + allWaitlistsCount}</div>
+              <div class="min-stat-meta">${allAppsCount} applications · ${allWaitlistsCount} waitlisted across campuses</div>
+            </div>
+          </div>
+        </div>
+
         <!-- Clean Filter & Stage Bar -->
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
           <div class="min-subnav mb-0">
             <button type="button" class="min-subnav-link ${activeTab === "registered" ? "active" : ""}" data-stab="registered">
-              Registered (${counts.registered})
+              Registered (${registeredTotalLabel})
             </button>
             <button type="button" class="min-subnav-link ${activeTab === "applications" ? "active" : ""}" data-stab="applications">
               Applications (${counts.applications})
@@ -152,13 +225,12 @@
                 )
                 .join("")}
             </select>
-            <select id="stuCampusFilter" class="form-select" style="width: 210px;">
-              <option value="ALL" ${campusFilter === "ALL" ? "selected" : ""}>All Campuses</option>
-              ${(st.campusDirectory || [])
-                .filter(c => c.id !== "C06")
+            <select id="stuCampusFilter" class="form-select" style="width: 230px;">
+              <option value="ALL" ${campusFilter === "ALL" ? "selected" : ""}>All Campuses (${totalStudentsAll.toLocaleString()})</option>
+              ${campuses
                 .map(
                   (c) =>
-                    `<option value="${c.id}" ${campusFilter === c.id ? "selected" : ""}>${esc(c.shortName)}</option>`
+                    `<option value="${c.id}" ${campusFilter === c.id ? "selected" : ""}>${esc(c.shortName)} (${c.totalStudents.toLocaleString()})</option>`
                 )
                 .join("")}
             </select>
@@ -166,6 +238,18 @@
         </div>
 
         <div class="card">
+          <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <span class="small text-muted">Showing ${rows.length ? (page - 1) * PAGE_SIZE + 1 : 0}–${Math.min(page * PAGE_SIZE, rows.length)} of ${rows.length} students</span>
+            ${
+              totalPages > 1
+                ? `<div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-light border" id="btnStuPrev" ${page <= 1 ? "disabled" : ""}>Previous</button>
+                    <span class="btn btn-light border disabled text-dark">Page ${page} / ${totalPages}</span>
+                    <button type="button" class="btn btn-light border" id="btnStuNext" ${page >= totalPages ? "disabled" : ""}>Next</button>
+                  </div>`
+                : ""
+            }
+          </div>
           <div class="card-body p-0">
             <div tabindex="0" role="region" aria-label="Students directory table" class="table-wrapper table-responsive">
               <table class="table table-hover align-middle mb-0">
@@ -183,11 +267,13 @@
                 </thead>
                 <tbody>
                   ${
-                    rows.length === 0
+                    pageRows.length === 0
                       ? `<tr><td colspan="7" class="text-center py-5 text-muted">No students found in this view.</td></tr>`
-                      : rows
+                      : pageRows
                           .map((s) => {
                             const prog = (s.programs && s.programs[0]) || {};
+                            const stuCampus = campuses.find((c) => c.id === (s.campusId || "C01"));
+                            const campusLabel = stuCampus ? `${stuCampus.id} · ${stuCampus.shortName}` : s.campusId || "C01";
                             return `
                               <tr>
                                 ${
@@ -204,7 +290,7 @@
                                 <td class="text-muted font-monospace small">${esc(s.student_card_id)}</td>
                                 <td>
                                   <div class="text-dark fw-medium">${esc(prog.class?.name_en || s.applying_for || "Unassigned")}</div>
-                                  <div class="text-muted small"><span class="badge bg-light text-secondary border me-1">${esc(s.campusId || "C01")}</span>${esc(prog.program?.name_en || "-")}</div>
+                                  <div class="text-muted small"><span class="badge bg-light text-secondary border me-1">${esc(campusLabel)}</span>${esc(prog.program?.name_en || "-")}</div>
                                 </td>
                                 <td>
                                   <div class="text-dark fw-medium">${esc(s.father?.nameEn || s.mother?.nameEn || "Guardian")}</div>
@@ -243,6 +329,14 @@
                           .join("")
                   }
                 </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="${activeTab === "waitlists" ? 3 : 2}">All ${campuses.length} Campuses Combined Total</td>
+                    <td colspan="2">${totalStudentsAll.toLocaleString()} Students (${esc(campusStudentBreakdown)})</td>
+                    <td>${avgAttendanceAll}% Present</td>
+                    <td colspan="2" class="text-end">${totalCapacityAll.toLocaleString()} Total Capacity (${avgUtilizationAll}% Filled)</td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
           </div>
@@ -252,6 +346,7 @@
       container.querySelectorAll("[data-stab]").forEach((tab) => {
         tab.addEventListener("click", () => {
           activeTab = tab.dataset.stab;
+          page = 1;
           selectedWaitlistIds.clear();
           draw();
         });
@@ -259,16 +354,31 @@
 
       document.getElementById("stuSearch")?.addEventListener("input", (e) => {
         searchQ = e.target.value.trim().toLowerCase();
+        page = 1;
         draw();
       });
       document.getElementById("stuProgFilter")?.addEventListener("change", (e) => {
         progFilter = e.target.value;
+        page = 1;
         draw();
       });
       document.getElementById("stuCampusFilter")?.addEventListener("change", (e) => {
         campusFilter = e.target.value;
+        page = 1;
         window.setActiveCampus(campusFilter);
         draw();
+      });
+      document.getElementById("btnStuPrev")?.addEventListener("click", () => {
+        if (page > 1) {
+          page--;
+          draw();
+        }
+      });
+      document.getElementById("btnStuNext")?.addEventListener("click", () => {
+        if (page < totalPages) {
+          page++;
+          draw();
+        }
       });
 
       document.getElementById("chkAllWaitlist")?.addEventListener("change", (e) => {
@@ -313,6 +423,7 @@
                 <label class="form-label" for="targetClassId">Destination Class</label>
                 <select id="targetClassId" class="form-select">
                   ${st.classes
+                    .filter((c) => c.status === "ongoing")
                     .map(
                       (c) =>
                         `<option value="${c.id}">${esc(c.classNameEn)} (${esc(c.program?.code)}) — ${esc(c.room?.name)}</option>`
@@ -335,6 +446,7 @@
             const stu = st.students.find((s) => s.id === Number(sid));
             if (stu) {
               stu.tab = "registered";
+              stu.campusId = cls.campusId || stu.campusId || "C01";
               stu.student_card_id = stu.student_card_id.replace(/^(WTL|APP)/, "STU");
               if (!stu.programs || !stu.programs.length) stu.programs = [{}];
               stu.programs[0] = {
@@ -348,7 +460,6 @@
               };
             }
           });
-          cls.totalStudents = (cls.totalStudents || 25) + studentIds.length;
           selectedWaitlistIds.clear();
           window.saveSmsState();
           window.closeDynamicModal();
@@ -516,6 +627,7 @@
 
       const newStu = {
         id: Date.now(),
+        campusId: cls.campusId || "C01",
         student_card_id: cardId,
         first_name_kh: firstKh,
         last_name_kh: lastKh,
@@ -591,6 +703,7 @@
       if (document.getElementById("chkGenInvoice")?.checked) {
         st.invoices.unshift({
           id: Date.now() + 10,
+          campusId: newStu.campusId,
           invoiceNo: `INV-2026-0${st.invoices.length + 501}`,
           studentId: newStu.id,
           studentCardId: newStu.student_card_id,
@@ -1185,10 +1298,26 @@
   // ============================================================================
   function renderGuardiansTable(container) {
     const st = window.SMS_STATE;
+    window.syncSchoolMetrics?.(st);
     let searchQ = "";
     let campusFilter = st.activeCampusId || "ALL";
+    let page = 1;
+    const PAGE_SIZE = 25;
 
     const draw = () => {
+      window.syncSchoolMetrics?.(st);
+      const campuses = (st.campusDirectory || []).filter((c) => c.id !== "C06");
+      const totalParentsAll = campuses.reduce(
+        (a, c) => a + (c.totalParents || Math.round((c.totalStudents || 0) * 0.84)),
+        0
+      );
+      const totalStudentsAll = campuses.reduce((a, c) => a + (c.totalStudents || 0), 0);
+      const activePortalParentsAll = Math.round(totalParentsAll * 0.963);
+      const multiChildFamiliesAll = Math.max(0, totalStudentsAll - totalParentsAll);
+      const campusParentBreakdown = campuses
+        .map((c) => `${c.shortName}: ${(c.totalParents || Math.round((c.totalStudents || 0) * 0.84)).toLocaleString()}`)
+        .join(" · ");
+
       const list = st.guardians.filter((g) => {
         const matchCampus = campusFilter === "ALL" || g.campusId === campusFilter;
         const matchQ =
@@ -1198,24 +1327,90 @@
           g.phone.toLowerCase().includes(searchQ);
         return matchCampus && matchQ;
       });
+      const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+      if (page > totalPages) page = totalPages;
+      const pageRows = list.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
       container.innerHTML = `
         <div class="min-page-header">
           <div>
-            <h1 class="min-page-title">Guardians</h1>
-            <p class="min-page-subtitle">Parent directory, mobile app accounts, and linked children.</p>
+            <h1 class="min-page-title">Parents &amp; Guardians (${totalParentsAll.toLocaleString()} Total Across All Campuses)</h1>
+            <p class="min-page-subtitle">Combined parent directory across all ${campuses.length} campuses · ${esc(campusParentBreakdown)}</p>
           </div>
           <button class="btn btn-primary" id="btnAddGuardian">+ New Guardian</button>
         </div>
+
+        <!-- 4-Card All-Campuses Combined Summary Strip -->
+        <div class="row g-4 mb-4">
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card">
+              <div class="min-stat-label">
+                <span>Total Parents &amp; Guardians (All Campuses)</span>
+              </div>
+              <div class="min-stat-value">${totalParentsAll.toLocaleString()}</div>
+              <div class="min-stat-meta">Linked across ${totalStudentsAll.toLocaleString()} students in ${campuses.length} campuses</div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card">
+              <div class="min-stat-label">
+                <span>Parent Super-App Accounts</span>
+              </div>
+              <div class="min-stat-value">${activePortalParentsAll.toLocaleString()}</div>
+              <div class="min-stat-meta">96.3% active mobile portal &amp; push notification reach</div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card">
+              <div class="min-stat-label">
+                <span>Multi-Child Households</span>
+              </div>
+              <div class="min-stat-value">${multiChildFamiliesAll.toLocaleString()}</div>
+              <div class="min-stat-meta">Families with 2+ children enrolled across campuses</div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card">
+              <div class="min-stat-label">
+                <span>Campuses Covered</span>
+              </div>
+              <div class="min-stat-value">${campuses.length} Campuses</div>
+              <div class="min-stat-meta">100% unified SMS &amp; app broadcast coverage</div>
+            </div>
+          </div>
+        </div>
+
         <div class="card">
           <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <input type="search" id="guardSearch" class="form-control" style="max-width:280px;" placeholder="Search guardian name or phone..." value="${esc(searchQ)}">
-            <select id="guardCampusFilter" class="form-select" style="max-width:220px;">
-              <option value="ALL" ${campusFilter === "ALL" ? "selected" : ""}>All Campuses</option>
-              ${(st.campusDirectory || [])
-                .filter(c => c.id !== "C06")
-                .map((c) => `<option value="${c.id}" ${campusFilter === c.id ? "selected" : ""}>${esc(c.shortName)}</option>`)
-                .join("")}
-            </select>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <input type="search" id="guardSearch" class="form-control" style="width:260px;" placeholder="Search guardian name or phone..." value="${esc(searchQ)}">
+              <select id="guardCampusFilter" class="form-select" style="width:240px;">
+                <option value="ALL" ${campusFilter === "ALL" ? "selected" : ""}>All Campuses (${totalParentsAll.toLocaleString()})</option>
+                ${campuses
+                  .map(
+                    (c) =>
+                      `<option value="${c.id}" ${campusFilter === c.id ? "selected" : ""}>${esc(c.shortName)} (${(
+                        c.totalParents || Math.round((c.totalStudents || 0) * 0.84)
+                      ).toLocaleString()})</option>`
+                  )
+                  .join("")}
+              </select>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="small text-muted">Showing ${list.length ? (page - 1) * PAGE_SIZE + 1 : 0}–${Math.min(page * PAGE_SIZE, list.length)} of ${list.length} guardians</span>
+              ${
+                totalPages > 1
+                  ? `<div class="btn-group btn-group-sm">
+                      <button type="button" class="btn btn-light border" id="btnGuardPrev" ${page <= 1 ? "disabled" : ""}>Previous</button>
+                      <span class="btn btn-light border disabled text-dark">Page ${page} / ${totalPages}</span>
+                      <button type="button" class="btn btn-light border" id="btnGuardNext" ${page >= totalPages ? "disabled" : ""}>Next</button>
+                    </div>`
+                  : ""
+              }
+            </div>
           </div>
           <div class="card-body p-0">
             <div tabindex="0" role="region" aria-label="Guardians table" class="table-wrapper table-responsive">
@@ -1223,6 +1418,7 @@
                 <thead>
                   <tr>
                     <th>Guardian</th>
+                    <th>Campus</th>
                     <th>Relation &amp; Role</th>
                     <th>Phone</th>
                     <th>Children</th>
@@ -1231,13 +1427,18 @@
                   </tr>
                 </thead>
                 <tbody>
-                  ${list
-                    .map(
-                      (g) => `
+                  ${pageRows
+                    .map((g) => {
+                      const gCampus = campuses.find((c) => c.id === (g.campusId || "C01"));
+                      const campusLabel = gCampus ? `${gCampus.id} · ${gCampus.shortName}` : g.campusId || "C01";
+                      return `
                     <tr>
                       <td>
                         <div class="fw-semibold text-dark">${esc(g.nameEn)}</div>
                         <div class="text-muted small">${esc(g.nameKh)}</div>
+                      </td>
+                      <td>
+                        <span class="badge bg-light text-secondary border">${esc(campusLabel)}</span>
                       </td>
                       <td>
                         <div>${esc(g.relation)}</div>
@@ -1252,10 +1453,17 @@
                         </button>
                       </td>
                     </tr>
-                  `
-                    )
+                  `;
+                    })
                     .join("")}
                 </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="2">All ${campuses.length} Campuses Combined Total</td>
+                    <td colspan="3">${totalParentsAll.toLocaleString()} Parents &amp; Guardians (${esc(campusParentBreakdown)})</td>
+                    <td colspan="2" class="text-end">${totalStudentsAll.toLocaleString()} Linked Students</td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
           </div>
@@ -1263,12 +1471,26 @@
       `;
       document.getElementById("guardSearch")?.addEventListener("input", (e) => {
         searchQ = e.target.value.trim().toLowerCase();
+        page = 1;
         draw();
       });
       document.getElementById("guardCampusFilter")?.addEventListener("change", (e) => {
         campusFilter = e.target.value;
+        page = 1;
         window.setActiveCampus(campusFilter);
         draw();
+      });
+      document.getElementById("btnGuardPrev")?.addEventListener("click", () => {
+        if (page > 1) {
+          page--;
+          draw();
+        }
+      });
+      document.getElementById("btnGuardNext")?.addEventListener("click", () => {
+        if (page < totalPages) {
+          page++;
+          draw();
+        }
       });
       document.getElementById("btnAddGuardian")?.addEventListener("click", () => {
         window.openDynamicModal(
@@ -1297,6 +1519,7 @@
           const nameEn = document.getElementById("gnEn").value.trim();
           st.guardians.unshift({
             id: Date.now(),
+            campusId: campusFilter === "ALL" ? "C01" : campusFilter,
             nameEn,
             nameKh: nameEn,
             gender: "Male",
@@ -1305,7 +1528,8 @@
             phone: document.getElementById("gnPh").value.trim(),
             email: `${nameEn.toLowerCase().replace(/\s+/g, ".")}@gmail.com`,
             address: "Phnom Penh",
-            children: ["Sok Chanreaksa (G12-A)"],
+            children: ["Sok Chanreaksa (Grade 12-A)"],
+            childIds: [1],
             accStatus: "Active",
             isLocked: false,
             username: `par_${nameEn.toLowerCase().split(" ")[0]}`,
@@ -1351,20 +1575,29 @@
           </div>
           <div class="col-md-7">
             <div class="card">
-              <div class="card-header"><h5 class="mb-0">Linked Children</h5></div>
+              <div class="card-header"><h5 class="mb-0">Linked Children (${(g.children || []).length})</h5></div>
               <div class="card-body p-0">
                 <ul class="list-group list-group-flush">
                   ${(g.children || [])
-                    .map(
-                      (ch) => `
+                    .map((ch, idx) => {
+                      const rawName = String(ch).split("(")[0].trim().toLowerCase();
+                      const matchedStu =
+                        st.students.find((s) => Number(s.id) === Number(g.childIds?.[idx])) ||
+                        st.students.find((s) => s.full_name_en.toLowerCase() === rawName) ||
+                        st.students[0];
+                      const targetId = matchedStu ? matchedStu.id : 1;
+                      return `
                     <li class="list-group-item px-4 py-3 d-flex justify-content-between align-items-center border-light">
-                      <span class="fw-semibold text-dark">${esc(ch)}</span>
-                      <button class="btn btn-sm btn-outline-primary" onclick="window.navigateTo('/smnadm/students/pre-register/view-detail/1')">
+                      <div>
+                        <div class="fw-semibold text-dark">${esc(ch)}</div>
+                        <div class="small text-muted">${esc(matchedStu?.student_card_id || "STU-2026-001")}</div>
+                      </div>
+                      <button class="btn btn-sm btn-outline-primary" onclick="window.navigateTo('/smnadm/students/pre-register/view-detail/${targetId}')">
                         Student Profile
                       </button>
                     </li>
-                  `
-                    )
+                  `;
+                    })
                     .join("")}
                 </ul>
               </div>
@@ -1374,7 +1607,9 @@
       `;
       document.getElementById("btnLinkChild")?.addEventListener("click", () => {
         g.children = g.children || [];
-        g.children.push("Chhin Oudom (G12-A)");
+        g.childIds = g.childIds || [];
+        g.children.push("Chhin Oudom (Grade 12-A)");
+        g.childIds.push(2);
         window.saveSmsState();
         window.showToast("Linked child to guardian.", "success");
         draw();
@@ -1388,34 +1623,124 @@
   // ============================================================================
   function renderStaffsTable(container) {
     const st = window.SMS_STATE;
+    window.syncSchoolMetrics?.(st);
     let searchQ = "";
+    let statusFilter = "Working";
+    let campusFilter = st.activeCampusId || "ALL";
     const draw = () => {
-      const list = st.staffs.filter(
-        (s) =>
+      window.syncSchoolMetrics?.(st);
+      const campuses = (st.campusDirectory || []).filter((c) => c.id !== "C06");
+      const totalStaffAll = campuses.reduce((a, c) => a + (c.totalStaff || 0), 0);
+      const totalTeachersAll = campuses.reduce((a, c) => a + (c.totalTeachers || 0), 0);
+      const totalAdminSupportAll = Math.max(0, totalStaffAll - totalTeachersAll);
+      const totalStudentsAll = campuses.reduce((a, c) => a + (c.totalStudents || 0), 0);
+      const studentTeacherRatio = totalTeachersAll ? Math.round(totalStudentsAll / totalTeachersAll) : 19;
+      const activeClassesAll = campuses.reduce((a, c) => a + (c.activeClassesCount || 0), 0);
+      const campusStaffBreakdown = campuses
+        .map((c) => `${c.shortName}: ${c.totalStaff} (${c.totalTeachers} teachers)`)
+        .join(" · ");
+
+      const scopedStaffs = st.staffs.filter((s) => {
+        const matchCampus =
+          campusFilter === "ALL" || s.campusId === campusFilter || s.campusId === "ALL";
+        const matchQ =
           !searchQ ||
           s.nameEn.toLowerCase().includes(searchQ) ||
           s.nameKh.toLowerCase().includes(searchQ) ||
-          s.position.toLowerCase().includes(searchQ)
+          s.position.toLowerCase().includes(searchQ);
+        return matchCampus && matchQ;
+      });
+      const workingCount = scopedStaffs.filter((s) => s.employmentStatus === "Working").length;
+      const resignedCount = scopedStaffs.filter((s) => s.employmentStatus !== "Working").length;
+      const list = scopedStaffs.filter((s) =>
+        statusFilter === "ALL"
+          ? true
+          : statusFilter === "Working"
+          ? s.employmentStatus === "Working"
+          : s.employmentStatus !== "Working"
       );
+
       container.innerHTML = `
         ${renderStaffSubnav("staffs")}
         <div class="min-page-header">
           <div>
-            <h1 class="min-page-title">Faculty &amp; Staff</h1>
-            <p class="min-page-subtitle">Select any teacher to inspect assigned classes and weekly teaching timetables.</p>
+            <h1 class="min-page-title">Faculty &amp; Teachers (${totalStaffAll.toLocaleString()} Total Across All Campuses)</h1>
+            <p class="min-page-subtitle">Combined faculty &amp; staff across all ${campuses.length} campuses · ${esc(campusStaffBreakdown)}</p>
           </div>
           <button class="btn btn-primary" id="btnAddStaff">+ Add Staff</button>
         </div>
-        <div class="card">
-          <div class="card-header">
-            <input type="search" id="staffSearch" class="form-control" style="max-width:320px;" placeholder="Search faculty or role..." value="${esc(searchQ)}">
+
+        <!-- 4-Card All-Campuses Combined Summary Strip -->
+        <div class="row g-4 mb-4">
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card">
+              <div class="min-stat-label">
+                <span>Total Faculty &amp; Staff (All Campuses)</span>
+              </div>
+              <div class="min-stat-value">${totalStaffAll.toLocaleString()}</div>
+              <div class="min-stat-meta">Combined across all ${campuses.length} campuses</div>
+            </div>
           </div>
+
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card">
+              <div class="min-stat-label">
+                <span>Teaching Faculty (All Campuses)</span>
+              </div>
+              <div class="min-stat-value">${totalTeachersAll.toLocaleString()}</div>
+              <div class="min-stat-meta">${studentTeacherRatio} students per teacher across ${totalStudentsAll.toLocaleString()} students</div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card">
+              <div class="min-stat-label">
+                <span>Leadership &amp; Admin Staff</span>
+              </div>
+              <div class="min-stat-value">${totalAdminSupportAll.toLocaleString()}</div>
+              <div class="min-stat-meta">Principals, finance, registrar &amp; campus operations</div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card">
+              <div class="min-stat-label">
+                <span>Active Classes Covered</span>
+              </div>
+              <div class="min-stat-value">${activeClassesAll} Classes</div>
+              <div class="min-stat-meta">Across all ${campuses.length} campuses</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+          <div class="min-subnav mb-0">
+            <button type="button" class="min-subnav-link ${statusFilter === "Working" ? "active" : ""}" data-sfst="Working">Active Working (${workingCount})</button>
+            <button type="button" class="min-subnav-link ${statusFilter === "Resigned" ? "active" : ""}" data-sfst="Resigned">Former / Resigned (${resignedCount})</button>
+            <button type="button" class="min-subnav-link ${statusFilter === "ALL" ? "active" : ""}" data-sfst="ALL">All Records (${scopedStaffs.length})</button>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <input type="search" id="staffSearch" class="form-control" style="width:260px;" placeholder="Search faculty or role..." value="${esc(searchQ)}">
+            <select id="staffCampusFilter" class="form-select" style="width:240px;">
+              <option value="ALL" ${campusFilter === "ALL" ? "selected" : ""}>All Campuses (${totalStaffAll} Staff)</option>
+              ${campuses
+                .map(
+                  (c) =>
+                    `<option value="${c.id}" ${campusFilter === c.id ? "selected" : ""}>${esc(c.shortName)} (${c.totalStaff} Staff)</option>`
+                )
+                .join("")}
+            </select>
+          </div>
+        </div>
+
+        <div class="card">
           <div class="card-body p-0">
             <div tabindex="0" role="region" aria-label="Staff directory table" class="table-wrapper table-responsive">
               <table class="table table-hover align-middle mb-0">
                 <thead>
                   <tr>
                     <th>Name</th>
+                    <th>Campus</th>
                     <th>Role &amp; Department</th>
                     <th>Qualification</th>
                     <th>Phone</th>
@@ -1425,12 +1750,22 @@
                 </thead>
                 <tbody>
                   ${list
-                    .map(
-                      (s) => `
+                    .map((s) => {
+                      const sCampus = campuses.find((c) => c.id === s.campusId);
+                      const campusLabel =
+                        s.campusId === "ALL"
+                          ? "All Campuses (Network HQ)"
+                          : sCampus
+                          ? `${sCampus.id} · ${sCampus.shortName}`
+                          : s.campusId || "C01 · Sen Sok HQ";
+                      return `
                     <tr>
                       <td>
                         <div class="fw-semibold text-dark">${esc(s.nameEn)}</div>
                         <div class="text-muted small">${esc(s.nameKh)}</div>
+                      </td>
+                      <td>
+                        <span class="badge bg-light text-secondary border">${esc(campusLabel)}</span>
                       </td>
                       <td>
                         <div class="text-dark">${esc(s.position)}</div>
@@ -1447,17 +1782,35 @@
                         </button>
                       </td>
                     </tr>
-                  `
-                    )
+                  `;
+                    })
                     .join("")}
                 </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="2">All ${campuses.length} Campuses Combined Total</td>
+                    <td colspan="3">${totalStaffAll} Active Staff (${totalTeachersAll} Teachers · ${totalAdminSupportAll} Admin/Support) — ${esc(campusStaffBreakdown)}</td>
+                    <td colspan="2" class="text-end">${activeClassesAll} Active Classes</td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
           </div>
         </div>
       `;
+      container.querySelectorAll("[data-sfst]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          statusFilter = btn.dataset.sfst;
+          draw();
+        });
+      });
       document.getElementById("staffSearch")?.addEventListener("input", (e) => {
         searchQ = e.target.value.trim().toLowerCase();
+        draw();
+      });
+      document.getElementById("staffCampusFilter")?.addEventListener("change", (e) => {
+        campusFilter = e.target.value;
+        window.setActiveCampus(campusFilter);
         draw();
       });
       document.getElementById("btnAddStaff")?.addEventListener("click", () => {
@@ -1491,6 +1844,7 @@
           const nameEn = document.getElementById("sfEn").value.trim();
           st.staffs.unshift({
             id: Date.now(),
+            campusId: campusFilter === "ALL" ? "C01" : campusFilter,
             nameEn,
             nameKh: nameEn,
             gender: "Female",
@@ -1519,10 +1873,12 @@
 
   function renderStaffDetail(container, staffId) {
     const st = window.SMS_STATE;
+    window.syncSchoolMetrics?.(st);
     const staff = st.staffs.find((s) => Number(s.id) === Number(staffId)) || st.staffs[1];
     let tab = "classes";
     const taughtClasses = st.classes.filter((c) => Number(c.teacherId) === Number(staff.id));
-    const displayClasses = taughtClasses.length ? taughtClasses : st.classes.slice(0, 2);
+    const campusClasses = st.classes.filter((c) => c.campusId === (staff.campusId || "C01") && c.status === "ongoing");
+    const displayClasses = taughtClasses.length ? taughtClasses : campusClasses.slice(0, 2);
 
     const draw = () => {
       container.innerHTML = `
@@ -1622,12 +1978,13 @@
 
   function renderPositions(container) {
     const st = window.SMS_STATE;
+    const totalPositionsStaff = (st.positions || []).reduce((a, p) => a + (Number(p.staffCount) || 0), 0);
     container.innerHTML = `
       ${renderStaffSubnav("positions")}
       <div class="min-page-header">
         <div>
-          <h1 class="min-page-title">HR Positions</h1>
-          <p class="min-page-subtitle">Organizational titles and department assignments.</p>
+          <h1 class="min-page-title">HR Positions (${totalPositionsStaff} Total Staff Across All Campuses)</h1>
+          <p class="min-page-subtitle">Organizational titles and department assignments across all 5 campuses.</p>
         </div>
       </div>
       <div class="row g-4">
@@ -1657,41 +2014,118 @@
   // ============================================================================
   function renderInvoicesTable(container) {
     const st = window.SMS_STATE;
+    window.syncSchoolMetrics?.(st);
     let statusFilter = "ALL";
     let campusFilter = st.activeCampusId || "ALL";
+    let page = 1;
+    const PAGE_SIZE = 25;
 
     const draw = () => {
-      const list = st.invoices.filter((i) => {
-        const matchStatus = statusFilter === "ALL" || i.status === statusFilter;
-        const matchCampus = campusFilter === "ALL" || i.campusId === campusFilter;
-        return matchStatus && matchCampus;
-      });
+      window.syncSchoolMetrics?.(st);
+      const campuses = (st.campusDirectory || []).filter((c) => c.id !== "C06");
+      const totalCollectedAll = campuses.reduce((a, c) => a + (c.tuitionCollectedUsd || 0), 0);
+      const totalPendingAll = campuses.reduce((a, c) => a + (c.tuitionPendingUsd || 0), 0);
+      const totalBilledAll = totalCollectedAll + totalPendingAll;
+      const collectionRateAll = totalBilledAll
+        ? ((totalCollectedAll / totalBilledAll) * 100).toFixed(1)
+        : "95.8";
+      const campusTuitionBreakdown = campuses
+        .map((c) => `${c.shortName}: $${((c.tuitionCollectedUsd || 0) / 1000000).toFixed(2)}M (${c.collectionRate}%)`)
+        .join(" · ");
+
+      const scopedInvoices = st.invoices.filter((i) => campusFilter === "ALL" || i.campusId === campusFilter);
+      const paidScopedCount = scopedInvoices.filter((i) => i.status === "Paid").length;
+      const unpaidScopedCount = scopedInvoices.filter((i) => i.status !== "Paid").length;
+      const list = scopedInvoices.filter((i) => statusFilter === "ALL" || i.status === statusFilter);
+      const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+      if (page > totalPages) page = totalPages;
+      const pageRows = list.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
       container.innerHTML = `
         ${renderFinanceSubnav("invoices")}
         <div class="min-page-header">
           <div>
-            <h1 class="min-page-title">Tuition &amp; Invoices</h1>
-            <p class="min-page-subtitle">Manage student billing, ABA KHQR payments, and official printable receipts.</p>
+            <h1 class="min-page-title">Tuition &amp; Billing ($${(totalBilledAll / 1000000).toFixed(2)}M Total Across All Campuses)</h1>
+            <p class="min-page-subtitle">Combined tuition billing across all ${campuses.length} campuses · ${esc(campusTuitionBreakdown)}</p>
           </div>
           <button class="btn btn-primary" id="btnNewInvoiceModal">+ Create Invoice</button>
         </div>
 
+        <!-- 4-Card All-Campuses Combined Summary Strip -->
+        <div class="row g-4 mb-4">
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card">
+              <div class="min-stat-label">
+                <span>Total Tuition Billed (All Campuses)</span>
+              </div>
+              <div class="min-stat-value">$${(totalBilledAll / 1000000).toFixed(2)}M</div>
+              <div class="min-stat-meta">$${totalBilledAll.toLocaleString()} combined across all ${campuses.length} campuses</div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card">
+              <div class="min-stat-label">
+                <span>Tuition Collected (All Campuses)</span>
+              </div>
+              <div class="min-stat-value">$${(totalCollectedAll / 1000000).toFixed(2)}M</div>
+              <div class="min-stat-meta">$${totalCollectedAll.toLocaleString()} collected via ABA PayWay, KHQR &amp; counter</div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card">
+              <div class="min-stat-label">
+                <span>Outstanding Balance (All Campuses)</span>
+              </div>
+              <div class="min-stat-value">$${Math.round(totalPendingAll / 1000).toLocaleString()}K</div>
+              <div class="min-stat-meta">$${totalPendingAll.toLocaleString()} pending balance across ${campuses.length} campuses</div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6">
+            <div class="min-stat-card">
+              <div class="min-stat-label">
+                <span>Combined Collection Rate</span>
+              </div>
+              <div class="min-stat-value">${collectionRateAll}%</div>
+              <div class="min-stat-meta">Range 94.7% – 96.4% across all ${campuses.length} campuses</div>
+            </div>
+          </div>
+        </div>
+
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
           <div class="min-subnav mb-0">
-            <button type="button" class="min-subnav-link ${statusFilter === "ALL" ? "active" : ""}" data-ist="ALL">All (${st.invoices.length})</button>
-            <button type="button" class="min-subnav-link ${statusFilter === "Paid" ? "active" : ""}" data-ist="Paid">Paid (${st.invoices.filter((i) => i.status === "Paid").length})</button>
-            <button type="button" class="min-subnav-link ${statusFilter === "Unpaid" ? "active" : ""}" data-ist="Unpaid">Unpaid (${st.invoices.filter((i) => i.status !== "Paid").length})</button>
+            <button type="button" class="min-subnav-link ${statusFilter === "ALL" ? "active" : ""}" data-ist="ALL">All (${scopedInvoices.length})</button>
+            <button type="button" class="min-subnav-link ${statusFilter === "Paid" ? "active" : ""}" data-ist="Paid">Paid (${paidScopedCount})</button>
+            <button type="button" class="min-subnav-link ${statusFilter === "Unpaid" ? "active" : ""}" data-ist="Unpaid">Unpaid (${unpaidScopedCount})</button>
           </div>
-          <select id="invCampusFilter" class="form-select" style="max-width:220px;">
-            <option value="ALL" ${campusFilter === "ALL" ? "selected" : ""}>All Campuses</option>
-            ${(st.campusDirectory || [])
-              .filter(c => c.id !== "C06")
-              .map((c) => `<option value="${c.id}" ${campusFilter === c.id ? "selected" : ""}>${esc(c.shortName)}</option>`)
+          <select id="invCampusFilter" class="form-select" style="max-width:265px;">
+            <option value="ALL" ${campusFilter === "ALL" ? "selected" : ""}>All Campuses ($${(totalCollectedAll / 1000000).toFixed(2)}M Collected)</option>
+            ${campuses
+              .map(
+                (c) =>
+                  `<option value="${c.id}" ${campusFilter === c.id ? "selected" : ""}>${esc(c.shortName)} ($${(
+                    (c.tuitionCollectedUsd || 0) / 1000000
+                  ).toFixed(2)}M)</option>`
+              )
               .join("")}
           </select>
         </div>
 
         <div class="card">
+          <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <span class="small text-muted">Showing ${list.length ? (page - 1) * PAGE_SIZE + 1 : 0}–${Math.min(page * PAGE_SIZE, list.length)} of ${list.length} invoices</span>
+            ${
+              totalPages > 1
+                ? `<div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-light border" id="btnInvPrev" ${page <= 1 ? "disabled" : ""}>Previous</button>
+                    <span class="btn btn-light border disabled text-dark">Page ${page} / ${totalPages}</span>
+                    <button type="button" class="btn btn-light border" id="btnInvNext" ${page >= totalPages ? "disabled" : ""}>Next</button>
+                  </div>`
+                : ""
+            }
+          </div>
           <div class="card-body p-0">
             <div tabindex="0" role="region" aria-label="Invoices table" class="table-wrapper table-responsive">
               <table class="table table-hover align-middle mb-0">
@@ -1699,6 +2133,7 @@
                   <tr>
                     <th>Invoice</th>
                     <th>Student</th>
+                    <th>Campus</th>
                     <th>Guardian</th>
                     <th>Due Date</th>
                     <th>Amount</th>
@@ -1707,15 +2142,20 @@
                   </tr>
                 </thead>
                 <tbody>
-                  ${list
+                  ${pageRows
                     .map((inv) => {
                       const tot = calcInvoiceTotal(inv);
+                      const invCampus = campuses.find((c) => c.id === (inv.campusId || "C01"));
+                      const campusLabel = invCampus ? `${invCampus.id} · ${invCampus.shortName}` : inv.campusId || "C01";
                       return `
                         <tr>
                           <td class="fw-semibold text-dark" style="cursor:pointer" onclick="window.navigateTo('/smnadm/payments/invoice/detail-no-pay/${inv.id}')">${esc(inv.invoiceNo)}</td>
                           <td>
                             <div class="fw-medium text-dark">${esc(inv.studentName)}</div>
                             <div class="text-muted small">${esc(inv.studentCardId)}</div>
+                          </td>
+                          <td>
+                            <span class="badge bg-light text-secondary border">${esc(campusLabel)}</span>
                           </td>
                           <td>${esc(inv.guardianName)}</td>
                           <td class="text-muted">${esc(inv.dueDate)}</td>
@@ -1731,6 +2171,14 @@
                     })
                     .join("")}
                 </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="2">All ${campuses.length} Campuses Combined Total</td>
+                    <td colspan="3">$${totalCollectedAll.toLocaleString()} Collected · $${totalPendingAll.toLocaleString()} Pending (${esc(campusTuitionBreakdown)})</td>
+                    <td>$${totalBilledAll.toLocaleString()}</td>
+                    <td colspan="2" class="text-end">${collectionRateAll}% Collected</td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
           </div>
@@ -1740,13 +2188,27 @@
       container.querySelectorAll("[data-ist]").forEach((btn) => {
         btn.addEventListener("click", () => {
           statusFilter = btn.dataset.ist;
+          page = 1;
           draw();
         });
       });
       document.getElementById("invCampusFilter")?.addEventListener("change", (e) => {
         campusFilter = e.target.value;
+        page = 1;
         window.setActiveCampus(campusFilter);
         draw();
+      });
+      document.getElementById("btnInvPrev")?.addEventListener("click", () => {
+        if (page > 1) {
+          page--;
+          draw();
+        }
+      });
+      document.getElementById("btnInvNext")?.addEventListener("click", () => {
+        if (page < totalPages) {
+          page++;
+          draw();
+        }
       });
 
       document.getElementById("btnNewInvoiceModal")?.addEventListener("click", () => {
@@ -1779,6 +2241,7 @@
           const srv = st.services.find((x) => x.id === Number(document.getElementById("invSrvId").value)) || st.services[0];
           const newInv = {
             id: Date.now(),
+            campusId: stu.campusId || "C01",
             invoiceNo: `INV-2026-0${st.invoices.length + 510}`,
             studentId: stu.id,
             studentCardId: stu.student_card_id,
@@ -2637,19 +3100,21 @@
       });
 
       document.getElementById("btnSimEmergencySms")?.addEventListener("click", () => {
+        const regCount = st.students.filter((s) => s.tab === "registered").length;
+        const guardCount = st.guardians.length;
         st.announcements.unshift({
           id: Date.now(),
           title: "Urgent All-Campus Alert: Afternoon Dismissal & Weather Advisory",
           titleKh: "សេចក្តីជូនដំណឹងបន្ទាន់៖ ការចេញពីរៀន និងការប្រុងប្រយ័ត្នអាកាសធាតុ",
           category: "Emergency SMS + App Push (3.2.4)",
-          targetAudience: "3,745 Students · 5 Campuses",
+          targetAudience: `${regCount} Students · ${guardCount} Guardians · 5 Campuses`,
           status: "Published",
           publishDate: "Just now",
           author: st.currentUser.displayName,
-          content: "Dispatched simultaneously via Local SMS Gateway and iOS/Android Push Notifications to all 3,745 student guardians across 5 Milky Way School campuses.",
+          content: `Dispatched simultaneously via Local SMS Gateway and iOS/Android Push Notifications to all ${guardCount} student guardians (${regCount} students) across 5 Milky Way School campuses.`,
         });
         window.saveSmsState();
-        window.showToast("Broadcast dispatched via SMS Gateway + Mobile App Push to 3,745 guardians across 5 campuses.", "success");
+        window.showToast(`Broadcast dispatched via SMS Gateway + Mobile App Push to ${guardCount} guardians across 5 campuses.`, "success");
         draw();
       });
 
@@ -2808,24 +3273,30 @@
   function renderUsers(container) {
     const st = window.SMS_STATE;
     let typeFilter = "STAFF";
+    let page = 1;
+    const perPage = 25;
 
     const draw = () => {
-      const staffRows = st.staffs.map((s) => ({
-        id: s.id,
-        name: s.nameEn,
-        username: s.username || "staff_user",
-        role: s.position,
-        phone: s.phone,
-        status: s.userStatus === "ACTIVE" ? "Active" : "Inactive",
-      }));
-      const studentRows = st.students.map((s) => ({
-        id: s.id,
-        name: s.full_name_en,
-        username: s.username || s.student_card_id.toLowerCase(),
-        role: "Student",
-        phone: s.phone,
-        status: s.acc_status,
-      }));
+      const staffRows = st.staffs
+        .filter((s) => s.employmentStatus === "Working")
+        .map((s) => ({
+          id: s.id,
+          name: s.nameEn,
+          username: s.username || "staff_user",
+          role: s.position,
+          phone: s.phone,
+          status: s.userStatus === "ACTIVE" ? "Active" : "Inactive",
+        }));
+      const studentRows = st.students
+        .filter((s) => s.tab === "registered")
+        .map((s) => ({
+          id: s.id,
+          name: s.full_name_en,
+          username: s.username || s.student_card_id.toLowerCase(),
+          role: "Student",
+          phone: s.phone,
+          status: s.acc_status,
+        }));
       const parentRows = st.guardians.map((g) => ({
         id: g.id,
         name: g.nameEn,
@@ -2836,21 +3307,25 @@
       }));
 
       const activeRows = typeFilter === "STAFF" ? staffRows : typeFilter === "STUDENT" ? studentRows : parentRows;
+      const totalPages = Math.max(1, Math.ceil(activeRows.length / perPage));
+      if (page > totalPages) page = totalPages;
+      const startIdx = (page - 1) * perPage;
+      const pageRows = activeRows.slice(startIdx, startIdx + perPage);
 
       container.innerHTML = `
         ${renderSettingsSubnav("users")}
         <div class="min-page-header">
           <div>
             <h1 class="min-page-title">User Accounts</h1>
-            <p class="min-page-subtitle">Manage portal credentials for staff, students, and parents.</p>
+            <p class="min-page-subtitle">Manage portal credentials for ${staffRows.length} active staff, ${studentRows.length.toLocaleString()} registered students, and ${parentRows.length.toLocaleString()} parents.</p>
           </div>
         </div>
 
         <div class="mb-4">
           <div class="min-subnav mb-0">
-            <button type="button" class="min-subnav-link ${typeFilter === "STAFF" ? "active" : ""}" data-utype="STAFF">Staff (${staffRows.length})</button>
-            <button type="button" class="min-subnav-link ${typeFilter === "STUDENT" ? "active" : ""}" data-utype="STUDENT">Students (${studentRows.length})</button>
-            <button type="button" class="min-subnav-link ${typeFilter === "PARENT" ? "active" : ""}" data-utype="PARENT">Parents (${parentRows.length})</button>
+            <button type="button" class="min-subnav-link ${typeFilter === "STAFF" ? "active" : ""}" data-utype="STAFF">Active Staff (${staffRows.length})</button>
+            <button type="button" class="min-subnav-link ${typeFilter === "STUDENT" ? "active" : ""}" data-utype="STUDENT">Registered Students (${studentRows.length})</button>
+            <button type="button" class="min-subnav-link ${typeFilter === "PARENT" ? "active" : ""}" data-utype="PARENT">Parents &amp; Guardians (${parentRows.length})</button>
           </div>
         </div>
 
@@ -2869,7 +3344,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  ${activeRows
+                  ${pageRows
                     .map(
                       (u) => `
                     <tr>
@@ -2890,6 +3365,14 @@
                 </tbody>
               </table>
             </div>
+            <div class="p-3 border-top d-flex flex-wrap justify-content-between align-items-center gap-2 text-muted small">
+              <span>Showing <strong>${activeRows.length === 0 ? 0 : startIdx + 1}–${Math.min(startIdx + perPage, activeRows.length)}</strong> of <strong>${activeRows.length.toLocaleString()}</strong> user accounts</span>
+              <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-light border" id="usrPrevPage" ${page <= 1 ? "disabled" : ""}>Previous</button>
+                <span class="px-2">Page <strong>${page}</strong> of <strong>${totalPages}</strong></span>
+                <button type="button" class="btn btn-sm btn-light border" id="usrNextPage" ${page >= totalPages ? "disabled" : ""}>Next</button>
+              </div>
+            </div>
           </div>
         </div>
       `;
@@ -2897,8 +3380,21 @@
       container.querySelectorAll("[data-utype]").forEach((card) => {
         card.addEventListener("click", () => {
           typeFilter = card.dataset.utype;
+          page = 1;
           draw();
         });
+      });
+      document.getElementById("usrPrevPage")?.addEventListener("click", () => {
+        if (page > 1) {
+          page--;
+          draw();
+        }
+      });
+      document.getElementById("usrNextPage")?.addEventListener("click", () => {
+        if (page < totalPages) {
+          page++;
+          draw();
+        }
       });
     };
     draw();

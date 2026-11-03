@@ -86,6 +86,8 @@
 
     const draw = () => {
       const covList = st.teacherCoverage || [];
+      const grade1Sections = st.classes.filter((c) => Number(c.gradeId) === 2 && c.status === "ongoing");
+      const grade1TotalStudents = grade1Sections.reduce((sum, c) => sum + (c.totalStudents || 0), 0);
 
       container.innerHTML = `
         ${renderAcademicSubnav("scheduler")}
@@ -123,10 +125,10 @@
             <div class="min-stat-card">
               <div class="min-stat-label">
                 <span>Primary Cohorts</span>
-                <span class="badge bg-primary-soft">Grades 1–6</span>
+                <span class="badge bg-primary-soft">Grade 1 Intake</span>
               </div>
-              <div class="min-stat-value">${primaryBalanced ? "Balanced" : "4 Sections"}</div>
-              <div class="min-stat-meta">Evenly distributed by gender &amp; placement</div>
+              <div class="min-stat-value">${primaryBalanced ? "Balanced" : `${grade1Sections.length} Sections`}</div>
+              <div class="min-stat-meta">${grade1TotalStudents} students evenly distributed by gender</div>
             </div>
           </div>
           <div class="col-md-4">
@@ -217,27 +219,26 @@
               <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
                   <h5 class="mb-0">Primary Sectioning</h5>
-                  <span class="badge bg-info-soft">120 Students</span>
+                  <span class="badge bg-info-soft">${grade1TotalStudents} Students</span>
                 </div>
                 <div class="card-body">
-                  <p class="text-muted small mb-3">Grade 1 intake cohort automatically balanced across 4 homeroom sections:</p>
-                  ${[
-                    { sec: "Grade 1 · Section A", count: 30, ratio: "15F / 15M", room: "Room A-101" },
-                    { sec: "Grade 1 · Section B", count: 30, ratio: "15F / 15M", room: "Room A-102" },
-                    { sec: "Grade 1 · Section C", count: 30, ratio: "16F / 14M", room: "Room A-103" },
-                    { sec: "Grade 1 · Section D", count: 30, ratio: "14F / 16M", room: "Room A-104" },
-                  ]
-                    .map(
-                      (s) => `
-                    <div class="p-3 rounded-3 border mb-2 last-mb-0 d-flex justify-content-between align-items-center">
+                  <p class="text-muted small mb-3">Grade 1 intake cohort automatically balanced across ${grade1Sections.length} homeroom sections:</p>
+                  ${grade1Sections
+                    .map((cls) => {
+                      const fCount = Math.floor(cls.totalStudents / 2);
+                      const mCount = cls.totalStudents - fCount;
+                      const cObj = st.campusDirectory.find((cp) => cp.id === cls.campusId);
+                      const cShort = cObj ? cObj.nameEn.split("—")[1]?.trim() || cObj.id : cls.campusId;
+                      return `
+                    <div class="p-3 rounded-3 border mb-2 last-mb-0 d-flex justify-content-between align-items-center" style="cursor:pointer;" onclick="window.navigateTo('/smnadm/academic/classes/class-details/overview/${cls.id}')">
                       <div>
-                        <div class="fw-semibold text-dark small">${s.sec}</div>
-                        <div class="text-muted" style="font-size:0.75rem;">${s.room} · ${s.ratio}</div>
+                        <div class="fw-semibold text-dark small">Grade ${esc(cls.classNameEn)} · ${esc(cShort)}</div>
+                        <div class="text-muted" style="font-size:0.75rem;">${esc(cls.room?.name || "Room A-101")} · ${fCount}F / ${mCount}M · ${esc(cls.teacher?.fullName || "")}</div>
                       </div>
-                      <span class="badge bg-success-soft">${s.count} Students</span>
+                      <span class="badge bg-success-soft">${cls.totalStudents} Students</span>
                     </div>
-                  `
-                    )
+                  `;
+                    })
                     .join("")}
                 </div>
               </div>
@@ -905,6 +906,13 @@
       const avg = +(total / 6).toFixed(1);
       const moeysMention =
         avg >= 90 ? "ល្អប្រសើរ (A)" : avg >= 80 ? "ល្អណាស់ (B)" : avg >= 70 ? "ល្អ (C)" : "មធ្យម (D)";
+      const stuClsId = selectedStudent.programs?.[0]?.class?.id;
+      const stuClsObj = st.classes.find((c) => Number(c.id) === Number(stuClsId));
+      const stuClassLabel = stuClsObj
+        ? `Grade ${stuClsObj.classNameEn} (${stuClsObj.classNameKh})`
+        : selectedStudent.programs?.[0]?.class?.name_en || "Grade 12-A (ថ្នាក់ទី ១២-A)";
+      const stuHomeroomTeacher = stuClsObj?.teacher?.fullName || "Dr. Sokha Chan";
+      const totalRegisteredCount = st.students.filter((s) => s.tab === "registered").length;
 
       container.innerHTML = `
         ${renderAcademicSubnav("moeys")}
@@ -914,7 +922,7 @@
             <p class="min-page-subtitle">Bilingual Khmer Unicode report cards, District Office of Education exports, and official Certificates of Praise.</p>
           </div>
           <div class="d-flex flex-wrap gap-2">
-            <select id="repStuSelect" class="form-select" style="width: 220px;">
+            <select id="repStuSelect" class="form-select" style="width: 260px;">
               ${st.students
                 .filter((s) => s.tab === "registered")
                 .map(
@@ -967,7 +975,7 @@
                   <div><strong>អត្តលេខ / ID:</strong> ${esc(selectedStudent.student_card_id)}</div>
                 </div>
                 <div class="col-md-6 text-md-end">
-                  <div><strong>ថ្នាក់ / Class:</strong> Grade 12-A (ថ្នាក់ទី ១២-A)</div>
+                  <div><strong>ថ្នាក់ / Class:</strong> ${esc(stuClassLabel)}</div>
                   <div><strong>ឆ្នាំសិក្សា / Academic Year:</strong> 2025–2026</div>
                 </div>
               </div>
@@ -1030,7 +1038,7 @@
                   </div>
                   <div class="col-4">
                     <div class="fw-semibold text-dark mb-4">គ្រូបន្ទុកថ្នាក់</div>
-                    <div class="text-muted">Dr. Sokha Chan</div>
+                    <div class="text-muted">${esc(stuHomeroomTeacher)}</div>
                   </div>
                   <div class="col-4">
                     <div class="fw-semibold text-dark mb-4">នាយកសាលា / School Director</div>
@@ -1068,7 +1076,7 @@
                         <div class="text-muted small">Age, gender, and grade distribution across all active classes</div>
                       </td>
                       <td>Sen Sok District DoEYS</td>
-                      <td>60 Campuses</td>
+                      <td>${st.campusDirectory.length} Campuses (${totalRegisteredCount} Students)</td>
                       <td><span class="badge bg-info-soft">CSV / XLSX</span></td>
                       <td class="text-end">
                         <button class="btn btn-sm btn-outline-primary btn-dl-moeys" data-name="MoEYS_Enrollment_Return_2026.csv">Download CSV</button>

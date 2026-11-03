@@ -4,7 +4,7 @@
  */
 
 (function () {
-  const STORAGE_KEY = "SMS_PROTOTYPE_STATE_V6_CLEAN_DASHBOARDS";
+  const STORAGE_KEY = "SMS_PROTOTYPE_STATE_V8_FULL_CONSISTENCY";
 
   const SCHOOL_PRESETS = {
     "milky-way": {
@@ -12,7 +12,7 @@
       nameEn: "Milky Way School",
       nameKh: "សាលាមីគីវ៉េ",
       shortName: "Milky Way School",
-      tagline: "5 Campuses in Phnom Penh · 3,745 Students · 232 Staff · 122 Classes",
+      tagline: "5 Campuses in Phnom Penh · 860 Students · 62 Staff · 37 Active Classes",
       primaryColor: "#0077b6",
       primaryHover: "#023e8a",
       primaryLight: "#f0f9ff",
@@ -131,6 +131,7 @@
         principalPhone: "012 334 556",
         principalEmail: "sokha.chan@milkywayschool.edu.kh",
         totalStudents: 1120,
+        totalParents: 940,
         capacity: 1200,
         totalStaff: 68,
         totalTeachers: 52,
@@ -157,6 +158,7 @@
         principalPhone: "089 667 112",
         principalEmail: "bopha.pich@milkywayschool.edu.kh",
         totalStudents: 790,
+        totalParents: 665,
         capacity: 850,
         totalStaff: 48,
         totalTeachers: 38,
@@ -183,6 +185,7 @@
         principalPhone: "015 778 223",
         principalEmail: "vannak.keo@milkywayschool.edu.kh",
         totalStudents: 685,
+        totalParents: 580,
         capacity: 750,
         totalStaff: 42,
         totalTeachers: 34,
@@ -209,6 +212,7 @@
         principalPhone: "092 119 228",
         principalEmail: "sreyneang.meas@milkywayschool.edu.kh",
         totalStudents: 560,
+        totalParents: 475,
         capacity: 600,
         totalStaff: 36,
         totalTeachers: 28,
@@ -235,6 +239,7 @@
         principalPhone: "017 445 889",
         principalEmail: "dara.vong@milkywayschool.edu.kh",
         totalStudents: 590,
+        totalParents: 500,
         capacity: 650,
         totalStaff: 38,
         totalTeachers: 30,
@@ -2040,14 +2045,14 @@
     ],
 
     positions: [
-      { id: 1, code: "POS-DIR", nameEn: "School Director / Super Admin", nameKh: "នាយកសាលា", department: "Executive Board", staffCount: 1 },
-      { id: 2, code: "POS-HOD", nameEn: "Head of Department (Academic)", nameKh: "ប្រធានដេប៉ាតឺម៉ង់", department: "Academic", staffCount: 2 },
-      { id: 3, code: "POS-STEM", nameEn: "STEM & Robotics Lead Teacher", nameKh: "គ្រូបង្គោលស្ទែម និងរ៉ូបូត", department: "STEM & Innovation Hub", staffCount: 3 },
-      { id: 4, code: "POS-IEP", nameEn: "Cambridge IEP Coordinator", nameKh: "អ្នកសម្របសម្រួលកម្មវិធីអន្តរជាតិ", department: "International Program", staffCount: 4 },
-      { id: 5, code: "POS-TCH", nameEn: "Senior Subject Teacher", nameKh: "គ្រូបង្រៀនកម្រិតឧត្តម", department: "Academic", staffCount: 18 },
-      { id: 6, code: "POS-ECE", nameEn: "Early Childhood Specialist", nameKh: "គ្រូមត្តេយ្យសិក្សា", department: "Kindergarten", staffCount: 6 },
-      { id: 7, code: "POS-FIN", nameEn: "Chief Accountant & Billing Manager", nameKh: "ប្រធានគណនេយ្យ", department: "Finance & Operations", staffCount: 3 },
-      { id: 8, code: "POS-ADM", nameEn: "Admissions & Registrar Officer", nameKh: "មន្ត្រីចុះឈ្មោះសិស្ស", department: "Student Affairs", staffCount: 4 },
+      { id: 1, code: "POS-DIR", nameEn: "School Director & Campus Principals", nameKh: "នាយកសាលា និងនាយកសាខា", department: "Executive Board (All 5 Campuses)", staffCount: 6 },
+      { id: 2, code: "POS-HOD", nameEn: "Head of Department (Academic)", nameKh: "ប្រធានដេប៉ាតឺម៉ង់", department: "Academic Leadership", staffCount: 15 },
+      { id: 3, code: "POS-STEM", nameEn: "STEM & Robotics Lead Teacher", nameKh: "គ្រូបង្គោលស្ទែម និងរ៉ូបូត", department: "STEM & Innovation Hub", staffCount: 24 },
+      { id: 4, code: "POS-IEP", nameEn: "Cambridge IEP Teacher & Coordinator", nameKh: "គ្រូ និងអ្នកសម្របសម្រួលកម្មវិធីអន្តរជាតិ", department: "International Program", staffCount: 42 },
+      { id: 5, code: "POS-TCH", nameEn: "Senior Subject Teacher (KGE)", nameKh: "គ្រូបង្រៀនកម្រិតឧត្តម", department: "Khmer General Education", staffCount: 86 },
+      { id: 6, code: "POS-ECE", nameEn: "Early Childhood Specialist", nameKh: "គ្រូមត្តេយ្យសិក្សា", department: "Kindergarten & Early Years", staffCount: 30 },
+      { id: 7, code: "POS-FIN", nameEn: "Chief Accountant & Billing Officers", nameKh: "ប្រធាន និងមន្ត្រីគណនេយ្យ", department: "Finance & Operations", staffCount: 14 },
+      { id: 8, code: "POS-ADM", nameEn: "Admissions, Registrar & Campus Support", nameKh: "មន្ត្រីចុះឈ្មោះសិស្ស និងរដ្ឋបាលសាខា", department: "Student Affairs & Operations", staffCount: 15 },
     ],
 
     services: [
@@ -2539,10 +2544,10 @@
       lastRosterSync: "04/Nov/2026 08:50:12 AM",
       gradePassBackExecuted: false,
       courses: [
-        { id: "GC-101", name: "MWS Grade 12-A · Mathematics & Calculus (2025-2026)", section: "Campus 01 · Sen Sok HQ", teacher: "sokha.chan@milkywayschool.edu.kh", enrolledCount: 32, assignmentTitle: "BacII Differential Equations Quiz #4", maxPoints: 100, syncStatus: "Ready for Grade Pass-Back" },
-        { id: "GC-102", name: "MWS Grade 10-S1 · AI & Python Robotics", section: "Campus 01 · Sen Sok HQ", teacher: "dara.vong@milkywayschool.edu.kh", enrolledCount: 28, assignmentTitle: "Autonomous Sensor Lab Assessment", maxPoints: 100, syncStatus: "Synced" },
-        { id: "GC-103", name: "MWS Grade 7 · Cambridge Lower Secondary English", section: "Campus 02 · Toul Kork", teacher: "bopha.pich@milkywayschool.edu.kh", enrolledCount: 26, assignmentTitle: "Persuasive Essay Unit 3", maxPoints: 100, syncStatus: "Synced" },
-        { id: "GC-104", name: "MWS Grade 9-B · Khmer Literature & National Diploma", section: "Campus 01 · Sen Sok HQ", teacher: "vannak.keo@milkywayschool.edu.kh", enrolledCount: 30, assignmentTitle: "Semester 1 Physics Mechanics Test", maxPoints: 100, syncStatus: "Synced" },
+        { id: "GC-101", name: "MWS Grade 12-A · Mathematics & Calculus (2025-2026)", section: "Campus 01 · Sen Sok HQ", teacher: "sokha.chan@milkywayschool.edu.kh", enrolledCount: 28, assignmentTitle: "BacII Differential Equations Quiz #4", maxPoints: 100, syncStatus: "Ready for Grade Pass-Back" },
+        { id: "GC-102", name: "MWS Grade 10-S1 · AI & Python Robotics", section: "Campus 01 · Sen Sok HQ", teacher: "sovannarith.kem@milkywayschool.edu.kh", enrolledCount: 26, assignmentTitle: "Autonomous Sensor Lab Assessment", maxPoints: 100, syncStatus: "Synced" },
+        { id: "GC-103", name: "MWS Grade 7-Cambridge Emerald · Lower Secondary English", section: "Campus 02 · Toul Kork", teacher: "bopha.pich@milkywayschool.edu.kh", enrolledCount: 25, assignmentTitle: "Persuasive Essay Unit 3", maxPoints: 100, syncStatus: "Synced" },
+        { id: "GC-104", name: "MWS Grade 9-B · Khmer Literature & National Diploma", section: "Campus 03 · Chbar Ampov", teacher: "vannak.keo@milkywayschool.edu.kh", enrolledCount: 24, assignmentTitle: "Semester 1 Physics Mechanics Test", maxPoints: 100, syncStatus: "Synced" },
       ],
       passBackRecords: [
         { studentId: 1, studentCardId: "STU-2026-001", studentName: "Sok Chanreaksa", email: "chanreaksa.sok@milkywayschool.edu.kh", gcScore: 98, currentSmisScore: 95, status: "Pending Pass-Back" },
@@ -2550,11 +2555,6 @@
         { studentId: 12, studentCardId: "STU-2026-008", studentName: "Heng Sovannreach", email: "sovannreach.heng@milkywayschool.edu.kh", gcScore: 96, currentSmisScore: 92, status: "Pending Pass-Back" },
         { studentId: 13, studentCardId: "STU-2026-009", studentName: "Prak Sreypich", email: "sreypich.prak@milkywayschool.edu.kh", gcScore: 93, currentSmisScore: 89, status: "Pending Pass-Back" },
         { studentId: 14, studentCardId: "STU-2026-010", studentName: "Ros Monyra", email: "monyra.ros@milkywayschool.edu.kh", gcScore: 88, currentSmisScore: 84, status: "Pending Pass-Back" },
-        { studentId: 15, studentCardId: "STU-2026-011", studentName: "Khuon Socheat", email: "socheat.khuon@milkywayschool.edu.kh", gcScore: 97, currentSmisScore: 94, status: "Pending Pass-Back" },
-        { studentId: 16, studentCardId: "STU-2026-012", studentName: "Tep Kalyan", email: "kalyan.tep@milkywayschool.edu.kh", gcScore: 95, currentSmisScore: 91, status: "Pending Pass-Back" },
-        { studentId: 3, studentCardId: "STU-2026-003", studentName: "Vong Sopheaktra", email: "sopheaktra.vong@milkywayschool.edu.kh", gcScore: 81, currentSmisScore: 74, status: "Pending Pass-Back" },
-        { studentId: 4, studentCardId: "STU-2026-004", studentName: "Keo Pichmony", email: "pichmony.keo@milkywayschool.edu.kh", gcScore: 95, currentSmisScore: 88, status: "Pending Pass-Back" },
-        { studentId: 11, studentCardId: "STU-2026-007", studentName: "Sok Chanpanha", email: "chanpanha.sok@milkywayschool.edu.kh", gcScore: 96, currentSmisScore: 93, status: "Pending Pass-Back" },
       ],
     },
 
@@ -2572,8 +2572,8 @@
     ],
 
     onlineAssessments: [
-      { id: 1, code: "QZ-2026-101", title: "Grade 12 BacII Mathematics Timed Mock Quiz #4", subject: "Mathematics", durationMins: 30, totalQuestions: 20, activeStudents: 31, completedStudents: 29, avgScore: "88.4%", status: "Live Monitoring" },
-      { id: 2, code: "QZ-2026-102", title: "Cambridge Year 8 English Grammar & Reading Comprehension", subject: "Academic English", durationMins: 45, totalQuestions: 30, activeStudents: 26, completedStudents: 26, avgScore: "91.2%", status: "Completed" },
+      { id: 1, code: "QZ-2026-101", title: "Grade 12 BacII Mathematics Timed Mock Quiz #4", subject: "Mathematics", durationMins: 30, totalQuestions: 20, activeStudents: 28, completedStudents: 27, avgScore: "88.4%", status: "Live Monitoring" },
+      { id: 2, code: "QZ-2026-102", title: "Cambridge Year 8 English Grammar & Reading Comprehension", subject: "Academic English", durationMins: 45, totalQuestions: 30, activeStudents: 25, completedStudents: 25, avgScore: "91.2%", status: "Completed" },
     ],
 
     tcoMatrix5Year: {
@@ -2596,24 +2596,819 @@
     },
   };
 
-  // Derive guardian and staff campusId from linked students so every campus has parents & staff
-  function ensureCampusLinks(stateObj) {
-    if (!stateObj) return;
-    const students = stateObj.students || [];
-    (stateObj.guardians || []).forEach((g) => {
-      if (!g.campusId) {
-        const child = students.find((s) => s.father?.id === g.id || s.mother?.id === g.id);
-        g.campusId = child?.campusId || "C01";
-      }
-    });
-    const staffCampusMap = { 1: "ALL", 2: "C01", 3: "C05", 4: "C02", 5: "C03", 6: "C04", 7: "C01", 8: "C02", 9: "C03" };
-    (stateObj.staffs || []).forEach((stf) => {
-      if (!stf.campusId) {
-        stf.campusId = staffCampusMap[stf.id] || "C01";
-      }
-    });
+  function calcInvTotalUsd(inv) {
+    const sub = (inv.items || []).reduce((acc, it) => {
+      const gross = Number(it.qty || 1) * Number(it.unitPrice || 0);
+      const disc = gross * (Number(it.discountPercent || 0) / 100);
+      return acc + (gross - disc);
+    }, 0);
+    const vat = sub * (Number(inv.vatPercent || 0) / 100);
+    return +(sub + vat).toFixed(2);
   }
-  ensureCampusLinks(INITIAL_STATE);
+
+  // Live synchronization engine so all KPIs, campus tables, class rosters, programs, grades, and billing match 100%
+  function syncSchoolMetrics(stateObj) {
+    if (!stateObj) return;
+    const classes = stateObj.classes || [];
+    const students = stateObj.students || [];
+    const guardians = stateObj.guardians || [];
+    const staffs = stateObj.staffs || [];
+    const invoices = stateObj.invoices || [];
+    const campuses = stateObj.campusDirectory || [];
+
+    // 1. Sync each class's totalStudents to match the exact registered students enrolled in it
+    classes.forEach((cls) => {
+      if (cls.status === "ended") {
+        const endedCount = students.filter(
+          (s) =>
+            s.tab === "registered" &&
+            (s.programs || []).some((p) => Number(p.class?.id) === Number(cls.id))
+        ).length;
+        cls.totalStudents = endedCount;
+      } else if (cls.status === "upcoming") {
+        const upCount = students.filter(
+          (s) =>
+            s.tab === "registered" &&
+            Number(s.programs?.[0]?.class?.id) === Number(cls.id)
+        ).length;
+        cls.totalStudents = upCount;
+      } else {
+        const enrolled = students.filter(
+          (s) =>
+            s.tab === "registered" &&
+            Number(s.programs?.[0]?.class?.id) === Number(cls.id)
+        );
+        cls.totalStudents = enrolled.length;
+        // Keep student campusId & program/grade metadata aligned with their assigned class
+        enrolled.forEach((s) => {
+          s.campusId = cls.campusId;
+          if (s.programs && s.programs[0]) {
+            s.programs[0].class = { id: cls.id, name_en: cls.classNameEn };
+            if (cls.program) {
+              s.programs[0].program = { id: cls.programId, code: cls.program.code, name_en: cls.program.nameEn };
+            }
+            if (cls.grade) {
+              s.programs[0].grade = { id: cls.gradeId, name_en: cls.grade.nameEn };
+            }
+          }
+        });
+      }
+    });
+
+    // 2. Sync each campus's counts in campusDirectory
+    const capacityByCampus = { C01: 280, C02: 210, C03: 180, C04: 145, C05: 155 };
+    campuses.forEach((c) => {
+      const cOngoingClasses = classes.filter((cls) => cls.campusId === c.id && cls.status === "ongoing");
+      const cRegisteredStudents = students.filter((s) => s.campusId === c.id && s.tab === "registered");
+      const cGuardians = guardians.filter((g) => g.campusId === c.id);
+      const cActiveStaff = staffs.filter(
+        (stf) => (stf.campusId === c.id || (c.id === "C01" && stf.campusId === "ALL")) && stf.employmentStatus === "Working"
+      );
+      const cTeachers = cActiveStaff.filter((stf) => [2, 3, 4, 5, 6].includes(Number(stf.positionId)));
+      const cInvoices = invoices.filter((inv) => (inv.campusId || "C01") === c.id);
+      const paidUsd = Math.round(
+        cInvoices.filter((inv) => inv.status === "Paid").reduce((sum, inv) => sum + calcInvTotalUsd(inv), 0)
+      );
+      const pendingUsd = Math.round(
+        cInvoices.filter((inv) => inv.status !== "Paid").reduce((sum, inv) => sum + calcInvTotalUsd(inv), 0)
+      );
+      const totalBilled = paidUsd + pendingUsd;
+
+      c.activeClassesCount = cOngoingClasses.length;
+      c.totalStudents = cRegisteredStudents.length;
+      c.capacity = Math.max(capacityByCampus[c.id] || 200, c.totalStudents + 20);
+      c.totalParents = cGuardians.length;
+      c.totalStaff = cActiveStaff.length;
+      c.totalTeachers = cTeachers.length;
+      if (totalBilled > 0) {
+        c.tuitionCollectedUsd = paidUsd;
+        c.tuitionPendingUsd = pendingUsd;
+        c.collectionRate = +((paidUsd / totalBilled) * 100).toFixed(1);
+      }
+
+      // Compute live attendance rate from campus students
+      if (cRegisteredStudents.length > 0) {
+        const presentOrLate = cRegisteredStudents.filter(
+          (s) => s.attendanceToday === "Present" || s.attendanceToday === "Late"
+        ).length;
+        c.attendanceRate = +((presentOrLate / cRegisteredStudents.length) * 100).toFixed(1);
+      }
+    });
+
+    // 3. Sync Academic Programs (totalClasses, totalStudents)
+    (stateObj.programs || []).forEach((prog) => {
+      const pClasses = classes.filter((cls) => Number(cls.programId) === Number(prog.id) && cls.status === "ongoing");
+      const pStudents = students.filter(
+        (s) => s.tab === "registered" && Number(s.programs?.[0]?.program?.id) === Number(prog.id)
+      );
+      prog.totalClasses = pClasses.length;
+      prog.totalStudents = pStudents.length;
+      prog.total = pStudents.length;
+    });
+
+    // 4. Sync Grades (totalClasses, totalStudents)
+    (stateObj.grades || []).forEach((grd) => {
+      const gClasses = classes.filter((cls) => Number(cls.gradeId) === Number(grd.id) && cls.status === "ongoing");
+      const gStudents = students.filter(
+        (s) => s.tab === "registered" && Number(s.programs?.[0]?.grade?.id) === Number(grd.id)
+      );
+      grd.totalClasses = gClasses.length;
+      grd.totalStudents = gStudents.length;
+      grd.total = gStudents.length + (grd.totalSubjects || 6) + (grd.totalServices || 4);
+    });
+
+    // 5. Sync Positions & Roles
+    (stateObj.positions || []).forEach((pos) => {
+      pos.staffCount = staffs.filter(
+        (stf) => Number(stf.positionId) === Number(pos.id) && stf.employmentStatus === "Working"
+      ).length;
+    });
+
+    const roleCounts = {
+      1: staffs.filter((s) => s.positionId === 1 && s.employmentStatus === "Working").length,
+      2: staffs.filter((s) => s.positionId === 2 && s.employmentStatus === "Working").length,
+      3: staffs.filter((s) => s.positionId === 7 && s.employmentStatus === "Working").length,
+      4: staffs.filter((s) => s.positionId === 4 && s.employmentStatus === "Working").length,
+      5: staffs.filter((s) => [3, 5, 6].includes(Number(s.positionId)) && s.employmentStatus === "Working").length,
+      6: staffs.filter((s) => s.positionId === 8 && s.employmentStatus === "Working").length,
+    };
+    (stateObj.roles || []).forEach((r) => {
+      if (roleCounts[r.id] !== undefined) {
+        r.usersCount = roleCounts[r.id];
+      }
+    });
+
+    const totalRegAll = students.filter((s) => s.tab === "registered").length;
+    const totalActiveStaffAll = staffs.filter((s) => s.employmentStatus === "Working").length;
+    const totalOngoingClassesAll = classes.filter((c) => c.status === "ongoing").length;
+    stateObj.activeCampus = `All ${campuses.length} Campuses (${totalRegAll.toLocaleString()} Students)`;
+    if (stateObj.schoolProfile && stateObj.schoolProfile.id === "milky-way") {
+      stateObj.schoolProfile.tagline = `${campuses.length} Campuses in Phnom Penh · ${totalRegAll.toLocaleString()} Students · ${totalActiveStaffAll} Staff · ${totalOngoingClassesAll} Active Classes`;
+    }
+  }
+
+  function buildConsistentSchoolData(stateObj) {
+    if (!stateObj || stateObj._consistentSeedV8Built) {
+      syncSchoolMetrics(stateObj);
+      return;
+    }
+    stateObj._consistentSeedV8Built = true;
+
+    // 1. Expand Grades to full K-12 (13 levels sorted from Kindergarten to Grade 12)
+    stateObj.grades = [
+      { id: 1, code: "KG-K2", nameEn: "Kindergarten Level 2", nameKh: "មត្តេយ្យសិក្សា កម្រិតខ្ពស់", programId: 2, programName: "International English Program", eduLevel: "Kindergarten", totalSubjects: 5, totalClasses: 3, totalStudents: 67, totalServices: 3, total: 75, isActive: true, subjects: [{ subjectId: 6, hours: 8 }, { subjectId: 2, hours: 5 }, { subjectId: 1, hours: 5 }, { subjectId: 9, hours: 4 }] },
+      { id: 2, code: "G1-KGE", nameEn: "Grade 1", nameKh: "ថ្នាក់ទី ១", programId: 1, programName: "Khmer General Education", eduLevel: "Primary School", totalSubjects: 6, totalClasses: 2, totalStudents: 45, totalServices: 4, total: 55, isActive: true, subjects: [{ subjectId: 1, hours: 8 }, { subjectId: 2, hours: 6 }, { subjectId: 6, hours: 4 }, { subjectId: 8, hours: 3 }] },
+      { id: 9, code: "G2-KGE", nameEn: "Grade 2", nameKh: "ថ្នាក់ទី ២", programId: 1, programName: "Khmer General Education", eduLevel: "Primary School", totalSubjects: 6, totalClasses: 2, totalStudents: 44, totalServices: 4, total: 54, isActive: true, subjects: [{ subjectId: 1, hours: 8 }, { subjectId: 2, hours: 6 }, { subjectId: 6, hours: 5 }, { subjectId: 8, hours: 3 }] },
+      { id: 10, code: "G3-IEP", nameEn: "Grade 3", nameKh: "ថ្នាក់ទី ៣", programId: 2, programName: "International English Program", eduLevel: "Primary School", totalSubjects: 6, totalClasses: 2, totalStudents: 46, totalServices: 4, total: 56, isActive: true, subjects: [{ subjectId: 6, hours: 8 }, { subjectId: 2, hours: 6 }, { subjectId: 1, hours: 5 }, { subjectId: 9, hours: 4 }] },
+      { id: 8, code: "G4-CHN", nameEn: "Grade 4 Trilingual", nameKh: "ថ្នាក់ទី ៤ ត្រីភាសា", programId: 4, programName: "Trilingual Chinese-English-Khmer", eduLevel: "Primary School", totalSubjects: 6, totalClasses: 3, totalStudents: 65, totalServices: 4, total: 75, isActive: true, subjects: [{ subjectId: 9, hours: 8 }, { subjectId: 6, hours: 6 }, { subjectId: 1, hours: 5 }, { subjectId: 2, hours: 5 }] },
+      { id: 11, code: "G5-KGE", nameEn: "Grade 5", nameKh: "ថ្នាក់ទី ៥", programId: 1, programName: "Khmer General Education", eduLevel: "Primary School", totalSubjects: 7, totalClasses: 3, totalStudents: 70, totalServices: 4, total: 81, isActive: true, subjects: [{ subjectId: 1, hours: 7 }, { subjectId: 2, hours: 7 }, { subjectId: 6, hours: 5 }, { subjectId: 7, hours: 3 }] },
+      { id: 3, code: "G6-KGE", nameEn: "Grade 6", nameKh: "ថ្នាក់ទី ៦", programId: 1, programName: "Khmer General Education", eduLevel: "Primary School", totalSubjects: 7, totalClasses: 3, totalStudents: 68, totalServices: 4, total: 79, isActive: true, subjects: [{ subjectId: 1, hours: 7 }, { subjectId: 2, hours: 7 }, { subjectId: 6, hours: 5 }, { subjectId: 7, hours: 3 }, { subjectId: 8, hours: 4 }] },
+      { id: 4, code: "G7-IEP", nameEn: "Grade 7 (Year 8 Cambridge)", nameKh: "ថ្នាក់ទី ៧ អន្តរជាតិ", programId: 2, programName: "International English Program", eduLevel: "Secondary School", totalSubjects: 7, totalClasses: 2, totalStudents: 48, totalServices: 4, total: 59, isActive: true, subjects: [{ subjectId: 6, hours: 8 }, { subjectId: 2, hours: 6 }, { subjectId: 3, hours: 4 }, { subjectId: 4, hours: 4 }, { subjectId: 7, hours: 4 }] },
+      { id: 12, code: "G8-IEP", nameEn: "Grade 8 (Year 9 Cambridge)", nameKh: "ថ្នាក់ទី ៨ អន្តរជាតិ", programId: 2, programName: "International English Program", eduLevel: "Secondary School", totalSubjects: 8, totalClasses: 4, totalStudents: 93, totalServices: 5, total: 106, isActive: true, subjects: [{ subjectId: 6, hours: 7 }, { subjectId: 2, hours: 6 }, { subjectId: 3, hours: 4 }, { subjectId: 4, hours: 4 }, { subjectId: 7, hours: 4 }] },
+      { id: 5, code: "G9-KGE", nameEn: "Grade 9 (Diploma Exam)", nameKh: "ថ្នាក់ទី ៩ (ប្រឡងឌីប្លូម)", programId: 1, programName: "Khmer General Education", eduLevel: "Secondary School", totalSubjects: 8, totalClasses: 3, totalStudents: 73, totalServices: 5, total: 86, isActive: true, subjects: [{ subjectId: 1, hours: 6 }, { subjectId: 2, hours: 7 }, { subjectId: 3, hours: 4 }, { subjectId: 4, hours: 4 }, { subjectId: 5, hours: 4 }, { subjectId: 6, hours: 4 }] },
+      { id: 6, code: "G10-STEM", nameEn: "Grade 10 STEM", nameKh: "ថ្នាក់ទី ១០ ស្ទែម", programId: 3, programName: "STEM & Robotics Innovation", eduLevel: "High School", totalSubjects: 8, totalClasses: 3, totalStudents: 73, totalServices: 5, total: 86, isActive: true, subjects: [{ subjectId: 2, hours: 7 }, { subjectId: 3, hours: 5 }, { subjectId: 7, hours: 6 }, { subjectId: 10, hours: 6 }, { subjectId: 6, hours: 5 }] },
+      { id: 13, code: "G11-KGE", nameEn: "Grade 11 (Upper Secondary)", nameKh: "ថ្នាក់ទី ១១ វិទ្យាសាស្ត្រ", programId: 1, programName: "Khmer General Education", eduLevel: "High School", totalSubjects: 8, totalClasses: 3, totalStudents: 70, totalServices: 5, total: 83, isActive: true, subjects: [{ subjectId: 2, hours: 7 }, { subjectId: 3, hours: 5 }, { subjectId: 4, hours: 5 }, { subjectId: 5, hours: 4 }, { subjectId: 6, hours: 5 }] },
+      { id: 7, code: "G12-KGE", nameEn: "Grade 12 (BacII Science)", nameKh: "ថ្នាក់ទី ១២ វិទ្យាសាស្ត្រពិត", programId: 1, programName: "Khmer General Education", eduLevel: "High School", totalSubjects: 8, totalClasses: 4, totalStudents: 98, totalServices: 6, total: 112, isActive: true, subjects: [{ subjectId: 2, hours: 8 }, { subjectId: 3, hours: 6 }, { subjectId: 4, hours: 6 }, { subjectId: 5, hours: 5 }, { subjectId: 1, hours: 5 }, { subjectId: 6, hours: 4 }] },
+    ];
+
+    const gradeMap = {};
+    stateObj.grades.forEach((g) => {
+      gradeMap[g.id] = g;
+    });
+    const progMap = {};
+    (stateObj.programs || []).forEach((p) => {
+      progMap[p.id] = p;
+    });
+
+    // 2. Build 64 Realistic Staff Members across all 5 Campuses (62 Working + 2 Resigned)
+    // Every class has a dedicated homeroom teacher from its own campus!
+    const baseStaffs = [
+      // C01 — Sen Sok HQ (18 Working + 1 Resigned: 13 Teachers + 5 Leadership/Admin/Finance/Registrar)
+      { id: 1, campusId: "C01", nameEn: "Kimsan Admin", nameKh: "គឹមសាន អេដមីន", gender: "Male", positionId: 1, position: "School Director / Super Admin", department: "Executive Board", phone: "012 889 900", email: "admin_kimsan@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2020-01-15", degree: "M.Ed. Educational Leadership", username: "admin_kimsan" },
+      { id: 2, campusId: "C01", nameEn: "Dr. Sokha Chan", nameKh: "បណ្ឌិត ចាន់ សុខា", gender: "Male", positionId: 2, position: "Campus 01 Principal & Mathematics Head", department: "High School Academic", phone: "012 334 556", email: "sokha.chan@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2021-08-01", degree: "Ph.D. Applied Mathematics", username: "t_sokha" },
+      { id: 7, campusId: "C01", nameEn: "Mrs. Chanthou Nget", nameKh: "ង៉ែត ចាន់ធូ", gender: "Female", positionId: 7, position: "Chief Accountant & Billing Manager", department: "Finance & Operations", phone: "012 600 400", email: "chanthou.nget@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2020-06-01", degree: "CPA / B.B.A. Accounting", username: "fin_chanthou" },
+      { id: 8, campusId: "C01", nameEn: "Mr. Rithy Prak", nameKh: "ប្រាក់ រិទ្ធី", gender: "Male", positionId: 8, position: "Head Admissions & Registrar Officer", department: "Student Affairs", phone: "016 500 300", email: "rithy.prak@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-03-01", degree: "B.A. Public Administration", username: "reg_rithy" },
+      { id: 10, campusId: "C01", nameEn: "Mr. Sovannarith Kem", nameKh: "កែម សុវណ្ណារិទ្ធ", gender: "Male", positionId: 3, position: "STEM & AI Robotics Lead (Sen Sok)", department: "STEM & Innovation Hub", phone: "012 410 510", email: "sovannarith.kem@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-01", degree: "M.Sc. Computer Science & AI", username: "t_sovannarith" },
+      { id: 11, campusId: "C01", nameEn: "Mr. Pheakdey Lim", nameKh: "លឹម ភក្តី", gender: "Male", positionId: 5, position: "Senior Physics & Grade 11 Homeroom", department: "High School Academic", phone: "017 411 511", email: "pheakdey.lim@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2021-09-01", degree: "M.Sc. Physics (RUPP)", username: "t_pheakdey" },
+      { id: 12, campusId: "C01", nameEn: "Ms. Channary Ouk", nameKh: "អ៊ុក ចាន់ណារី", gender: "Female", positionId: 5, position: "Senior Khmer Literature Teacher", department: "Secondary & High School", phone: "089 412 512", email: "channary.ouk@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2021-08-15", degree: "B.A. Khmer Literature (NIE)", username: "t_channary" },
+      { id: 13, campusId: "C01", nameEn: "Mr. Vireak Chea", nameKh: "ជា វីរៈ", gender: "Male", positionId: 3, position: "Robotics & Coding Instructor", department: "STEM & Innovation Hub", phone: "015 413 513", email: "vireak.chea@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-01-10", degree: "B.Eng. Mechatronics (ITC)", username: "t_vireak" },
+      { id: 14, campusId: "C01", nameEn: "Mr. Matthew Reynolds", nameKh: "ម៉ាធ្យូ រេណុល", gender: "Male", positionId: 4, position: "Cambridge Upper Primary Lead", department: "International Program", phone: "092 414 514", email: "matthew.reynolds@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-10", degree: "PGCE Primary Education (UK)", username: "t_matthew" },
+      { id: 15, campusId: "C01", nameEn: "Ms. Sreypov Nget", nameKh: "ង៉ែត ស្រីពៅ", gender: "Female", positionId: 5, position: "Upper Primary Mathematics Teacher", department: "Khmer General Education", phone: "012 415 515", email: "sreypov.nget@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-09-01", degree: "B.Ed. Primary Mathematics", username: "t_sreypov" },
+      { id: 16, campusId: "C01", nameEn: "Ms. Rachana Chea", nameKh: "ជា រចនា", gender: "Female", positionId: 4, position: "Cambridge Primary English Teacher", department: "International Program", phone: "077 416 516", email: "rachana.chea@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-08-01", degree: "M.A. TESOL (IFL)", username: "t_rachana" },
+      { id: 17, campusId: "C01", nameEn: "Ms. Chantrea Mao", nameKh: "ម៉ៅ ចន្ទ្រា", gender: "Female", positionId: 5, position: "Grade 1 Literacy Specialist", department: "Khmer General Education", phone: "010 417 517", email: "chantrea.mao@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-01", degree: "B.Ed. Primary Education", username: "t_chantrea" },
+      { id: 18, campusId: "C01", nameEn: "Ms. Nary Hok", nameKh: "ហុក ណារី", gender: "Female", positionId: 6, position: "Montessori Early Childhood Lead", department: "Kindergarten & Early Years", phone: "011 418 518", email: "nary.hok@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-02-01", degree: "B.Ed. Early Childhood", username: "t_nary" },
+      { id: 19, campusId: "C01", nameEn: "Mr. Bunrong Seng", nameKh: "សេង ប៊ុនរ៉ុង", gender: "Male", positionId: 5, position: "High School Chemistry Specialist", department: "High School Academic", phone: "012 419 519", email: "bunrong.seng@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2021-10-01", degree: "M.Sc. Organic Chemistry", username: "t_bunrong" },
+      { id: 20, campusId: "C01", nameEn: "Ms. Socheat Khim", nameKh: "ឃឹម សុជាតិ", gender: "Female", positionId: 5, position: "Biology & Earth Science Teacher", department: "High School Academic", phone: "017 420 520", email: "socheat.khim@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-15", degree: "B.Sc. Biology (RUPP)", username: "t_socheatkhim" },
+      { id: 21, campusId: "C01", nameEn: "Mr. David Thorne", nameKh: "ដេវីដ ថន", gender: "Male", positionId: 4, position: "Senior IELTS & Academic English Coach", department: "International Program", phone: "089 421 521", email: "david.thorne@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-08-01", degree: "M.A. Applied Linguistics", username: "t_davidthorne" },
+      { id: 22, campusId: "C01", nameEn: "Ms. Sopheapタッチ (Touch)", nameKh: "ទូច សុភាព", gender: "Female", positionId: 7, position: "Senior Billing & KHQR Officer", department: "Finance & Operations", phone: "015 422 522", email: "sopheap.touch@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-04-01", degree: "B.B.A. Finance & Banking", username: "fin_sopheap" },
+      { id: 23, campusId: "C01", nameEn: "Mr. Sambath Ly", nameKh: "លី សម្បត្តិ", gender: "Male", positionId: 8, position: "Campus IT & Smart-Card Administrator", department: "Student Affairs & Operations", phone: "092 423 523", email: "sambath.ly@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2021-11-01", degree: "B.Sc. Information Technology", username: "it_sambath" },
+
+      // C02 — Toul Kork (13 Working: 10 Teachers + 3 Leadership/Admin/Finance)
+      { id: 4, campusId: "C02", nameEn: "Ms. Bopha Pich", nameKh: "ពេជ្រ បុប្ផា", gender: "Female", positionId: 1, position: "Campus 02 Principal & IEP Director", department: "Executive Board", phone: "089 667 112", email: "bopha.pich@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2021-09-01", degree: "M.A. TESOL (University of Melbourne)", username: "t_bopha" },
+      { id: 24, campusId: "C02", nameEn: "Ms. Sophanith Meas", nameKh: "មាស សុផានិត", gender: "Female", positionId: 4, position: "Cambridge Lower Secondary Lead", department: "International Program", phone: "012 424 524", email: "sophanith.meas@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-01", degree: "M.Ed. International Curriculum", username: "t_sophanith" },
+      { id: 25, campusId: "C02", nameEn: "Mr. Piseth Heng", nameKh: "ហេង ពិសិដ្ឋ", gender: "Male", positionId: 2, position: "Head of Science & Grade 12-B Lead", department: "Academic Leadership", phone: "017 425 525", email: "piseth.heng@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2021-08-15", degree: "M.Sc. Mathematics (NIE)", username: "t_pisethheng" },
+      { id: 26, campusId: "C02", nameEn: "Ms. Rebecca Sterling", nameKh: "រេបេកា ស្ទឺលីង", gender: "Female", positionId: 4, position: "IGCSE English & Global Perspectives", department: "International Program", phone: "089 426 526", email: "rebecca.sterling@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-10", degree: "B.A. English Literature (Leeds)", username: "t_rebecca" },
+      { id: 27, campusId: "C02", nameEn: "Mr. Visal Kong", nameKh: "គង់ វិសាល", gender: "Male", positionId: 3, position: "Toul Kork STEM & Python Lead", department: "STEM & Innovation Hub", phone: "015 427 527", email: "visal.kong@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-01-15", degree: "B.Sc. Computer Science", username: "t_visalkong" },
+      { id: 28, campusId: "C02", nameEn: "Ms. Dalin Khuon", nameKh: "ឃួន ដាលីន", gender: "Female", positionId: 4, position: "Cambridge Grade 5 Homeroom Teacher", department: "International Program", phone: "092 428 528", email: "dalin.khuon@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-01", degree: "B.Ed. TESOL (IFL)", username: "t_dalin" },
+      { id: 29, campusId: "C02", nameEn: "Ms. Moniroth Yim", nameKh: "យឹម មុនីរ័ត្ន", gender: "Female", positionId: 5, position: "Primary Khmer & Math Teacher", department: "Khmer General Education", phone: "012 429 529", email: "moniroth.yim@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-09-01", degree: "B.Ed. Primary Education", username: "t_moniroth" },
+      { id: 30, campusId: "C02", nameEn: "Ms. Socheata Ly", nameKh: "លី សុជាតា", gender: "Female", positionId: 6, position: "Early Childhood Montessori Teacher", department: "Kindergarten & Early Years", phone: "077 430 530", email: "socheata.ly.tk@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-08-01", degree: "B.Ed. Early Years", username: "t_socheataly" },
+      { id: 31, campusId: "C02", nameEn: "Mr. Sovannara Chhim", nameKh: "ឈឹម សុវណ្ណារ៉ា", gender: "Male", positionId: 5, position: "Physics & Chemistry Lab Instructor", department: "Khmer General Education", phone: "010 431 531", email: "sovannara.chhim@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-20", degree: "B.Sc. Physics (RUPP)", username: "t_sovannara" },
+      { id: 32, campusId: "C02", nameEn: "Ms. Meyling Tan", nameKh: "តាន់ ម៉ីលីង", gender: "Female", positionId: 4, position: "Trilingual Mandarin Elective Teacher", department: "International Program", phone: "011 432 532", email: "meyling.tan@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-08-01", degree: "B.A. Chinese Language (HSK 6)", username: "t_meyling" },
+      { id: 33, campusId: "C02", nameEn: "Mr. Rotha Kem", nameKh: "កែម រដ្ឋា", gender: "Male", positionId: 7, position: "Campus 02 Finance & Cashier Officer", department: "Finance & Operations", phone: "012 433 533", email: "rotha.kem@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-05-01", degree: "B.B.A. Accounting", username: "fin_rotha" },
+      { id: 34, campusId: "C02", nameEn: "Ms. Kanitha Ouk", nameKh: "អ៊ុក កនិษฐា", gender: "Female", positionId: 8, position: "Toul Kork Admissions Registrar", department: "Student Affairs & Operations", phone: "017 434 534", email: "kanitha.ouk@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-01-10", degree: "B.A. Management", username: "reg_kanitha" },
+      { id: 35, campusId: "C02", nameEn: "Mr. Sophal Nhem", nameKh: "ញឹម សុផល", gender: "Male", positionId: 5, position: "Secondary Social Studies & History", department: "Khmer General Education", phone: "089 435 535", email: "sophal.nhem@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-01", degree: "B.A. History (RUPP)", username: "t_sophalnhem" },
+
+      // C03 — Chbar Ampov (11 Working + 1 Resigned: 9 Teachers + 2 Leadership/Admin)
+      { id: 5, campusId: "C03", nameEn: "Mr. Vannak Keo", nameKh: "កែវ វណ្ណៈ", gender: "Male", positionId: 1, position: "Campus 03 Principal & Science Lead", department: "Executive Board", phone: "015 778 223", email: "vannak.keo@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-01-10", degree: "M.Sc. Chemistry (RUPP)", username: "t_vannak" },
+      { id: 36, campusId: "C03", nameEn: "Mr. Chanthy Ros", nameKh: "រស់ ចាន់ធី", gender: "Male", positionId: 3, position: "Chbar Ampov STEM & Robotics Lead", department: "STEM & Innovation Hub", phone: "012 436 536", email: "chanthy.ros@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-01", degree: "B.Eng. Computer Engineering", username: "t_chanthy" },
+      { id: 37, campusId: "C03", nameEn: "Mr. Sopheak Thach", nameKh: "ថាច់ សុភ័ក្រ", gender: "Male", positionId: 2, position: "Head of High School BacII Prep", department: "Academic Leadership", phone: "017 437 537", email: "sopheak.thach@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2021-08-01", degree: "M.Sc. Mathematics (NIE)", username: "t_sopheakthach" },
+      { id: 38, campusId: "C03", nameEn: "Mr. Monyrath Sin", nameKh: "ស៊ិន មុនីរ័ត្ន", gender: "Male", positionId: 3, position: "Grade 7 STEM & Coding Homeroom", department: "STEM & Innovation Hub", phone: "089 438 538", email: "monyrath.sin@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-02-01", degree: "B.Sc. Data Science", username: "t_monyrath" },
+      { id: 39, campusId: "C03", nameEn: "Ms. Thida Chea", nameKh: "ជា ធីតា", gender: "Female", positionId: 5, position: "Grade 6 Upper Primary Lead", department: "Khmer General Education", phone: "015 439 539", email: "thida.chea@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-01", degree: "B.Ed. Primary Education", username: "t_thidachea" },
+      { id: 40, campusId: "C03", nameEn: "Ms. Leakhena Prak", nameKh: "ប្រាក់ លក្ខិណា", gender: "Female", positionId: 4, position: "Cambridge Grade 4 IEP Teacher", department: "International Program", phone: "092 440 540", email: "leakhena.prak@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-15", degree: "B.Ed. TESOL (IFL)", username: "t_leakhena" },
+      { id: 41, campusId: "C03", nameEn: "Ms. Kunthea Sam", nameKh: "សំ គន្ធា", gender: "Female", positionId: 5, position: "Grade 1 Khmer Foundation Teacher", department: "Khmer General Education", phone: "012 441 541", email: "kunthea.sam@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-08-01", degree: "B.Ed. Early Literacy", username: "t_kuntheasam" },
+      { id: 42, campusId: "C03", nameEn: "Mr. Vuthy Chhorn", nameKh: "ឆន វុទ្ធី", gender: "Male", positionId: 5, position: "Secondary Khmer & Moral Civics", department: "Khmer General Education", phone: "077 442 542", email: "vuthy.chhorn@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-01", degree: "B.A. Khmer Literature", username: "t_vuthy" },
+      { id: 43, campusId: "C03", nameEn: "Ms. Sreymom Heng", nameKh: "ហេង ស្រីមុំ", gender: "Female", positionId: 4, position: "Cambridge Secondary English Teacher", department: "International Program", phone: "010 443 543", email: "sreymom.heng@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-01-15", degree: "M.A. TESOL", username: "t_sreymom" },
+      { id: 44, campusId: "C03", nameEn: "Ms. Dany Sok", nameKh: "សុខ ដានី", gender: "Female", positionId: 7, position: "Campus 03 Finance & Billing Officer", department: "Finance & Operations", phone: "011 444 544", email: "dany.sok@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-06-01", degree: "B.B.A. Accounting", username: "fin_dany" },
+      { id: 45, campusId: "C03", nameEn: "Mr. Makara Pich", nameKh: "ពេជ្រ មករា", gender: "Male", positionId: 8, position: "Campus 03 Registrar & Operations", department: "Student Affairs & Operations", phone: "012 445 545", email: "makara.pich@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-03-01", degree: "B.A. Business Administration", username: "reg_makara" },
+
+      // C04 — Boeung Keng Kang (10 Working: 8 Teachers + 2 Leadership/Admin)
+      { id: 6, campusId: "C04", nameEn: "Ms. Sreyneang Meas", nameKh: "មាស ស្រីនាង", gender: "Female", positionId: 1, position: "Campus 04 Principal & Early Years Lead", department: "Executive Board", phone: "092 119 228", email: "sreyneang.meas@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2021-08-01", degree: "M.Ed. Early Childhood Education", username: "t_sreyneang" },
+      { id: 46, campusId: "C04", nameEn: "Ms. Chen Mei Ling", nameKh: "ចេន ម៉ីលីង", gender: "Female", positionId: 2, position: "Head of Trilingual Mandarin (HSK)", department: "Academic Leadership", phone: "012 446 546", email: "meiling.chen@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-01", degree: "M.A. International Chinese Education", username: "t_chenmeiling" },
+      { id: 47, campusId: "C04", nameEn: "Mr. Tan Wei Ming", nameKh: "តាន់ វ៉ីមីង", gender: "Male", positionId: 4, position: "Grade 11 HSK5 Trilingual Homeroom", department: "International Program", phone: "017 447 547", email: "weiming.tan@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-15", degree: "B.A. Chinese Philology (Beijing)", username: "t_weiming" },
+      { id: 48, campusId: "C04", nameEn: "Ms. Lin Xiaoyan", nameKh: "លីន សៀវយ៉ាន", gender: "Female", positionId: 4, position: "Grade 8 Mandarin Immersion Lead", department: "International Program", phone: "089 448 548", email: "xiaoyan.lin@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-01-10", degree: "B.Ed. Trilingual Curriculum", username: "t_xiaoyan" },
+      { id: 49, campusId: "C04", nameEn: "Ms. Emily Carter", nameKh: "អេមីលី ខាធឺ", gender: "Female", positionId: 4, position: "Cambridge Grade 6 IEP Homeroom", department: "International Program", phone: "015 449 549", email: "emily.carter@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-01", degree: "PGCE Primary (Cambridge)", username: "t_emily" },
+      { id: 50, campusId: "C04", nameEn: "Ms. Sophea Chhim", nameKh: "ឈឹម សុភា", gender: "Female", positionId: 4, position: "Grade 3 Trilingual Scholars Lead", department: "International Program", phone: "092 450 550", email: "sophea.chhim@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-08-01", degree: "B.Ed. Bilingual Education", username: "t_sopheachhim" },
+      { id: 51, campusId: "C04", nameEn: "Ms.ボរមី (Bormey) Keo", nameKh: "កែវ បូរមី", gender: "Female", positionId: 6, position: "Montessori Early Years Co-Teacher", department: "Kindergarten & Early Years", phone: "012 451 551", email: "bormey.keo@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-08-01", degree: "B.Ed. Early Childhood", username: "t_bormeykeo" },
+      { id: 52, campusId: "C04", nameEn: "Mr. Chamroeun Mao", nameKh: "ម៉ៅ ចំរើន", gender: "Male", positionId: 5, position: "Primary Mathematics & Khmer Teacher", department: "Khmer General Education", phone: "077 452 552", email: "chamroeun.mao@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-01", degree: "B.Sc. Mathematics", username: "t_chamroeun" },
+      { id: 53, campusId: "C04", nameEn: "Ms. Сиវម៉ី (Sievmey) Lao", nameKh: "ឡៅ សៀវម៉ី", gender: "Female", positionId: 7, position: "BKK Campus Finance & Cashier", department: "Finance & Operations", phone: "010 453 553", email: "sievmey.lao@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-07-01", degree: "B.B.A. Finance", username: "fin_sievmey" },
+      { id: 54, campusId: "C04", nameEn: "Ms. Molika Sun", nameKh: "ស៊ុន ម៉ូលីកា", gender: "Female", positionId: 8, position: "BKK Campus Admissions Officer", department: "Student Affairs & Operations", phone: "011 454 554", email: "molika.sun@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-02-15", degree: "B.A. International Relations", username: "reg_molika" },
+
+      // C05 — Russey Keo (10 Working: 8 Teachers + 2 Leadership/Admin)
+      { id: 3, campusId: "C05", nameEn: "Mr. Dara Vong", nameKh: "វង្ស តារា", gender: "Male", positionId: 1, position: "Campus 05 Principal & STEM Director", department: "Executive Board", phone: "017 445 889", email: "dara.vong@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-07-15", degree: "M.Sc. Computer Science & AI", username: "t_dara" },
+      { id: 55, campusId: "C05", nameEn: "Mr. Narith Uch", nameKh: "អ៊ុច ណារិទ្ធ", gender: "Male", positionId: 2, position: "Head of High School Science (Russey Keo)", department: "Academic Leadership", phone: "012 455 555", email: "narith.uch@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2021-09-01", degree: "M.Sc. Applied Mathematics", username: "t_narith" },
+      { id: 56, campusId: "C05", nameEn: "Ms. Sovanna Tep", nameKh: "ទេព សុវណ្ណា", gender: "Female", positionId: 5, position: "Grade 8 Lower Secondary Lead", department: "Khmer General Education", phone: "017 456 556", email: "sovanna.tep@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-01", degree: "B.A. Khmer Literature (NIE)", username: "t_sovanna" },
+      { id: 57, campusId: "C05", nameEn: "Mr. Dararith Long", nameKh: "ឡុង តារារិទ្ធ", gender: "Male", positionId: 3, position: "Grade 5 STEM Makers & Robotics Lead", department: "STEM & Innovation Hub", phone: "089 457 557", email: "dararith.long@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-01-15", degree: "B.Eng. Electronics & IoT", username: "t_dararith" },
+      { id: 58, campusId: "C05", nameEn: "Ms. Boramey Sok", nameKh: "សុខ បូរមី", gender: "Female", positionId: 5, position: "Grade 4 Bilingual Primary Homeroom", department: "Khmer General Education", phone: "015 458 558", email: "boramey.sok@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-15", degree: "B.Ed. Primary Education", username: "t_boramey" },
+      { id: 59, campusId: "C05", nameEn: "Ms. Kalyan Heng", nameKh: "ហេង កល្យាណ", gender: "Female", positionId: 4, position: "Cambridge Grade 2 IEP Homeroom", department: "International Program", phone: "092 459 559", email: "kalyan.heng@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-08-01", degree: "B.Ed. TESOL (IFL)", username: "t_kalyanheng" },
+      { id: 60, campusId: "C05", nameEn: "Mr. Ratanak Phorn", nameKh: "ផន រតនៈ", gender: "Male", positionId: 5, position: "High School Physics & Lab Specialist", department: "Khmer General Education", phone: "012 460 560", email: "ratanak.phorn@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-08-01", degree: "B.Sc. Physics (RUPP)", username: "t_ratanakphorn" },
+      { id: 61, campusId: "C05", nameEn: "Ms. Chariya Sun", nameKh: "ស៊ុន ចរិយា", gender: "Female", positionId: 6, position: "Early Years Literacy & Phonics Coach", department: "Kindergarten & Early Years", phone: "077 461 561", email: "chariya.sun@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-08-01", degree: "B.Ed. Early Years", username: "t_chariya" },
+      { id: 62, campusId: "C05", nameEn: "Mr. Mengheang Khuon", nameKh: "ឃួន ម៉េងហៀង", gender: "Male", positionId: 7, position: "Russey Keo Finance & Billing Officer", department: "Finance & Operations", phone: "010 462 562", email: "mengheang.khuon@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2022-06-15", degree: "B.B.A. Accounting", username: "fin_mengheang" },
+      { id: 63, campusId: "C05", nameEn: "Ms. Sreyneang San", nameKh: "សាន ស្រីនាង", gender: "Female", positionId: 8, position: "Russey Keo Admissions Registrar", department: "Student Affairs & Operations", phone: "011 463 563", email: "sreyneang.san@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "ACTIVE", employmentStatus: "Working", joinDate: "2023-04-01", degree: "B.A. Public Management", username: "reg_sreyneangsan" },
+
+      // Resigned Staff (2)
+      { id: 9, campusId: "C03", nameEn: "Mr. Piseth Chhorn", nameKh: "ឆន ពិសិដ្ឋ", gender: "Male", positionId: 5, position: "Former PE Instructor", department: "Athletics", phone: "098 111 222", email: "piseth.chhorn@milkywayschool.edu.kh", hasAccount: true, isLocked: false, userStatus: "INACTIVE", employmentStatus: "Resigned", joinDate: "2021-02-01", degree: "B.A. Sports Science", username: "t_piseth" },
+      { id: 64, campusId: "C01", nameEn: "Ms. Kunthea Lim", nameKh: "លឹម គន្ធា", gender: "Female", positionId: 4, position: "Former Assistant English Instructor", department: "International Program", phone: "098 222 333", email: "kunthea.lim@milkywayschool.edu.kh", hasAccount: false, isLocked: false, userStatus: "INACTIVE", employmentStatus: "Resigned", joinDate: "2022-01-15", degree: "B.A. English", username: "" },
+    ];
+    stateObj.staffs = baseStaffs;
+    const staffById = {};
+    baseStaffs.forEach((s) => {
+      staffById[s.id] = s;
+    });
+
+    // 3. Build 39 Classes across the 5 Campuses (37 Ongoing + 1 Upcoming + 1 Ended 2024-2025)
+    // Target students per ongoing class:
+    // C01 (10 ongoing = 254): 28, 26, 26, 26, 25, 25, 25, 25, 24, 24
+    // C02 (8 ongoing = 186):  25, 24, 24, 23, 23, 23, 22, 22
+    // C03 (7 ongoing = 158):  24, 23, 23, 23, 22, 22, 21
+    // C04 (6 ongoing = 126):  21, 21, 21, 21, 21, 21
+    // C05 (6 ongoing = 136):  24, 23, 23, 22, 22, 22
+    // Total Ongoing = 37 classes, Total Registered Students = 860
+    const classSpecs = [
+      // C01 — Sen Sok HQ (10 Ongoing + 1 Ended)
+      { id: 101, campusId: "C01", code: "CLS-12A", classNameEn: "Grade 12-A (Science Track)", classNameKh: "ថ្នាក់ទី ១២-A (វិទ្យាសាស្ត្រ)", programId: 1, gradeId: 7, teacherId: 2, roomId: 3, roomName: "Room B-201", schedule: "Mon - Sat", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 28 },
+      { id: 102, campusId: "C01", code: "CLS-10STEM", classNameEn: "Grade 10-S1 (AI & Robotics)", classNameKh: "ថ្នាក់ទី ១០-S1 (ស្ទែម និង AI)", programId: 3, gradeId: 6, teacherId: 10, roomId: 5, roomName: "STEM & Robotics Lab 301", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 26 },
+      { id: 112, campusId: "C01", code: "CLS-11A", classNameEn: "Grade 11-A (Natural Science)", classNameKh: "ថ្នាក់ទី ១១-A (វិទ្យាសាស្ត្រពិត)", programId: 1, gradeId: 13, teacherId: 11, roomId: 6, roomName: "Science Lab B-302", schedule: "Mon - Sat", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 26 },
+      { id: 113, campusId: "C01", code: "CLS-9A", classNameEn: "Grade 9-A (Diploma Prep)", classNameKh: "ថ្នាក់ទី ៩-A (ត្រៀមប្រឡងឌីប្លូម)", programId: 1, gradeId: 5, teacherId: 12, roomId: 2, roomName: "Room A-102", schedule: "Mon - Sat", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 26 },
+      { id: 114, campusId: "C01", code: "CLS-8STEM", classNameEn: "Grade 8-STEM Innovators", classNameKh: "ថ្នាក់ទី ៨-ស្ទែម និងកូដ", programId: 3, gradeId: 12, teacherId: 13, roomId: 5, roomName: "STEM & Robotics Lab 301", schedule: "Mon - Fri", shift: 1, shiftText: "Morning", status: "ongoing", targetStudents: 25 },
+      { id: 115, campusId: "C01", code: "CLS-6IEP", classNameEn: "Grade 6-Cambridge Sapphire", classNameKh: "ថ្នាក់ទី ៦-Cambridge Sapphire", programId: 2, gradeId: 3, teacherId: 14, roomId: 4, roomName: "Room B-204", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 25 },
+      { id: 116, campusId: "C01", code: "CLS-5A", classNameEn: "Grade 5-A (Bilingual Primary)", classNameKh: "ថ្នាក់ទី ៥-A (បឋមសិក្សា)", programId: 1, gradeId: 11, teacherId: 15, roomId: 1, roomName: "Room A-101", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 25 },
+      { id: 117, campusId: "C01", code: "CLS-3IEP", classNameEn: "Grade 3-Cambridge Ruby", classNameKh: "ថ្នាក់ទី ៣-Cambridge Ruby", programId: 2, gradeId: 10, teacherId: 16, roomId: 2, roomName: "Room A-102", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 25 },
+      { id: 118, campusId: "C01", code: "CLS-1A", classNameEn: "Grade 1-A (Khmer Foundation)", classNameKh: "ថ្នាក់ទី ១-A (ចំណេះទូទៅខ្មែរ)", programId: 1, gradeId: 2, teacherId: 17, roomId: 1, roomName: "Room A-101", schedule: "Mon - Fri", shift: 1, shiftText: "Morning", status: "ongoing", targetStudents: 24 },
+      { id: 119, campusId: "C01", code: "CLS-KG2-SS", classNameEn: "Kindergarten K2-Starlight", classNameKh: "មត្តេយ្យ កម្រិត ២-Starlight", programId: 2, gradeId: 1, teacherId: 18, roomId: 7, roomName: "Room D-105 (Early Years)", schedule: "Mon - Fri", shift: 1, shiftText: "Morning", status: "ongoing", targetStudents: 24 },
+      { id: 107, campusId: "C01", code: "CLS-6A-2024", classNameEn: "Grade 6-A (Honors Cohort 2024)", classNameKh: "ថ្នាក់ទី ៦-A (ឆ្នាំសិក្សា ២០២៤-២០២៥)", programId: 1, gradeId: 3, teacherId: 12, roomId: 2, roomName: "Room A-102", schedule: "Mon - Fri", shift: 1, shiftText: "Morning", status: "ended", academicYearId: 2, academicYearName: "2024-2025", targetStudents: 25 },
+
+      // C02 — Toul Kork (8 Ongoing)
+      { id: 103, campusId: "C02", code: "CLS-7IEP", classNameEn: "Grade 7-Cambridge Emerald", classNameKh: "ថ្នាក់ទី ៧-Cambridge Emerald", programId: 2, gradeId: 4, teacherId: 4, roomId: 4, roomName: "Room TK-204", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 25 },
+      { id: 108, campusId: "C02", code: "CLS-8IEP", classNameEn: "Grade 8-Cambridge Sapphire", classNameKh: "ថ្នាក់ទី ៨-Cambridge Sapphire", programId: 2, gradeId: 12, teacherId: 24, roomId: 3, roomName: "Room TK-201", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 24 },
+      { id: 120, campusId: "C02", code: "CLS-12B-TK", classNameEn: "Grade 12-B (BacII Science)", classNameKh: "ថ្នាក់ទី ១២-B (វិទ្យាសាស្ត្រពិត)", programId: 1, gradeId: 7, teacherId: 25, roomId: 6, roomName: "Science Lab TK-302", schedule: "Mon - Sat", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 24 },
+      { id: 121, campusId: "C02", code: "CLS-11IEP-TK", classNameEn: "Grade 11-IGCSE Honours", classNameKh: "ថ្នាក់ទី ១១-IGCSE អន្តរជាតិ", programId: 2, gradeId: 13, teacherId: 26, roomId: 4, roomName: "Room TK-205", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 23 },
+      { id: 122, campusId: "C02", code: "CLS-9STEM-TK", classNameEn: "Grade 9-STEM Robotics", classNameKh: "ថ្នាក់ទី ៩-ស្ទែម និងរ៉ូបូត", programId: 3, gradeId: 5, teacherId: 27, roomId: 5, roomName: "STEM Lab TK-301", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 23 },
+      { id: 123, campusId: "C02", code: "CLS-5IEP-TK", classNameEn: "Grade 5-Cambridge Amber", classNameKh: "ថ្នាក់ទី ៥-Cambridge Amber", programId: 2, gradeId: 11, teacherId: 28, roomId: 1, roomName: "Room TK-103", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 23 },
+      { id: 124, campusId: "C02", code: "CLS-2A-TK", classNameEn: "Grade 2-A (Primary Excellence)", classNameKh: "ថ្នាក់ទី ២-A (បឋមសិក្សា)", programId: 1, gradeId: 9, teacherId: 29, roomId: 2, roomName: "Room TK-101", schedule: "Mon - Fri", shift: 1, shiftText: "Morning", status: "ongoing", targetStudents: 22 },
+      { id: 125, campusId: "C02", code: "CLS-KG2-TK", classNameEn: "Kindergarten K2-Explorers", classNameKh: "មត្តេយ្យ កម្រិត ២-Explorers", programId: 2, gradeId: 1, teacherId: 30, roomId: 7, roomName: "Early Years Studio TK-D1", schedule: "Mon - Fri", shift: 1, shiftText: "Morning", status: "ongoing", targetStudents: 22 },
+
+      // C03 — Chbar Ampov (7 Ongoing)
+      { id: 104, campusId: "C03", code: "CLS-9B", classNameEn: "Grade 9-B (National Diploma)", classNameKh: "ថ្នាក់ទី ៩-B (ឌីប្លូម)", programId: 1, gradeId: 5, teacherId: 5, roomId: 2, roomName: "Room CA-201", schedule: "Mon - Sat", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 24 },
+      { id: 109, campusId: "C03", code: "CLS-10CA", classNameEn: "Grade 10-CA (STEM Explorers)", classNameKh: "ថ្នាក់ទី ១០-CA (ស្ទែម)", programId: 3, gradeId: 6, teacherId: 36, roomId: 5, roomName: "STEM Lab CA-301", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 23 },
+      { id: 126, campusId: "C03", code: "CLS-12CA", classNameEn: "Grade 12-CA (BacII Science)", classNameKh: "ថ្នាក់ទី ១២-CA (វិទ្យាសាស្ត្រ)", programId: 1, gradeId: 7, teacherId: 37, roomId: 3, roomName: "Room CA-302", schedule: "Mon - Sat", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 23 },
+      { id: 127, campusId: "C03", code: "CLS-7CA", classNameEn: "Grade 7-CA (STEM & Coding)", classNameKh: "ថ្នាក់ទី ៧-CA (ស្ទែម និងកូដ)", programId: 3, gradeId: 4, teacherId: 38, roomId: 5, roomName: "Robotics Studio CA-204", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 23 },
+      { id: 128, campusId: "C03", code: "CLS-6CA", classNameEn: "Grade 6-A (Upper Primary)", classNameKh: "ថ្នាក់ទី ៦-A (បឋមសិក្សា)", programId: 1, gradeId: 3, teacherId: 39, roomId: 1, roomName: "Room CA-104", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 22 },
+      { id: 129, campusId: "C03", code: "CLS-4CA", classNameEn: "Grade 4-Cambridge Jade", classNameKh: "ថ្នាក់ទី ៤-Cambridge Jade", programId: 2, gradeId: 8, teacherId: 40, roomId: 4, roomName: "Room CA-102", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 22 },
+      { id: 130, campusId: "C03", code: "CLS-1CA", classNameEn: "Grade 1-B (Early Literacy)", classNameKh: "ថ្នាក់ទី ១-B (ចំណេះទូទៅខ្មែរ)", programId: 1, gradeId: 2, teacherId: 41, roomId: 1, roomName: "Room CA-101", schedule: "Mon - Fri", shift: 1, shiftText: "Morning", status: "ongoing", targetStudents: 21 },
+
+      // C04 — Boeung Keng Kang (6 Ongoing + 1 Upcoming)
+      { id: 105, campusId: "C04", code: "CLS-KG2", classNameEn: "Kindergarten K2 Sunshine", classNameKh: "មត្តេយ្យ កម្រិត ២ Sunshine", programId: 2, gradeId: 1, teacherId: 6, roomId: 7, roomName: "Room BKK-D105", schedule: "Mon - Fri", shift: 1, shiftText: "Morning", status: "ongoing", targetStudents: 21 },
+      { id: 106, campusId: "C04", code: "CLS-4CHN", classNameEn: "Grade 4-Panda (Trilingual)", classNameKh: "ថ្នាក់ទី ៤-Panda (ត្រីភាសា)", programId: 4, gradeId: 8, teacherId: 46, roomId: 1, roomName: "Room BKK-201", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 21 },
+      { id: 131, campusId: "C04", code: "CLS-11CHN", classNameEn: "Grade 11-HSK5 Trilingual", classNameKh: "ថ្នាក់ទី ១១-ត្រីភាសា HSK5", programId: 4, gradeId: 13, teacherId: 47, roomId: 3, roomName: "Room BKK-301", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 21 },
+      { id: 132, campusId: "C04", code: "CLS-8CHN", classNameEn: "Grade 8-Mandarin Immersion", classNameKh: "ថ្នាក់ទី ៨-ត្រីភាសា ចិន-អង់គ្លេស-ខ្មែរ", programId: 4, gradeId: 12, teacherId: 48, roomId: 4, roomName: "Room BKK-204", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 21 },
+      { id: 133, campusId: "C04", code: "CLS-6IEP-BKK", classNameEn: "Grade 6-Cambridge Topaz", classNameKh: "ថ្នាក់ទី ៦-Cambridge Topaz", programId: 2, gradeId: 3, teacherId: 49, roomId: 2, roomName: "Room BKK-202", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 21 },
+      { id: 134, campusId: "C04", code: "CLS-3CHN", classNameEn: "Grade 3-Trilingual Scholars", classNameKh: "ថ្នាក់ទី ៣-ត្រីភាសា", programId: 4, gradeId: 10, teacherId: 50, roomId: 1, roomName: "Room BKK-103", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 21 },
+      { id: 135, campusId: "C04", code: "CLS-K1-SUM", classNameEn: "Kindergarten K1 Summer Intake", classNameKh: "មត្តេយ្យ កម្រិត ១ (វគ្គសិក្សាថ្មី)", programId: 2, gradeId: 1, teacherId: 51, roomId: 7, roomName: "Room BKK-D106", schedule: "Mon - Fri", shift: 1, shiftText: "Morning", status: "upcoming", targetStudents: 0 },
+
+      // C05 — Russey Keo (6 Ongoing)
+      { id: 110, campusId: "C05", code: "CLS-10RK", classNameEn: "Grade 10-RK (Robotics & AI)", classNameKh: "ថ្នាក់ទី ១០-RK (រ៉ូបូត និង AI)", programId: 3, gradeId: 6, teacherId: 3, roomId: 5, roomName: "STEM Lab RK-301", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 24 },
+      { id: 111, campusId: "C05", code: "CLS-12RK", classNameEn: "Grade 12-RK (BacII Intensive)", classNameKh: "ថ្នាក់ទី ១២-RK (បាក់ឌុប)", programId: 1, gradeId: 7, teacherId: 55, roomId: 3, roomName: "Room RK-302", schedule: "Mon - Sat", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 23 },
+      { id: 136, campusId: "C05", code: "CLS-8RK", classNameEn: "Grade 8-A (Lower Secondary)", classNameKh: "ថ្នាក់ទី ៨-A (មធ្យមសិក្សាបឋមភូមិ)", programId: 1, gradeId: 12, teacherId: 56, roomId: 2, roomName: "Room RK-202", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 23 },
+      { id: 137, campusId: "C05", code: "CLS-5RK", classNameEn: "Grade 5-STEM Makers", classNameKh: "ថ្នាក់ទី ៥-ស្ទែម", programId: 3, gradeId: 11, teacherId: 57, roomId: 5, roomName: "STEM Studio RK-201", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 22 },
+      { id: 138, campusId: "C05", code: "CLS-4RK", classNameEn: "Grade 4-A (Bilingual Primary)", classNameKh: "ថ្នាក់ទី ៤-A (បឋមសិក្សា)", programId: 1, gradeId: 8, teacherId: 58, roomId: 1, roomName: "Room RK-103", schedule: "Mon - Fri", shift: 4, shiftText: "Full Day", status: "ongoing", targetStudents: 22 },
+      { id: 139, campusId: "C05", code: "CLS-2RK", classNameEn: "Grade 2-Cambridge Opal", classNameKh: "ថ្នាក់ទី ២-Cambridge Opal", programId: 2, gradeId: 9, teacherId: 59, roomId: 4, roomName: "Room RK-101", schedule: "Mon - Fri", shift: 1, shiftText: "Morning", status: "ongoing", targetStudents: 22 },
+    ];
+
+    stateObj.classes = classSpecs.map((sp) => {
+      const prog = progMap[sp.programId] || progMap[1];
+      const grd = gradeMap[sp.gradeId] || gradeMap[1];
+      const tch = staffById[sp.teacherId] || staffById[2];
+      const nameParts = tch.nameEn.split(" ");
+      return {
+        id: sp.id,
+        campusId: sp.campusId,
+        code: sp.code,
+        classNameEn: sp.classNameEn,
+        classNameKh: sp.classNameKh,
+        programId: sp.programId,
+        program: { id: prog.id, code: prog.code, nameEn: prog.nameEn, nameKh: prog.nameKh },
+        academicYearId: sp.academicYearId || 3,
+        academicYear: { id: sp.academicYearId || 3, name: sp.academicYearName || "2025-2026" },
+        gradeId: sp.gradeId,
+        grade: { id: grd.id, nameEn: grd.nameEn, nameKh: grd.nameKh },
+        teacherId: tch.id,
+        teacher: {
+          id: tch.id,
+          firstNameEn: nameParts.slice(0, -1).join(" ") || tch.nameEn,
+          lastNameEn: nameParts[nameParts.length - 1] || "",
+          fullName: tch.nameEn,
+        },
+        roomId: sp.roomId,
+        room: { id: sp.roomId, name: sp.roomName },
+        schedule: sp.schedule,
+        shift: sp.shift,
+        shiftText: sp.shiftText,
+        status: sp.status,
+        statusCode: sp.status === "ongoing" ? 1 : sp.status === "ended" ? 2 : 3,
+        totalStudents: sp.targetStudents,
+        startDate: sp.status === "ended" ? "2024-09-01" : sp.status === "upcoming" ? "2026-07-20" : "2025-09-01",
+        endDate: sp.status === "ended" ? "2025-06-30" : sp.status === "upcoming" ? "2026-08-25" : "2026-07-15",
+      };
+    });
+
+    const classById = {};
+    stateObj.classes.forEach((c) => {
+      classById[c.id] = c;
+    });
+
+    // 4. Fix Cross-Campus & Multi-Class Assignment Errors on the initial 18 Registered Students
+    const existingStudents = stateObj.students || [];
+    const stuFixMap = {
+      1: { campusId: "C01", classId: 101 }, // Sok Chanreaksa -> G12-A (C01)
+      2: { campusId: "C01", classId: 101 }, // Chhin Oudom -> G12-A (C01) only (remove duplicate G10-S1 active class)
+      3: { campusId: "C01", classId: 102 }, // Vong Sopheaktra -> G10-S1 (C01)
+      4: { campusId: "C02", classId: 103 }, // Keo Pichmony -> G7-Cambridge Emerald (C02)
+      5: { campusId: "C03", classId: 104 }, // Meas Ratanak -> G9-B (C03)
+      6: { campusId: "C04", classId: 106 }, // Lim Meiling -> G4-Panda Trilingual (C04)
+      11: { campusId: "C01", classId: 115 }, // Sok Chanpanha (brother of Sok Chanreaksa in C01) -> G6-Cambridge Sapphire (C01)
+      12: { campusId: "C01", classId: 101 }, // Heng Sovannreach -> G12-A (C01)
+      13: { campusId: "C01", classId: 101 }, // Prak Sreypich -> G12-A (C01)
+      14: { campusId: "C01", classId: 101 }, // Ros Monyra -> G12-A (C01)
+      15: { campusId: "C01", classId: 102 }, // Khuon Socheat -> G10-S1 (C01)
+      16: { campusId: "C05", classId: 110 }, // Tep Kalyan (Russey Keo C05) -> G10-RK (C05)
+      17: { campusId: "C02", classId: 103 }, // San Vichetr -> G7-Cambridge Emerald (C02)
+      18: { campusId: "C03", classId: 104 }, // Eung Molika -> G9-B (C03)
+      19: { campusId: "C03", classId: 104 }, // Phorn Narong -> G9-B (C03)
+      20: { campusId: "C04", classId: 105 }, // Yim Ariya -> Kindergarten K2 Sunshine (C04)
+      21: { campusId: "C04", classId: 105 }, // Tang Virak -> Kindergarten K2 Sunshine (C04)
+      22: { campusId: "C04", classId: 106 }, // Cheng Sievlong -> G4-Panda Trilingual (C04)
+    };
+
+    existingStudents.forEach((s) => {
+      if (s.tab === "registered" && stuFixMap[s.id]) {
+        const fix = stuFixMap[s.id];
+        const targetCls = classById[fix.classId];
+        s.campusId = fix.campusId;
+        if (targetCls) {
+          s.programs = [
+            {
+              id: s.id * 10 + 1,
+              academicYear: "2025-2026",
+              program: { id: targetCls.programId, code: targetCls.program.code, name_en: targetCls.program.nameEn },
+              grade: { id: targetCls.gradeId, name_en: targetCls.grade.nameEn },
+              class: { id: targetCls.id, name_en: targetCls.classNameEn },
+              status: "Studying",
+              payment_status: s.programs?.[0]?.payment_status || "Paid",
+            },
+          ];
+        }
+      }
+    });
+
+    // 5. Deterministically Populate Remaining Registered Students so Every Ongoing Class Matches its Exact Target Count (860 Total)
+    const surnames = [
+      { en: "Sok", kh: "សុខ" }, { en: "Chan", kh: "ចាន់" }, { en: "Chea", kh: "ជា" }, { en: "Heng", kh: "ហេង" },
+      { en: "Lim", kh: "លឹម" }, { en: "Keo", kh: "កែវ" }, { en: "Ly", kh: "លី" }, { en: "Meas", kh: "មាស" },
+      { en: "Nget", kh: "ង៉ែត" }, { en: "Ouk", kh: "អ៊ុក" }, { en: "Pich", kh: "ពេជ្រ" }, { en: "Prak", kh: "ប្រាក់" },
+      { en: "Ros", kh: "រស់" }, { en: "Sam", kh: "សំ" }, { en: "Seng", kh: "សេង" }, { en: "Sin", kh: "ស៊ិន" },
+      { en: "Tep", kh: "ទេព" }, { en: "Thach", kh: "ថាច់" }, { en: "Touch", kh: "ទូច" }, { en: "Vong", kh: "វង្ស" },
+      { en: "Yim", kh: "យឹម" }, { en: "Khuon", kh: "ឃួន" }, { en: "Chhin", kh: "ឈិន" }, { en: "Chhorn", kh: "ឆន" },
+      { en: "Eung", kh: "អ៊ឹង" }, { en: "Kem", kh: "កែម" }, { en: "Kong", kh: "គង់" }, { en: "Long", kh: "ឡុង" },
+      { en: "Mao", kh: "ម៉ៅ" }, { en: "Nhem", kh: "ញឹម" }, { en: "Pen", kh: "ប៉ែន" }, { en: "Phorn", kh: "ផន" },
+      { en: "San", kh: "សាន" }, { en: "Sun", kh: "ស៊ុន" }, { en: "Tang", kh: "តាំង" }, { en: "Uch", kh: "អ៊ុច" }
+    ];
+    const givenFemale = [
+      { en: "Chanreaksa", kh: "ចាន់រក្សា" }, { en: "Sreypich", kh: "ស្រីពេជ្រ" }, { en: "Pichmony", kh: "ពេជ្រមុនី" },
+      { en: "Molika", kh: "ម៉ូលីកា" }, { en: "Kalyan", kh: "កល្យាណ" }, { en: "Ariya", kh: "អារីយ៉ា" },
+      { en: "Socheata", kh: "សុជាតា" }, { en: "Bopha", kh: "បុប្ផា" }, { en: "Channary", kh: "ចាន់ណារី" },
+      { en: "Dalin", kh: "ដាលីន" }, { en: "Kanitha", kh: "កនិษฐា" }, { en: "Leakhena", kh: "លក្ខិណា" },
+      { en: "Meiling", kh: "ម៉ីលីង" }, { en: "Moniroth", kh: "មុនីរ័ត្ន" }, { en: "Nary", kh: "ណារី" },
+      { en: "Pisey", kh: "ពិសី" }, { en: "Rachana", kh: "រចនា" }, { en: "Sovannary", kh: "សុវណ្ណារី" },
+      { en: "Sreyneang", kh: "ស្រីនាង" }, { en: "Sreypov", kh: "ស្រីពៅ" }, { en: "Thida", kh: "ធីតា" },
+      { en: "Bormey", kh: "បូរមី" }, { en: "Chantrea", kh: "ចន្ទ្រា" }, { en: "Kunthea", kh: "គន្ធា" },
+      { en: "Sokunthea", kh: "សុគន្ធា" }, { en: "Chariya", kh: "ចរិយា" }, { en: "Sophea", kh: "សុភា" }
+    ];
+    const givenMale = [
+      { en: "Sovannreach", kh: "សុវណ្ណរាជ" }, { en: "Oudom", kh: "ឧត្តម" }, { en: "Sopheaktra", kh: "សុភ័ក្រ្តា" },
+      { en: "Chanpanha", kh: "ចាន់បញ្ញា" }, { en: "Ratanak", kh: "រតនៈ" }, { en: "Monyra", kh: "មុនីរ៉ា" },
+      { en: "Socheat", kh: "សុជាតិ" }, { en: "Vichetr", kh: "វិចិត្រ" }, { en: "Narong", kh: "ណារ៉ុង" },
+      { en: "Virak", kh: "វីរៈ" }, { en: "Sievlong", kh: "សៀវឡុង" }, { en: "Piseth", kh: "ពិសិដ្ឋ" },
+      { en: "Sovannarith", kh: "សុវណ្ណារិទ្ធ" }, { en: "Pheakdey", kh: "ភក្តី" }, { en: "Visal", kh: "វិសាល" },
+      { en: "Monyrath", kh: "មុនីរ័ត្ន" }, { en: "Dararith", kh: "តារារិទ្ធ" }, { en: "Narith", kh: "ណារិទ្ធ" },
+      { en: "Bunrong", kh: "ប៊ុនរ៉ុង" }, { en: "Chamroeun", kh: "ចំរើន" }, { en: "Dara", kh: "តារា" },
+      { en: "Makara", kh: "មករា" }, { en: "Mengly", kh: "ម៉េងលី" }, { en: "Rotha", kh: "រដ្ឋា" },
+      { en: "Sambath", kh: "សម្បត្តិ" }, { en: "Sopheak", kh: "សុភ័ក្រ" }, { en: "Vannak", kh: "វណ្ណៈ" }
+    ];
+    const fatherFirst = [
+      { en: "Vibol", kh: "វិបុល" }, { en: "Samnang", kh: "សំណាង" }, { en: "Piseth", kh: "ពិសិដ្ឋ" },
+      { en: "Sophal", kh: "សុផល" }, { en: "Rithy", kh: "រិទ្ធី" }, { en: "Sovann", kh: "សុវណ្ណ" },
+      { en: "Chanthorn", kh: "ចាន់ថន" }, { en: "Vanna", kh: "វណ្ណា" }, { en: "Bunthorn", kh: "ប៊ុនថន" },
+      { en: "Sokheng", kh: "សុខហេង" }, { en: "Saroeun", kh: "សារឿន" }, { en: "Menghour", kh: "ម៉េងហួរ" },
+      { en: "Techheng", kh: "តិចហេង" }, { en: "Savuth", kh: "សាវុធ" }, { en: "Vuthy", kh: "វុទ្ធី" }
+    ];
+    const motherFirst = [
+      { en: "Maly", kh: "ម៉ាលី" }, { en: "Chariya", kh: "ចរិយា" }, { en: "Sophea", kh: "សុភា" },
+      { en: "Sokhom", kh: "សុខុម" }, { en: "Sophany", kh: "សុផានី" }, { en: "Mony", kh: "មុនី" },
+      { en: "Sokun", kh: "សុគន្ធ" }, { en: "Soklin", kh: "សុខលីន" }, { en: "Kimhouy", kh: "គឹមហួយ" },
+      { en: "Sreymom", kh: "ស្រីមុំ" }, { en: "Chantha", kh: "ចាន់ថា" }, { en: "Sreyneang", kh: "ស្រីនាង" }
+    ];
+    const occupations = [
+      "Civil Engineer", "Bank Branch Manager", "Physician", "Architect", "Software Engineer",
+      "University Lecturer", "Import/Export Director", "Pharmacist", "Business Owner", "Accountant",
+      "Hospital Administrator", "Real Estate Developer", "Supply Chain Manager", "Fintech Lead", "Attorney"
+    ];
+    const campusLocations = {
+      C01: { district: "Sen Sok", commune: "Krang Thnong", addr: "Borey New World La Sen Sok, Sen Sok, Phnom Penh" },
+      C02: { district: "Toul Kork", commune: "Boeung Kak II", addr: "St. 315, Sangkat Boeung Kak II, Toul Kork, Phnom Penh" },
+      C03: { district: "Chbar Ampov", commune: "Nirouth", addr: "Borey Peng Huoth Boeung Snor, Chbar Ampov, Phnom Penh" },
+      C04: { district: "Boeung Keng Kang", commune: "BKK I", addr: "St. 310, Sangkat Boeung Keng Kang I, Phnom Penh" },
+      C05: { district: "Russey Keo", commune: "Toul Sangke", addr: "Borey Camko City, Russey Keo, Phnom Penh" },
+    };
+    const birthYearByGradeId = {
+      1: 2020, 2: 2019, 9: 2018, 10: 2017, 8: 2016, 11: 2015, 3: 2014, 4: 2013, 12: 2012, 5: 2011, 6: 2010, 13: 2009, 7: 2008
+    };
+
+    let nextStudentId = 100;
+    let nextCardSeq = 19;
+    let nextGuardianId = 300;
+    const generatedParentsPoolByCampus = { C01: [], C02: [], C03: [], C04: [], C05: [] };
+
+    classSpecs.forEach((sp) => {
+      if (sp.status !== "ongoing") return;
+      const cls = classById[sp.id];
+      const currentInClass = existingStudents.filter(
+        (s) => s.tab === "registered" && Number(s.programs?.[0]?.class?.id) === Number(sp.id)
+      );
+      const needed = Math.max(0, sp.targetStudents - currentInClass.length);
+      const loc = campusLocations[sp.campusId] || campusLocations.C01;
+      const bYear = birthYearByGradeId[sp.gradeId] || 2012;
+
+      for (let i = 0; i < needed; i++) {
+        const sid = nextStudentId++;
+        const seq = nextCardSeq++;
+        const isFemale = (sid + i) % 2 === 0;
+        const fam = surnames[(sid * 7 + i * 3) % surnames.length];
+        const giv = isFemale
+          ? givenFemale[(sid * 5 + i * 11) % givenFemale.length]
+          : givenMale[(sid * 5 + i * 11) % givenMale.length];
+
+        // ~20% of students share parents with an earlier sibling in the same campus
+        const campusPool = generatedParentsPoolByCampus[sp.campusId];
+        let fatherObj;
+        let motherObj;
+        if (campusPool.length > 4 && i % 5 === 4) {
+          const shared = campusPool[(i * 3) % campusPool.length];
+          fatherObj = shared.father;
+          motherObj = shared.mother;
+        } else {
+          const fFirst = fatherFirst[(sid * 3 + i) % fatherFirst.length];
+          const mFirst = motherFirst[(sid * 5 + i) % motherFirst.length];
+          const mFam = surnames[(sid * 11 + i + 5) % surnames.length];
+          const fPhone = `012 ${String(200 + (sid % 799)).padStart(3, "0")} ${String(100 + ((sid * 7) % 899)).padStart(3, "0")}`;
+          const mPhone = `017 ${String(200 + (sid % 799)).padStart(3, "0")} ${String(100 + ((sid * 9) % 899)).padStart(3, "0")}`;
+          fatherObj = {
+            id: nextGuardianId++,
+            nameKh: `${fam.kh} ${fFirst.kh}`,
+            nameEn: `${fam.en} ${fFirst.en}`,
+            phone: fPhone,
+            email: `${fFirst.en.toLowerCase()}.${fam.en.toLowerCase()}${sid}@gmail.com`,
+            occupation: occupations[(sid + i) % occupations.length],
+            status: "Active",
+          };
+          motherObj = {
+            id: nextGuardianId++,
+            nameKh: `${mFam.kh} ${mFirst.kh}`,
+            nameEn: `${mFam.en} ${mFirst.en}`,
+            phone: mPhone,
+            email: `${mFirst.en.toLowerCase()}.${mFam.en.toLowerCase()}${sid}@gmail.com`,
+            occupation: occupations[(sid + i + 4) % occupations.length],
+            status: "Active",
+          };
+          campusPool.push({ father: fatherObj, mother: motherObj, address: loc.addr });
+        }
+
+        const baseScore = 74 + ((sid * 13 + i * 7) % 23); // 74..96
+        const scMath = Math.min(99, Math.max(65, baseScore + ((i % 3) - 1) * 2));
+        const scPhy = Math.min(98, Math.max(64, baseScore - 1 + (i % 4)));
+        const scChm = Math.min(98, Math.max(65, baseScore - 2 + ((i + 1) % 4)));
+        const scEng = Math.min(99, Math.max(68, baseScore + (i % 5) - 1));
+        const scKhm = Math.min(98, Math.max(70, baseScore + ((i + 2) % 3) - 1));
+        const scCs = Math.min(99, Math.max(70, baseScore + 1 + (i % 3)));
+
+        const attRoll = (sid + i) % 28;
+        const attToday = attRoll === 0 ? "Absent" : attRoll === 1 ? "Late" : "Present";
+        const isUnpaid = (sid + i) % 23 === 0;
+        const monthStr = String(1 + ((sid + i) % 12)).padStart(2, "0");
+        const dayStr = String(1 + ((sid * 3 + i) % 28)).padStart(2, "0");
+
+        existingStudents.push({
+          id: sid,
+          campusId: sp.campusId,
+          student_card_id: `STU-2026-${String(seq).padStart(3, "0")}`,
+          first_name_kh: fam.kh,
+          last_name_kh: giv.kh,
+          full_name_kh: `${fam.kh} ${giv.kh}`,
+          first_name_en: fam.en,
+          last_name_en: giv.en,
+          full_name_en: `${fam.en} ${giv.en}`,
+          gender: isFemale ? "Female" : "Male",
+          birthday: `${bYear}-${monthStr}-${dayStr}`,
+          nationality: "Cambodian",
+          phone: fatherObj.phone,
+          email: `${giv.en.toLowerCase()}.${fam.en.toLowerCase()}${seq}@student.milkywayschool.edu.kh`,
+          tab: "registered",
+          acc_status: "Active",
+          has_account: true,
+          is_locked: false,
+          username: `stu_${giv.en.toLowerCase()}${seq}`,
+          address_birth: `${loc.district}, Phnom Penh`,
+          address_current: loc.addr,
+          province: "Phnom Penh",
+          district: loc.district,
+          commune: loc.commune,
+          village: "Village 1",
+          father: fatherObj,
+          mother: motherObj,
+          emergency: { name: `${fatherObj.nameEn} (Father)`, relation: "Father", phone: fatherObj.phone },
+          programs: [
+            {
+              id: sid * 10 + 1,
+              academicYear: "2025-2026",
+              program: { id: cls.programId, code: cls.program.code, name_en: cls.program.nameEn },
+              grade: { id: cls.gradeId, name_en: cls.grade.nameEn },
+              class: { id: cls.id, name_en: cls.classNameEn },
+              status: "Studying",
+              payment_status: isUnpaid ? "Unpaid" : "Paid",
+            },
+          ],
+          assessments: [],
+          eduHistory: [],
+          documents: [],
+          scores: { math: scMath, physics: scPhy, chemistry: scChm, english: scEng, khmer: scKhm, cs: scCs },
+          attendanceToday: attToday,
+          reportStatus: "Completed",
+          reportComment: "Consistent academic progress and active classroom participation.",
+        });
+      }
+    });
+
+    // Attach 25 historical 2024-2025 enrollments to Ended Class 107 (CLS-6A-2024) from Grade 7 students so its archive roster has 25 students
+    const grade7Students = existingStudents
+      .filter((s) => s.tab === "registered" && Number(s.programs?.[0]?.grade?.id) === 4)
+      .slice(0, 25);
+    grade7Students.forEach((s, idx) => {
+      if (s.programs.length === 1) {
+        s.programs.push({
+          id: s.id * 100 + idx,
+          academicYear: "2024-2025",
+          program: { id: 1, code: "KGE", name_en: "Khmer General Education" },
+          grade: { id: 3, name_en: "Grade 6" },
+          class: { id: 107, name_en: "Grade 6-A (Honors Cohort 2024)" },
+          status: "Completed",
+          payment_status: "Paid",
+        });
+      }
+    });
+
+    // Ensure every campus has Applications (12 total) and Waitlist (10 total) students
+    const extraAppsAndWaitlists = [
+      { id: 29, campusId: "C01", card: "APP-2026-106", fKh: "លី", lKh: "សុវណ្ណ", fEn: "Ly", lEn: "Sovann", gender: "Male", bday: "2010-05-12", phone: "077 919 292", tab: "applications", inq: "INQ-2026-060", date: "03/Nov/2026", progId: 3, progCode: "STEM", progName: "STEM & Robotics Innovation", grdId: 6, grdName: "Grade 10 STEM", paid: "Paid" },
+      { id: 30, campusId: "C01", card: "APP-2026-107", fKh: "ង៉ែត", lKh: "ស្រីនាង", fEn: "Nget", lEn: "Sreyneang", gender: "Female", bday: "2019-04-18", phone: "015 444 999", tab: "applications", inq: "INQ-2026-058", date: "03/Nov/2026", progId: 1, progCode: "KGE", progName: "Khmer General Education", grdId: 2, grdName: "Grade 1", paid: "Paid" },
+      { id: 31, campusId: "C01", card: "APP-2026-108", fKh: "ស៊ុន", lKh: "ពិសិដ្ឋ", fEn: "Sun", lEn: "Piseth", gender: "Male", bday: "2008-08-21", phone: "012 812 912", tab: "applications", inq: "INQ-2026-062", date: "04/Nov/2026", progId: 1, progCode: "KGE", progName: "Khmer General Education", grdId: 7, grdName: "Grade 12 (BacII Science)", paid: "Unpaid" },
+      { id: 32, campusId: "C02", card: "APP-2026-109", fKh: "កែម", lKh: "ចាន់ធី", fEn: "Kem", lEn: "Chanthy", gender: "Female", bday: "2014-03-10", phone: "017 701 801", tab: "applications", inq: "INQ-2026-063", date: "04/Nov/2026", progId: 2, progCode: "IEP", progName: "International English Program", grdId: 11, grdName: "Grade 5", paid: "Paid" },
+      { id: 33, campusId: "C03", card: "APP-2026-110", fKh: "ម៉ៅ", lKh: "វីរៈ", fEn: "Mao", lEn: "Vireak", gender: "Male", bday: "2013-07-15", phone: "089 601 701", tab: "applications", inq: "INQ-2026-064", date: "04/Nov/2026", progId: 3, progCode: "STEM", progName: "STEM & Robotics Innovation", grdId: 4, grdName: "Grade 7 (Year 8 Cambridge)", paid: "Paid" },
+      { id: 34, campusId: "C05", card: "APP-2026-111", fKh: "ឆន", lKh: "រចនា", fEn: "Chhorn", lEn: "Rachana", gender: "Female", bday: "2012-11-04", phone: "015 501 601", tab: "applications", inq: "INQ-2026-065", date: "04/Nov/2026", progId: 1, progCode: "KGE", progName: "Khmer General Education", grdId: 12, grdName: "Grade 8 (Year 9 Cambridge)", paid: "Paid" },
+      { id: 35, campusId: "C05", card: "APP-2026-112", fKh: "ឡុង", lKh: "ឧត្តម", fEn: "Long", lEn: "Oudom", gender: "Male", bday: "2015-02-22", phone: "092 401 501", tab: "applications", inq: "INQ-2026-066", date: "04/Nov/2026", progId: 3, progCode: "STEM", progName: "STEM & Robotics Innovation", grdId: 11, grdName: "Grade 5", paid: "Unpaid" },
+
+      { id: 36, campusId: "C01", card: "WTL-2026-206", fKh: "សេង", lKh: "មុនីរ័ត្ន", fEn: "Seng", lEn: "Monyrath", gender: "Male", bday: "2010-06-14", phone: "012 310 410", tab: "waitlists", inq: "18/Oct/2026", date: "18/Oct/2026", progId: 3, progCode: "STEM", progName: "STEM & Robotics Innovation", grdId: 6, grdName: "Grade 10 STEM", paid: "Paid" },
+      { id: 37, campusId: "C03", card: "WTL-2026-207", fKh: "ទូច", lKh: "ស្រីពៅ", fEn: "Touch", lEn: "Sreypov", gender: "Female", bday: "2011-09-19", phone: "017 311 411", tab: "waitlists", inq: "21/Oct/2026", date: "21/Oct/2026", progId: 1, progCode: "KGE", progName: "Khmer General Education", grdId: 5, grdName: "Grade 9 (Diploma Exam)", paid: "Paid" },
+      { id: 38, campusId: "C03", card: "WTL-2026-208", fKh: "ស៊ិន", lKh: "ភក្តី", fEn: "Sin", lEn: "Pheakdey", gender: "Male", bday: "2008-12-01", phone: "089 312 412", tab: "waitlists", inq: "24/Oct/2026", date: "24/Oct/2026", progId: 1, progCode: "KGE", progName: "Khmer General Education", grdId: 7, grdName: "Grade 12 (BacII Science)", paid: "Paid" },
+      { id: 39, campusId: "C04", card: "WTL-2026-209", fKh: "អ៊ុក", lKh: "ម៉ីលីង", fEn: "Ouk", lEn: "Meiling", gender: "Female", bday: "2017-05-08", phone: "015 313 413", tab: "waitlists", inq: "26/Oct/2026", date: "26/Oct/2026", progId: 4, progCode: "CHN", progName: "Trilingual Chinese-English-Khmer", grdId: 10, grdName: "Grade 3", paid: "Paid" },
+      { id: 40, campusId: "C05", card: "WTL-2026-210", fKh: "ថាច់", lKh: "វិសាល", fEn: "Thach", lEn: "Visal", gender: "Male", bday: "2008-04-17", phone: "092 314 414", tab: "waitlists", inq: "28/Oct/2026", date: "28/Oct/2026", progId: 1, progCode: "KGE", progName: "Khmer General Education", grdId: 7, grdName: "Grade 12 (BacII Science)", paid: "Paid" },
+    ];
+
+    extraAppsAndWaitlists.forEach((item) => {
+      existingStudents.push({
+        id: item.id,
+        campusId: item.campusId,
+        student_card_id: item.card,
+        first_name_kh: item.fKh,
+        last_name_kh: item.lKh,
+        full_name_kh: `${item.fKh} ${item.lKh}`,
+        first_name_en: item.fEn,
+        last_name_en: item.lEn,
+        full_name_en: `${item.fEn} ${item.lEn}`,
+        gender: item.gender,
+        birthday: item.bday,
+        nationality: "Cambodian",
+        phone: item.phone,
+        email: `${item.lEn.toLowerCase()}.${item.fEn.toLowerCase()}@gmail.com`,
+        tab: item.tab,
+        inquiry_id: item.tab === "applications" ? item.inq : undefined,
+        submitted_date: item.tab === "applications" ? item.date : undefined,
+        waiting_since: item.tab === "waitlists" ? item.date : undefined,
+        applying_for: `${item.progCode} • ${item.grdName}`,
+        acc_status: item.tab === "waitlists" ? "Active" : "No account",
+        has_account: item.tab === "waitlists",
+        programs: [
+          {
+            id: item.id * 10 + 1,
+            academicYear: "2025-2026",
+            program: { id: item.progId, code: item.progCode, name_en: item.progName },
+            grade: { id: item.grdId, name_en: item.grdName },
+            class: null,
+            status: item.tab === "applications" ? "Pending Review" : "Waitlisted",
+            payment_status: item.paid,
+          },
+        ],
+        scores: { math: 86, physics: 84, chemistry: 85, english: 88, khmer: 87, cs: 89 },
+        attendanceToday: "Present",
+        reportStatus: "Incomplete",
+      });
+    });
+
+    // 6. Rebuild Guardians Directory from All Registered Students so every parent & sibling household is 100% linked
+    const guardianMap = new Map();
+    const existingGuardiansById = {};
+    (stateObj.guardians || []).forEach((g) => {
+      existingGuardiansById[g.id] = g;
+    });
+
+    existingStudents
+      .filter((s) => s.tab === "registered")
+      .forEach((s) => {
+        const clsCode = s.programs?.[0]?.class?.name_en || "Enrolled";
+        const childLabel = `${s.full_name_en} (${clsCode})`;
+        const father = s.father;
+        if (father && father.id) {
+          if (!guardianMap.has(father.id)) {
+            const prev = existingGuardiansById[father.id];
+            guardianMap.set(father.id, {
+              id: father.id,
+              campusId: s.campusId || "C01",
+              nameEn: father.nameEn,
+              nameKh: father.nameKh || father.nameEn,
+              gender: "Male",
+              relation: "Father",
+              occupation: prev?.occupation || father.occupation || "Business Owner",
+              phone: father.phone || s.phone,
+              email: father.email || `${father.nameEn.toLowerCase().replace(/\s+/g, ".")}@gmail.com`,
+              address: prev?.address || s.address_current || "Phnom Penh",
+              children: [childLabel],
+              childIds: [s.id],
+              accStatus: prev?.accStatus || "Active",
+              isLocked: Boolean(prev?.isLocked),
+              username: prev?.username || `par_${father.nameEn.toLowerCase().replace(/[^a-z0-9]/g, "")}_${father.id}`,
+            });
+          } else {
+            const g = guardianMap.get(father.id);
+            if (!g.childIds.includes(s.id)) {
+              g.children.push(childLabel);
+              g.childIds.push(s.id);
+            }
+          }
+        }
+        // Also preserve Ly Socheata (id: 202) and any mother explicitly in existingGuardiansById
+        if (s.mother && s.mother.id && existingGuardiansById[s.mother.id]) {
+          const mid = s.mother.id;
+          if (!guardianMap.has(mid)) {
+            const prevM = existingGuardiansById[mid];
+            guardianMap.set(mid, {
+              ...prevM,
+              campusId: s.campusId || "C01",
+              children: [childLabel],
+              childIds: [s.id],
+            });
+          } else {
+            const gm = guardianMap.get(mid);
+            if (!gm.childIds.includes(s.id)) {
+              gm.children.push(childLabel);
+              gm.childIds.push(s.id);
+            }
+          }
+        }
+      });
+
+    stateObj.guardians = Array.from(guardianMap.values());
+
+    // 7. Synchronize & Expand Invoices so Every Registered Student Has an Invoice and Campus Totals Match 100%
+    const existingInvoices = stateObj.invoices || [];
+    const invoiceByStudentId = {};
+    existingInvoices.forEach((inv) => {
+      const stu = existingStudents.find((s) => s.id === inv.studentId);
+      if (stu) {
+        inv.campusId = stu.campusId;
+      }
+      invoiceByStudentId[inv.studentId] = inv;
+    });
+
+    const serviceByProgramId = {
+      1: { id: 1, name: "Annual KGE Tuition Fee (2025-2026)", price: 1850.0 },
+      2: { id: 2, name: "Cambridge IEP Annual Tuition Fee (2025-2026)", price: 2150.0 },
+      3: { id: 3, name: "STEM & AI Innovation Annual Tuition Fee", price: 1980.0 },
+      4: { id: 2, name: "Trilingual CHN-ENG-KHM Annual Tuition Fee", price: 1920.0 },
+    };
+    const payMethods = [
+      "ABA KHQR / Mobile Banking",
+      "ABA Bank PayWay",
+      "NBC Bakong KHQR",
+      "ACLEDA Bank Transfer",
+    ];
+
+    let nextInvId = 513;
+    existingStudents
+      .filter((s) => s.tab === "registered")
+      .forEach((s, idx) => {
+        if (invoiceByStudentId[s.id]) return;
+        const invId = nextInvId++;
+        const progId = Number(s.programs?.[0]?.program?.id) || 1;
+        const baseSrv = serviceByProgramId[progId] || serviceByProgramId[1];
+        const isPaid = s.programs?.[0]?.payment_status !== "Unpaid";
+        const disc = idx % 7 === 0 ? 5 : idx % 11 === 0 ? 10 : 0;
+        const items = [
+          { id: invId * 10 + 1, serviceId: baseSrv.id, name: baseSrv.name, qty: 1, unitPrice: baseSrv.price, discountPercent: disc },
+        ];
+        if (idx % 3 === 0) {
+          items.push({ id: invId * 10 + 2, serviceId: 5, name: "Nutritious Lunch & Refreshment Plan", qty: 1, unitPrice: 360.0, discountPercent: 0 });
+        }
+        if (idx % 5 === 0) {
+          items.push({ id: invId * 10 + 3, serviceId: 4, name: "Door-to-Door School Bus (Zone 1 GPS)", qty: 1, unitPrice: 480.0, discountPercent: 0 });
+        }
+        existingInvoices.push({
+          id: invId,
+          campusId: s.campusId || "C01",
+          invoiceNo: `INV-2026-${String(invId).padStart(4, "0")}`,
+          studentId: s.id,
+          studentCardId: s.student_card_id,
+          studentName: s.full_name_en,
+          studentNameKh: s.full_name_kh,
+          guardianName: s.father?.nameEn || "Guardian",
+          guardianPhone: s.father?.phone || s.phone,
+          academicYearId: 3,
+          academicYear: "2025-2026",
+          issueDate: "2025-09-01",
+          dueDate: "2025-09-20",
+          vatPercent: 0,
+          status: isPaid ? "Paid" : "Unpaid",
+          paymentMethod: isPaid ? payMethods[idx % payMethods.length] : "-",
+          paidOn: isPaid ? "2025-09-12" : "-",
+          receiptNo: isPaid ? `RCP-2026-${String(invId + 300).padStart(4, "0")}` : "-",
+          items,
+        });
+      });
+
+    stateObj.invoices = existingInvoices;
+
+    // 8. Run live metric synchronization across all entities
+    syncSchoolMetrics(stateObj);
+  }
+
+  buildConsistentSchoolData(INITIAL_STATE);
 
   function loadState() {
     try {
@@ -2622,9 +3417,9 @@
         const parsed = JSON.parse(raw);
         if (parsed && parsed.students && parsed.classes) {
           if (Array.isArray(parsed.campusDirectory)) {
-            parsed.campusDirectory = parsed.campusDirectory.filter(c => c.id !== "C06");
+            parsed.campusDirectory = parsed.campusDirectory.filter((c) => c.id !== "C06");
           }
-          ensureCampusLinks(parsed);
+          buildConsistentSchoolData(parsed);
           return parsed;
         }
       }
@@ -2638,6 +3433,7 @@
 
   function saveState(state) {
     try {
+      syncSchoolMetrics(state);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch (e) {
       console.warn("Could not save state to localStorage", e);
@@ -2646,11 +3442,11 @@
 
   function resetState() {
     const fresh = JSON.parse(JSON.stringify(INITIAL_STATE));
+    syncSchoolMetrics(fresh);
     saveState(fresh);
     window.SMS_STATE = fresh;
     return fresh;
   }
-
 
   function getCampusById(campusId) {
     const list = window.SMS_STATE?.campusDirectory || INITIAL_STATE.campusDirectory;
@@ -2673,6 +3469,7 @@
   }
 
   window.SMS_PRESETS = SCHOOL_PRESETS;
+  window.syncSchoolMetrics = syncSchoolMetrics;
   window.SMS_STATE = loadState();
   window.saveSmsState = () => saveState(window.SMS_STATE);
   window.resetSmsState = resetState;

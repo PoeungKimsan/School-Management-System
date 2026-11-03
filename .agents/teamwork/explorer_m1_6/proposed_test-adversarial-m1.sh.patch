@@ -1,0 +1,39 @@
+--- a/tests/test-adversarial-m1.sh
++++ b/tests/test-adversarial-m1.sh
+@@ -259,6 +259,36 @@
+   PASSED=$((PASSED + 1))
+ else
+   echo -e "${RED}FAIL${NC} ($SCALE_CHECK)"
++  FAILED=$((FAILED + 1))
++fi
++
++# 21. CSS Centering mutual exclusivity assertion
++TOTAL=$((TOTAL + 1))
++echo -n "[21] CSS Centering mutual exclusivity (.pm-island, .pm-home-indicator, .pm-toast) ... "
++CENTERING_CHECK=$(node -e '
++const fs = require("fs");
++const css = fs.readFileSync("phone-mockup/phone-mockup.css", "utf8");
++const selectors = [".pm-island", ".pm-home-indicator", ".pm-toast"];
++let errs = [];
++for (const sel of selectors) {
++  const re = new RegExp(sel.replace(".", "\\.") + "\\s*\\{([^\\}]+)\\}", "g");
++  const m = re.exec(css);
++  if (!m) { errs.push(sel + " missing"); continue; }
++  const b = m[1];
++  const hasTransform = /transform\\s*:\\s*translateX\\(-50%\\)/.test(b);
++  const hasTranslate = /translate\\s*:\\s*-50%/.test(b);
++  if (hasTransform && hasTranslate) errs.push(sel + " has BOTH transform and translate (-100% defect)");
++  if (!hasTransform && !hasTranslate) errs.push(sel + " missing centering translation");
++}
++if (errs.length) { console.log("FAIL: " + errs.join("; ")); process.exit(1); }
++console.log("PASS");
++' 2>&1)
++
++if [[ "$CENTERING_CHECK" == *"PASS"* ]]; then
++  echo -e "${GREEN}PASS${NC}"
++  PASSED=$((PASSED + 1))
++else
++  echo -e "${RED}FAIL${NC} ($CENTERING_CHECK)"
+   FAILED=$((FAILED + 1))
+ fi
+ 
