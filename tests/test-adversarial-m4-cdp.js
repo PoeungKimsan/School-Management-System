@@ -282,7 +282,7 @@ async function runTestSuite() {
     report(4, "Parent header displays eyebrow 'Tuesday, 3 November'", shell.eyebrow.includes("Tuesday, 3 November"));
     report(5, "Parent header displays greeting 'Good morning, Vibol!'", shell.greeting === "Good morning, Vibol!");
     report(6, "Parent account avatar displays initials 'SV'", shell.avatar === "SV");
-    report(7, "Header child switcher pill displays default child 'SC' / 'Sok Chanreaksa'", shell.switcherDot === "SC" && shell.switcherName === "Sok Chanreaksa");
+    report(7, "Parent Home header is clean without a redundant header child switcher dropdown", !shell.hasSwitcher);
     report(8, "Parent tab bar contains 5 tabs: [home, alerts, scores, schedule, payments]", shell.tabs.join(",") === "home,alerts,scores,schedule,payments");
     report(9, "Default active tab is 'home'", shell.activeTab === "home");
     report(10, "Payments tab displays overdue red dot indicator (.pm-tab-dot)", shell.hasPaymentDot);
@@ -515,7 +515,14 @@ async function runTestSuite() {
     // =========================================================================
     console.log(`\n${colors.bold}--- PHASE 6: Multi-Child Switcher & Invariant Verification ---${colors.reset}`);
 
-    // Open child switcher from header
+    // Navigate to Scores tab to verify single unified child context switcher
+    await cdp.evaluate(`(() => {
+      const tab = document.querySelector(".pm-tab[data-tab='scores']");
+      if (tab) tab.click();
+    })()`);
+    await sleep(150);
+
+    // Open child switcher from unified context bar
     await cdp.evaluate(`(() => {
       const sw = document.querySelector(".pm-child-switcher");
       if (sw) sw.click();
@@ -534,7 +541,7 @@ async function runTestSuite() {
       return { isOpen: !!sheet, title: title, cards: cards };
     })()`);
 
-    report(35, "Tapping header child switcher opens 'Select Child' bottom sheet", childSheet.isOpen && childSheet.title === "Select Child");
+    report(35, "Tapping unified child switcher opens 'Select Child' bottom sheet", childSheet.isOpen && childSheet.title === "Select Child");
     report(36, "Sheet displays both children: Sok Chanreaksa and Sok Chanpanha", childSheet.cards.length === 2 && childSheet.cards[0].name === "Sok Chanreaksa" && childSheet.cards[1].name === "Sok Chanpanha");
 
     // Select Sok Chanpanha (ID 11)
@@ -547,16 +554,11 @@ async function runTestSuite() {
     const postSwitchHeader = await cdp.evaluate(`(() => {
       const swName = document.querySelector(".pm-child-switcher-name")?.textContent.trim();
       const swDot = document.querySelector(".pm-child-switcher-dot")?.textContent.trim();
-      return { swName: swName, swDot: swDot };
+      const switcherBars = document.querySelectorAll(".pm-child-context-bar").length;
+      const headerSwitchers = document.querySelectorAll(".pm-header .pm-child-switcher").length;
+      return { swName: swName, swDot: swDot, switcherBars, headerSwitchers };
     })()`);
-    report(37, "Header child switcher updates to 'SP' / 'Sok Chanpanha'", postSwitchHeader.swDot === "SP" && postSwitchHeader.swName === "Sok Chanpanha");
-
-    // Navigate to Scores tab (activeChild is 11)
-    await cdp.evaluate(`(() => {
-      const tab = document.querySelector(".pm-tab[data-tab='scores']");
-      if (tab) tab.click();
-    })()`);
-    await sleep(150);
+    report(37, "Single unified child switcher updates to 'SP' / 'Sok Chanpanha' (no duplicate header dropdown)", postSwitchHeader.swDot === "SP" && postSwitchHeader.swName === "Sok Chanpanha" && postSwitchHeader.switcherBars === 1 && postSwitchHeader.headerSwitchers === 0);
 
     const scores11 = await cdp.evaluate(`(() => {
       const bar = document.querySelector(".pm-child-context-bar");

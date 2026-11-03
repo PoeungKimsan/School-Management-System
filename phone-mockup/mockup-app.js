@@ -475,6 +475,7 @@
     pay: null,                  // null | { invoiceId, method, step, receiptNo }
     invoices: [],               // deep-cloned mutable invoice records
     gateLog: [],                // deep-cloned mutable gate log records
+    notify: { 1: true, 11: true }, // per-child gate push notification preferences
     signingIn: false,           // boolean submit loading state
     pushTimer: null             // setTimeout handle for parent push notification
   };
@@ -492,6 +493,7 @@
     state.activeChildId = 1;
     state.childId = 1;
     state.payChildFilter = "all";
+    state.notify = { 1: true, 11: true };
     state.invoices = D.invoices ? JSON.parse(JSON.stringify(D.invoices)) : [];
     state.gateLog = D.gateLog ? JSON.parse(JSON.stringify(D.gateLog)) : [];
     state.day = (D.demoNow && D.demoNow.dayKey) || "tue";
@@ -632,9 +634,9 @@
     return `
       <div class="pm-sheet-backdrop" data-action="close-sheet"></div>
       <div class="pm-sheet" role="dialog" aria-modal="true" aria-label="My Account">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
-          <h2 style="font-size: 18px; font-weight: 700; margin: 0; color: var(--text-main);">My Account</h2>
-          <button type="button" data-action="close-sheet" style="background: none; border: 0; font-size: 18px; color: var(--text-muted); cursor: pointer; padding: 4px;" aria-label="Close sheet">
+        <div class="pm-sheet-header">
+          <h2 class="pm-sheet-title">My Account</h2>
+          <button type="button" class="pm-sheet-close" data-action="close-sheet" aria-label="Close sheet">
             <i class="bi bi-x-lg"></i>
           </button>
         </div>
@@ -749,19 +751,23 @@
       cardId: "STU-2026-001",
       classShort: "G12-A",
       className: "Grade 12-A · Science Track",
+      campus: "Sen Sok HQ · Campus #01",
       initials: "SC"
     };
+    const track = child.className && child.className.includes("·")
+      ? child.className.split("·")[1].trim()
+      : "Science Track";
     const qrSvg = PM_HELPERS.pseudoQr(child.cardId, 25, "svg");
 
     return `
       <div class="pm-sheet-backdrop" data-action="close-sheet"></div>
       <div class="pm-sheet" role="dialog" aria-modal="true" aria-label="Campus Digital ID">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-          <h2 style="font-size: 18px; font-weight: 700; margin: 0; color: var(--text-main);">Campus Digital ID</h2>
+        <div class="pm-sheet-header">
+          <h2 class="pm-sheet-title">Campus Digital ID</h2>
           <button
             type="button"
+            class="pm-sheet-close"
             data-action="close-sheet"
-            style="background: none; border: 0; font-size: 18px; color: var(--text-muted); cursor: pointer; padding: 4px;"
             aria-label="Close sheet"
           >
             <i class="bi bi-x-lg"></i>
@@ -780,7 +786,7 @@
                 ${esc(child.nameEn)}
               </div>
               <div style="font-size: 12.5px; color: var(--text-muted);">
-                ${esc(child.classShort)} · Science Track
+                ${esc(child.classShort)} · ${esc(track)}
               </div>
             </div>
           </div>
@@ -795,7 +801,7 @@
             ${esc(child.cardId)}
           </div>
           <div style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 10px;">
-            Sen Sok HQ · Campus #01
+            ${esc(child.campus || "Sen Sok HQ · Campus #01")}
           </div>
 
           <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.4; padding-top: 10px; border-top: 1px solid var(--border-subtle);">
@@ -825,17 +831,17 @@
       <div class="pm-sheet" role="dialog" aria-modal="true" aria-label="Pay Invoice">
         
         <!-- Sheet Header -->
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+        <div class="pm-sheet-header" style="margin-bottom: 14px;">
           <div>
-            <h2 style="font-size: 18px; font-weight: 700; margin: 0; color: var(--text-main);">
+            <h2 class="pm-sheet-title">
               ${step === 'success' ? 'Payment Successful' : step === 'processing' ? 'Processing Payment' : 'Pay Invoice'}
             </h2>
-            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+            <div class="pm-sheet-sub">
               ${esc(inv.invoiceNo)} · ${esc(child.nameEn || '')}
             </div>
           </div>
           ${step !== 'processing' ? `
-            <button type="button" data-action="close-sheet" style="background: none; border: 0; font-size: 18px; color: var(--text-muted); cursor: pointer; padding: 4px;" aria-label="Close sheet">
+            <button type="button" class="pm-sheet-close" data-action="close-sheet" aria-label="Close sheet">
               <i class="bi bi-x-lg"></i>
             </button>
           ` : ''}
@@ -972,31 +978,31 @@
 
             <!-- Digital Receipt Card -->
             <div class="pm-card pm-list" style="text-align: left; margin-bottom: 16px;">
-              <div class="pm-row">
+              <div class="pm-row pm-row-between">
                 <span style="font-size: 13px; color: var(--text-muted);">Receipt No</span>
                 <span style="font-size: 13px; font-weight: 700; font-family: var(--font-mono); color: var(--text-main);">${esc(state.pay.receiptNo)}</span>
               </div>
-              <div class="pm-row">
+              <div class="pm-row pm-row-between">
                 <span style="font-size: 13px; color: var(--text-muted);">Paid Amount</span>
                 <span style="font-size: 15px; font-weight: 800; color: #027a48;">${PM_HELPERS.fmtMoney(inv.amount)}</span>
               </div>
-              <div class="pm-row">
+              <div class="pm-row pm-row-between">
                 <span style="font-size: 13px; color: var(--text-muted);">Payment Method</span>
                 <span style="font-size: 13px; font-weight: 600; color: var(--text-main);">${esc(inv.method)}</span>
               </div>
-              <div class="pm-row">
+              <div class="pm-row pm-row-between">
                 <span style="font-size: 13px; color: var(--text-muted);">Date & Time</span>
                 <span style="font-size: 13px; font-weight: 500; color: var(--text-main);">${PM_HELPERS.fmtDate("2026-11-03")}, 11:35 AM</span>
               </div>
-              <div class="pm-row">
+              <div class="pm-row pm-row-between">
                 <span style="font-size: 13px; color: var(--text-muted);">Billed To</span>
                 <span style="font-size: 13px; font-weight: 600; color: var(--text-main);">${esc(parent.nameEn)} (Parent ID #${parent.id})</span>
               </div>
-              <div class="pm-row">
+              <div class="pm-row pm-row-between">
                 <span style="font-size: 13px; color: var(--text-muted);">Student</span>
                 <span style="font-size: 13px; font-weight: 600; color: var(--text-main);">${esc(child.nameEn)} (${esc(child.classShort)})</span>
               </div>
-              <div class="pm-row">
+              <div class="pm-row pm-row-between">
                 <span style="font-size: 13px; color: var(--text-muted);">Status</span>
                 <span class="pm-pill success"><i class="bi bi-check-circle-fill"></i> Paid in Full</span>
               </div>
@@ -1139,15 +1145,17 @@
     const tMeta = getTeacherMeta(rep.teacher);
 
     return `
-      <!-- Header Meta Row: Class & Academic Year -->
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-top: -6px; margin-bottom: 14px;">
-        <span class="pm-pill neutral" style="font-size: 12px; font-weight: 600;">
-          <i class="bi bi-mortarboard-fill" style="margin-right: 4px; color: var(--brand-primary);"></i> Class ${esc(child.classShort || "G12-A")}
-        </span>
-        <span style="font-size: 12px; color: var(--text-muted); font-weight: 500;">
-          Academic Year 2026–2027
-        </span>
-      </div>
+      ${state.role === "student" ? `
+        <!-- Header Meta Row: Class & Academic Year (Student View Only) -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: -6px; margin-bottom: 14px;">
+          <span class="pm-pill neutral" style="font-size: 12px; font-weight: 600;">
+            <i class="bi bi-mortarboard-fill" style="margin-right: 4px; color: var(--brand-primary);"></i> Class ${esc(child.classShort || "G12-A")}
+          </span>
+          <span style="font-size: 12px; color: var(--text-muted); font-weight: 500;">
+            Academic Year 2026–2027
+          </span>
+        </div>
+      ` : ""}
 
       <!-- GPA & Average Score Overview Card -->
       <div class="pm-card" style="display: flex; align-items: center; gap: 16px; padding: 18px; margin-bottom: 16px;">
@@ -1339,18 +1347,29 @@
 
   function renderChildContextBar(child) {
     if (!child) return "";
+    const track = child.className && child.className.includes("·")
+      ? child.className.split("·")[1].trim()
+      : (child.id === 1 ? "Science Track" : "IEP Track");
     return `
-      <div class="pm-child-context-bar" style="margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; background: #ffffff; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 10px 12px; box-shadow: var(--shadow-xs);">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <div class="pm-child-dot" style="width: 28px; height: 28px; border-radius: 50%; background: ${child.id === 1 ? 'var(--brand-primary)' : '#7a5af8'}; color: #ffffff; font-size: 11px; font-weight: 700; display: grid; place-items: center;">
+      <div class="pm-child-context-bar" data-action="sheet" data-sheet="child" role="button" tabindex="0" aria-label="Viewing ${esc(child.nameEn)}, ${esc(child.classShort)}. Tap to switch child">
+        <div class="pm-child-context-info">
+          <div class="pm-child-avatar-mini pm-child-switcher-dot" style="background: ${child.color || (child.id === 1 ? 'var(--brand-primary)' : '#7a5af8')};">
             ${child.initials || (child.id === 1 ? 'SC' : 'SP')}
           </div>
-          <div style="font-size: 13px; font-weight: 600; color: var(--text-main);">
-            Viewing <span style="font-weight: 700;">${esc(child.nameEn)}</span> · ${esc(child.classShort)}
+          <div class="pm-child-context-details">
+            <div>
+              <span class="pm-child-context-viewing">Viewing</span>
+              <span class="pm-child-context-name pm-child-switcher-name">${esc(child.nameEn)}</span>
+              <span class="pm-child-context-class">· ${esc(child.classShort)}</span>
+            </div>
+            <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 1px;">
+              ${esc(track)} · Academic Year 2026–2027
+            </div>
           </div>
         </div>
-        <button type="button" class="pm-chip" data-action="sheet" data-sheet="child" style="padding: 4px 10px; font-size: 12px; font-weight: 600; height: auto;">
-          Change <i class="bi bi-chevron-down" style="font-size: 10px; margin-left: 2px;"></i>
+        <button type="button" class="pm-child-switcher pm-btn-change-child" data-action="sheet" data-sheet="child" aria-label="Switch active child">
+          <span>Switch</span>
+          <i class="bi bi-chevron-down"></i>
         </button>
       </div>
     `;
@@ -1572,7 +1591,7 @@
                 <div class="pm-period-bar ${status === 'now' ? 'now' : status === 'next' ? 'next' : status === 'past' ? 'past' : ''}"></div>
                 <div class="pm-period-content">
                   <div class="pm-period-title">${esc(p.subject)}</div>
-                  <div class="pm-period-meta">${esc(p.room)} · ${esc(p.teacher)}</div>
+                  <div class="pm-period-meta">${esc(p.teacher)} · ${esc(p.room)}</div>
                 </div>
                 <div style="flex-shrink: 0; margin-left: 8px;">
                   ${status === 'now'
@@ -2012,7 +2031,7 @@
                     data-action="child-scores"
                     data-child="${c.id}"
                   >
-                    <i class="bi bi-bar-chart-line"></i> View Scores (${avg})
+                    <i class="bi bi-bar-chart-line"></i> View Scores
                   </button>
                   <button
                     type="button"
@@ -2048,8 +2067,8 @@
             <div class="pm-payment-eyebrow">Next Payment Due</div>
             <div class="pm-payment-amount-row">
               <div class="pm-payment-amount">${PM_HELPERS.fmtMoney(nextInvoice ? nextInvoice.amount : totalOut)}</div>
-              <span class="pm-pill ${overdueInvoice ? 'danger' : 'warning'}">
-                <i class="bi bi-clock"></i> ${overdueInvoice ? 'Action Required' : 'Due 10 Nov'}
+              <span class="pm-pill ${nextInvoice ? 'warning' : 'success'}">
+                <i class="bi ${nextInvoice ? 'bi-clock' : 'bi-check-circle-fill'}"></i> ${nextInvoice ? `Due ${PM_HELPERS.fmtDate(nextInvoice.dueDate).replace(/\s+\d{4}$/, "")}` : 'All Paid'}
               </span>
             </div>
             <div class="pm-payment-desc">
@@ -2081,16 +2100,15 @@
             const child = (D.children && D.children[event.childId]) || {};
             const isIn = event.type === "in";
             return `
-              <div class="pm-row pm-gate-feed-row" data-action="tab" data-tab="alerts">
+              <div class="pm-row pm-gate-feed-row" data-action="tab" data-tab="alerts" role="button" tabindex="0">
                 <div class="pm-gate-feed-icon ${isIn ? 'in' : 'out'}">
                   <i class="bi ${isIn ? 'bi-box-arrow-in-right' : 'bi-box-arrow-right'}"></i>
                 </div>
                 <div class="pm-gate-feed-info">
                   <div class="pm-gate-feed-title">
                     <span class="pm-gate-feed-name">${esc(child.first || child.nameEn)}</span>
-                    <span>${isIn ? 'checked in' : 'checked out'}</span>
                     <span class="pm-pill ${isIn ? 'success' : 'warning'} pm-pill-xs">
-                      ${isIn ? 'In' : 'Out'}
+                      ${isIn ? 'Checked in' : 'Checked out'}
                     </span>
                   </div>
                   <div class="pm-gate-feed-meta">
@@ -2141,24 +2159,24 @@
             <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main);">Instant Gate Notifications</div>
             <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Receive push notifications upon campus entry and exit</div>
           </div>
-          <div class="pm-row" style="padding: 10px 14px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="pm-row pm-row-between" style="padding: 10px 14px;">
+            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
               <div class="pm-child-switcher-dot" style="background: var(--brand-primary); width: 26px; height: 26px; font-size: 11px;">SC</div>
               <div style="font-size: 13.5px; font-weight: 600; color: var(--text-main);">Sok Chanreaksa</div>
             </div>
             <label class="pm-switch" aria-label="Toggle notifications for Chanreaksa">
-              <input type="checkbox" checked data-action="toggle-notify" data-child="1">
-              <span class="pm-slider"></span>
+              <input type="checkbox" ${state.notify[1] !== false ? 'checked' : ''} data-action="toggle-notify" data-child="1">
+              <span class="pm-switch-slider"></span>
             </label>
           </div>
-          <div class="pm-row" style="padding: 10px 14px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="pm-row pm-row-between" style="padding: 10px 14px;">
+            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
               <div class="pm-child-switcher-dot" style="background: #7a5af8; width: 26px; height: 26px; font-size: 11px;">SP</div>
               <div style="font-size: 13.5px; font-weight: 600; color: var(--text-main);">Sok Chanpanha</div>
             </div>
             <label class="pm-switch" aria-label="Toggle notifications for Chanpanha">
-              <input type="checkbox" checked data-action="toggle-notify" data-child="11">
-              <span class="pm-slider"></span>
+              <input type="checkbox" ${state.notify[11] !== false ? 'checked' : ''} data-action="toggle-notify" data-child="11">
+              <span class="pm-switch-slider"></span>
             </label>
           </div>
         </div>
@@ -2190,7 +2208,7 @@
                     const childObj = (D.children && D.children[l.childId]) || {};
                     const isIn = l.type === "in";
                     return `
-                      <div class="pm-row ${l.unread ? 'unread' : ''}">
+                      <div class="pm-row pm-alert-row ${l.unread ? 'unread' : ''}">
                         <div class="pm-gate-feed-icon ${isIn ? 'in' : 'out'}">
                           <i class="bi ${isIn ? 'bi-box-arrow-in-right' : 'bi-box-arrow-right'}"></i>
                         </div>
@@ -2479,22 +2497,6 @@
               <div class="pm-eyebrow">${esc(eyebrow)}</div>
               <h1 class="pm-title">${title}</h1>
               ${state.tab === "home" ? '<div class="pm-greeting" style="font-size: 13px; color: var(--text-secondary); margin-top: 1px;">Good morning, Vibol!</div>' : ''}
-              <!-- Child Switcher Pill in Header -->
-              <div class="pm-header-switcher-wrap" style="margin-top: 6px;">
-                <button
-                  type="button"
-                  class="pm-child-switcher"
-                  data-action="sheet"
-                  data-sheet="child"
-                  aria-label="Switch active child"
-                >
-                  <span class="pm-child-switcher-dot" style="background: ${activeChild.color || (activeChild.id === 11 ? '#7a5af8' : 'var(--brand-primary)')};">
-                    ${activeChild.initials || (activeChild.id === 11 ? 'SP' : 'SC')}
-                  </span>
-                  <span class="pm-child-switcher-name">${esc(activeChild.nameEn || 'Sok Chanreaksa')}</span>
-                  <i class="bi bi-chevron-down"></i>
-                </button>
-              </div>
             </div>
             <button type="button" class="pm-avatar" data-action="sheet" data-sheet="account" aria-label="Open Account Menu">
               ${initials}
@@ -2902,6 +2904,9 @@
       case "toggle-notify": {
         const cId = Number(actEl.dataset.child);
         const isChecked = actEl.checked;
+        if (cId === 1 || cId === 11) {
+          state.notify[cId] = isChecked;
+        }
         const cName = cId === 11 ? "Sok Chanpanha" : "Sok Chanreaksa";
         toast(`${cName} gate notifications ${isChecked ? "enabled" : "muted"}`);
         break;
@@ -2910,6 +2915,22 @@
         const msg = actEl.dataset.msg || "Action completed";
         toast(msg);
         break;
+      }
+    }
+  }
+
+  function onKeyDown(e) {
+    if (e.key === "Escape" && state.sheet) {
+      if (state.sheet === "pay" && state.pay && state.pay.step === "processing") return;
+      state.sheet = null;
+      render();
+      return;
+    }
+    if (e.key === "Enter" || e.key === " ") {
+      const actEl = e.target.closest('[role="button"][data-action]');
+      if (actEl && actEl.tagName !== "BUTTON" && actEl.tagName !== "INPUT") {
+        e.preventDefault();
+        actEl.click();
       }
     }
   }
@@ -2943,6 +2964,7 @@
         appEl.addEventListener("click", onAction);
         appEl.addEventListener("submit", onAction);
         appEl.addEventListener("input", onInput);
+        appEl.addEventListener("keydown", onKeyDown);
       }
     };
 
