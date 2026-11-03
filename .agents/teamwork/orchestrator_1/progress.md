@@ -25,19 +25,18 @@ Last visited: 2026-11-03T08:21:05Z
 - [/] Milestone 4: Parent Portal
   - [x] Iteration 1: Exploration Phase (3 parallel Explorers complete)
   - [x] Iteration 1 Implementation: Worker `worker_m4_1` complete (all 11 test suites passed)
-  - [/] Iteration 1 Verification:
+  - [x] Iteration 1 Verification: Gate Result: FAIL (reviewer_m4_1 REQUEST_CHANGES: toggle slider class mismatch, push banner wiped on re-render, push banner flex direction)
     - [x] `reviewer_m4_1` (Parent Home, Switcher, Alerts & Push Review - REQUEST_CHANGES)
     - [x] `reviewer_m4_2` (Scores, Schedule & Payments Flow Review - APPROVE)
     - [x] `challenger_m4_1` (Parent Data & State Machine Challenge - APPROVE)
-    - [/] `challenger_m4_2` (Parent Portal CDP Stress Challenge)
-    - [/] `auditor_m4_1` (Forensic Integrity Audit)
+    - [x] `challenger_m4_2` (Parent Portal CDP Stress Challenge - APPROVE)
+    - [x] `auditor_m4_1` (Forensic Integrity Audit - CLEAN)
+  - [/] Iteration 2: Remediation Loop
+    - [/] Implementation: Worker `worker_m4_2` (`a3db377a-e6b7-4779-8053-c4daa388a5af`) in-progress
+    - [ ] Verification Crew (Reviewer, Challenger, Auditor)
 - [ ] Milestone 5: E2E Pass (Tiers 1-4) & Adversarial Coverage Hardening (Tier 5)
 
 ## Iteration Status
-Current iteration: 1 / 32 (Milestone 4 Iteration 1: Verification)
+Current iteration: 2 / 32 (Milestone 4 Iteration 2: Remediation)
 - Active Subagents:
-  - reviewer_m4_1 (95f3453b-0e44-4e4d-a3e7-767f673ddbd6)
-  - reviewer_m4_2 (7e38035c-ddeb-4d6d-bfb4-d8b7efa26caf)
-  - challenger_m4_1 (d3f342ab-1ec0-43ae-9043-802a24eb3e2f)
-  - challenger_m4_2 (e5d1a6fb-926f-4f26-99e6-fa99d1a3e1b6)
-  - auditor_m4_1 (92994c15-f8db-4d1b-9cc0-f3aad41e25a2)
+  - worker_m4_2 (a3db377a-e6b7-4779-8053-c4daa388a5af)

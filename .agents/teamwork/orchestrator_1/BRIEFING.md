@@ -25,8 +25,8 @@ Orchestrate the end-to-end implementation and verification of the Phone App Mock
   5. Milestone 3: Student Portal [done]
   6. Milestone 4: Parent Portal [in-progress]
   7. Milestone 5: Final E2E Pass & Hardening [planned]
-- **Current phase**: 4 (Milestone 4 Iteration 1: Verification)
-- **Current focus**: Milestone 4 Verification Crew (`reviewer_m4_1`, `reviewer_m4_2`, `challenger_m4_1`, `challenger_m4_2`, `auditor_m4_1`)
+- **Current phase**: 4 (Milestone 4 Iteration 2: Remediation)
+- **Current focus**: Milestone 4 Remediation Worker (`worker_m4_2`)
 
 ## 🔒 Key Constraints
 - Never write, modify, or create source code files directly.
@@ -43,9 +43,8 @@ Orchestrate the end-to-end implementation and verification of the Phone App Mock
 ## Key Decisions Made
 - Milestone 1 Gate PASSED.
 - Milestone 2 Gate PASSED.
-- Milestone 3 Gate PASSED (all reviews APPROVE, challenges APPROVE, audit CLEAN).
-- Milestone 4 Implementation completed by `worker_m4_1` (all 11 test suites passed).
-- Dispatched 2 Reviewers, 2 Challengers, and 1 Auditor for Milestone 4 Gating.
+- Milestone 3 Gate PASSED.
+- Milestone 4 Iteration 1 Gate: FAIL (reviewer_m4_1 REQUEST_CHANGES on 3 defects). Starting Iteration 2 Remediation.
 
 ## Team Roster
 | Agent | Type | Work Item | Status | Conv ID |
@@ -54,19 +53,20 @@ Orchestrate the end-to-end implementation and verification of the Phone App Mock
 | reviewer_m4_1 | teamwork_reviewer | M4 It1: Parent Home, Switcher, Alerts & Push Review | completed (REQUEST_CHANGES) | 95f3453b-0e44-4e4d-a3e7-767f673ddbd6 |
 | reviewer_m4_2 | teamwork_reviewer | M4 It1: Scores, Schedule & Payments Flow Review | completed (APPROVE) | 7e38035c-ddeb-4d6d-bfb4-d8b7efa26caf |
 | challenger_m4_1 | teamwork_challenger | M4 It1: Parent Data & State Machine Challenge | completed (APPROVE) | d3f342ab-1ec0-43ae-9043-802a24eb3e2f |
-| challenger_m4_2 | teamwork_challenger | M4 It1: Parent Portal CDP Stress Challenge | in-progress | e5d1a6fb-926f-4f26-99e6-fa99d1a3e1b6 |
-| auditor_m4_1 | teamwork_auditor | M4 It1: Forensic Integrity Audit | in-progress | 92994c15-f8db-4d1b-9cc0-f3aad41e25a2 |
+| challenger_m4_2 | teamwork_challenger | M4 It1: Parent Portal CDP Stress Challenge | completed (APPROVE) | e5d1a6fb-926f-4f26-99e6-fa99d1a3e1b6 |
+| auditor_m4_1 | teamwork_auditor | M4 It1: Forensic Integrity Audit | completed (CLEAN) | 92994c15-f8db-4d1b-9cc0-f3aad41e25a2 |
+| worker_m4_2 | teamwork_worker | M4 It2: Parent Portal Remediation | in-progress | a3db377a-e6b7-4779-8053-c4daa388a5af |
 
 ## Succession Status
 - Succession required: no
-- Spawn count: 49 / 128
-- Pending subagents: e5d1a6fb-926f-4f26-99e6-fa99d1a3e1b6, 92994c15-f8db-4d1b-9cc0-f3aad41e25a2
+- Spawn count: 50 / 128
+- Pending subagents: a3db377a-e6b7-4779-8053-c4daa388a5af
 - Predecessor: none
 - Successor: none
 
 ## Active Timers
 - Heartbeat cron: f47b3442-f659-46f9-91f4-2d8a9d4c3a60/task-289
-- Safety timer: f47b3442-f659-46f9-91f4-2d8a9d4c3a60/task-1034
+- Safety timer: f47b3442-f659-46f9-91f4-2d8a9d4c3a60/task-1154
 
 ## Artifact Index
 - /Users/macbookpro/School-Management-System/.agents/teamwork/ORIGINAL_REQUEST.md — Authoritative user requirements

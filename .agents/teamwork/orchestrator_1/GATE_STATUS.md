@@ -53,7 +53,7 @@ Gate Result: **PASS**
 | reviewer_m4_1 | teamwork_reviewer | REQUEST_CHANGES | handoff.md |
 | reviewer_m4_2 | teamwork_reviewer | APPROVE (376/376 assertions pass) | handoff.md |
 | challenger_m4_1 | teamwork_challenger | APPROVE (419/419 assertions pass) | handoff.md |
-| challenger_m4_2 | teamwork_challenger | IN_PROGRESS | pending |
-| auditor_m4_1 | teamwork_auditor | IN_PROGRESS | pending |
+| challenger_m4_2 | teamwork_challenger | APPROVE (86/86 CDP assertions pass) | BRIEFING.md |
+| auditor_m4_1 | teamwork_auditor | CLEAN (438/438 assertions pass, zero integrity violations) | handoff.md |
 
-Gate Result: **PENDING**
+Gate Result: **FAIL** (reviewer_m4_1 REQUEST_CHANGES: (1) `pm-slider` class in `mockup-app.js` vs `.pm-switch-slider` in `phone-mockup.css`, (2) push banner unmount on re-render before 6.5s exit, (3) `.pm-push` flex-direction default row puts grabber to the left instead of top)
